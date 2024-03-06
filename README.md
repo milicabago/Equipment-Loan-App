@@ -2,6 +2,6 @@
 
 • Aplikacija za zaduživanje opreme u tvrtki
 
-FrontEnd: Milica Bago
+• FrontEnd: Milica Bago
 
-BackEnd: Dario Klarić
+• BackEnd: Dario Klarić
