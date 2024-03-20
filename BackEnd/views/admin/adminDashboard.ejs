@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon icon-->
+  <link rel="shortcut icon" type="image/png" href="../../assets/images/logos/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <!-- Core Css -->
+  <link rel="stylesheet" href="../../assets/css/theme.css" />
+  <title>Uposlenici i oprema</title>
+</head>
+
+<body class="bg-surface">
+  <main>
+    <!--start the project-->
+    <div id="main-wrapper" class="flex p-5 xl:pr-0">
+      <aside id="application-sidebar-brand"
+        class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transform hidden xl:block xl:translate-x-0 xl:end-auto xl:bottom-0 fixed xl:top-5 xl:left-auto top-0 left-0 with-vertical h-screen z-[999] shrink-0 w-[270px] shadow-md xl:rounded-md rounded-none bg-white left-sidebar transition-all duration-300">
+        <!-- ---------------------------------- -->
+        <!-- Start Vertical Layout Sidebar -->
+        <!-- ---------------------------------- -->
+        <div class="p-4">
+          <a href="/admin" class="text-nowrap flex items-center">
+            <img src="../../assets/images/logos/favicon.ico" alt="GlobalSoft" class="mr-2" />
+            <span class="logo-text">
+              <%= name + " (" + role + ")" ; %>
+            </span>
+          </a>
+        </div>
+        <div class="scroll-sidebar" data-simplebar>
+          <nav class="w-full flex flex-col sidebar-nav px-4 mt-5">
+            <ul id="sidebarnav" class="text-gray-600 text-sm">
+              <li class="text-xs font-bold pb-[5px]">
+                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center"></i>
+                <span class="text-xs text-gray-400 font-semibold">PRIKAZ</span>
+              </li>
+
+              <li class="sidebar-item">
+                <a class="sidebar-link gap-3 py-2.5 my-1 text-base flex items-center relative rounded-md text-gray-500 w-full"
+                  href="/admin">
+                  <i class="ti ti-layout-dashboard ps-2 text-2xl"></i>
+                  <span>Nadzorna ploča</span>
+                </a>
+              </li>
+
+              <li class="text-xs font-bold mb-4 mt-6">
+                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center"></i>
+                <span class="text-xs text-gray-400 font-semibold">UPRAVLJANJE</span>
+              </li>
+
+              <li class="sidebar-item">
+                <a class="sidebar-link gap-3 py-2.5 my-1 text-base flex items-center relative rounded-md text-gray-500 w-full"
+                  href="/admin/createUser">
+                  <i class="ti ti-file-description ps-2 text-2xl"></i>
+                  <span>Kreiraj korisnika</span>
+                </a>
+              </li>
+
+              <li class="sidebar-item">
+                <a class="sidebar-link gap-3 py-2.5 my-1 text-base flex items-center relative rounded-md text-gray-500 w-full"
+                  href="/admin/createEquipment">
+                  <i class="ti ti-cards ps-2 text-2xl"></i>
+                  <span>Dodaj opremu</span>
+                </a>
+              </li>
+
+            </ul>
+          </nav>
+        </div>
+      </aside>
+      <div class="w-full page-wrapper xl:px-6 px-0">
+        <!-- Main Content -->
+        <main class="h-full max-w-full">
+          <div class="container full-container p-0 flex flex-col gap-6">
+            <!--  Header Start -->
+            <header class="bg-white shadow-md rounded-md w-full text-sm py-4 px-6">
+              <!-- ========== HEADER ========== -->
+
+              <nav class="w-ful flex items-center justify-between" aria-label="Global">
+                <ul class="icon-nav flex items-center gap-4">
+                  <li class="relative xl:hidden">
+                    <a class="text-xl icon-hover cursor-pointer text-heading" id="headerCollapse"
+                      data-hs-overlay="#application-sidebar-brand" aria-controls="application-sidebar-brand"
+                      aria-label="Toggle navigation" href="javascript:void(0)">
+                      <i class="ti ti-menu-2 relative z-1"></i>
+                    </a>
+                  </li>
+
+                  <li class="relative">
+                    <div class="hs-dropdown relative inline-flex [--placement:bottom-left] sm:[--trigger:hover]">
+                      <a class="relative hs-dropdown-toggle inline-flex hover:text-gray-500 text-gray-300" href="#">
+                        <i class="ti ti-bell-ringing text-xl relative z-[1]"></i>
+                        <div
+                          class="absolute inline-flex items-center justify-center text-white text-[11px] font-medium bg-blue-600 w-2 h-2 rounded-full -top-[1px] -right-[6px]">
+                        </div>
+                      </a>
+                      <div
+                        class="card hs-dropdown-menu transition-[opacity,margin] rounded-md duration hs-dropdown-open:opacity-100 opacity-0 mt-2 min-w-max w-[300px] hidden z-[12]"
+                        aria-labelledby="hs-dropdown-custom-icon-trigger">
+                        <div>
+                          <h3 class="text-gray-500 font-semibold text-base px-6 py-3">
+                            ZAHTJEVI
+                          </h3>
+                          <ul class="list-none flex flex-col">
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Marko Marić želi zadužiti laptop
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano jučer
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Petar Perić želi zadužiti projektor
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano danas
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Ana Anić želi zadužiti tipkovnicu i miš
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano prije 2 dana
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Ivan Ivić želi zadužiti USB Stick
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano sada
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Jelena Jurić želi zadužiti SSD disk
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano prošli tjedan
+                                </p>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <div class="flex items-center gap-4">
+                  <div class="hs-dropdown relative inline-flex [--placement:bottom-right] sm:[--trigger:hover]">
+                    <a class="relative hs-dropdown-toggle cursor-pointer align-middle rounded-full">
+                      <img class="object-cover w-9 h-9 rounded-full" src="../../assets/images/profile/user-1.jpg" alt
+                        aria-hidden="true" />
+                    </a>
+                    <div
+                      class="card hs-dropdown-menu transition-[opacity,margin] rounded-md duration hs-dropdown-open:opacity-100 opacity-0 mt-2 min-w-max w-[200px] hidden z-[12]"
+                      aria-labelledby="hs-dropdown-custom-icon-trigger">
+                      <div class="card-body p-0 py-2">
+                        <a href="javscript:void(0)"
+                          class="flex gap-2 items-center font-medium px-4 py-1.5 hover:bg-gray-200 text-gray-400">
+                          <i class="ti ti-user text-xl"></i>
+                          <p class="text-sm">Moj Profil</p>
+                        </a>
+                        <a href="javscript:void(0)"
+                          class="flex gap-2 items-center font-medium px-4 py-1.5 hover:bg-gray-200 text-gray-400">
+                          <i class="ti ti-mail text-xl"></i>
+                          <p class="text-sm">Račun</p>
+                        </a>
+                        <a href="javscript:void(0)"
+                          class="flex gap-2 items-center font-medium px-4 py-1.5 hover:bg-gray-200 text-gray-400">
+                          <i class="ti ti-list-check text-xl"></i>
+                          <p class="text-sm">Zahtjevi</p>
+                        </a>
+                        <div class="px-4 mt-[7px] grid">
+                          <a href="/logout"
+                            class="btn-outline-primary font-medium text-[15px] w-full hover:bg-blue-600 hover:text-white">Odjava</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+
+              <!-- ========== END HEADER ========== -->
+            </header>
+            <!--  Header End -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-x-6 gap-x-0 lg:gap-y-0 gap-y-6">
+              <div class="col-span-2">
+                <div class="card h-full">
+                  <div class="card-body">
+                    <h4 class="text-gray-500 text-lg font-semibold mb-5 text-center">
+                      Uposlenici koji su zadužili opremu
+                    </h4>
+                    <div class="relative overflow-x-auto">
+                      <!-- table -->
+                      <table class="text-left w-full whitespace-nowrap text-sm text-gray-500">
+                        <thead>
+                          <tr class="text-sm">
+                            <th scope="col" class="p-4 font-semibold">
+                              Profil
+                            </th>
+                            <th scope="col" class="p-4 font-semibold">
+                              Zaduženje od
+                            </th>
+                            <th>
+                              Oprema
+                            </th>
+                            <th scope="col" class="p-4 font-semibold">
+                              Status
+                            </th>
+                            <th>
+                              Operacije
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="p-4 text-sm">
+                              <div class="flex gap-6 items-center">
+                                <div class="h-12 w-12 inline-block">
+                                  <img src="../../assets/images/profile/user-1.jpg" alt class="rounded-full w-100" />
+                                </div>
+                                <div class="flex flex-col gap-1 text-gray-500">
+                                  <h3 class="font-bold">Marko Marić</h3>
+                                  <span class="font-normal">univ. bacc. ing. el.</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="p-4">
+                              <h3 class="font-medium">07.06.2020.</h3>
+                            </td>
+                            <td>
+                              SSD disk
+                            </td>
+                            <td class="p-4">
+                              <span
+                                class="inline-flex items-center py-2 px-4 rounded-3xl font-semibold bg-teal-400 text-teal-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  class="icon icon-tabler icons-tabler-outline icon-tabler-checks text-var(--icon-color)">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M7 12l5 5l10 -10" />
+                                  <path d="M2 12l5 5m5 -5l5 -5" />
+                                </svg>
+                              </span>
+                            </td>
+                            <td class="p-4">
+                              <div class="flex gap-2">
+                                <button
+                                  class="px-4 py-2 rounded-md bg-yellow-500 text-yellow-100 hover:bg-yellow-600 text-white">
+                                  Uredi
+                                </button>
+                                <button
+                                  class="px-4 py-2 rounded-md bg-red-500 text-red-100 hover:bg-red-600 text-white">
+                                  Obriši
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="p-4 text-sm">
+                              <div class="flex gap-6 items-center">
+                                <div class="h-12 w-12 inline-block">
+                                  <img src="../../assets/images/profile/user-2.jpg" alt class="rounded-full w-100" />
+                                </div>
+                                <div class="flex flex-col gap-1 text-gray-500">
+                                  <h3 class="font-bold">Ivan Pavić</h3>
+                                  <span class="font-normal">mag. ing. el.</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="p-4">
+                              <h3 class="font-medium">07.10.2023.</h3>
+                            </td>
+                            <td>
+                              Laptop, projektor
+                            </td>
+                            <td class="p-4">
+                              <span
+                                class="inline-flex items-center py-2 px-4 rounded-3xl font-semibold bg-teal-400 text-teal-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  class="icon icon-tabler icons-tabler-outline icon-tabler-checks text-var(--icon-color)">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M7 12l5 5l10 -10" />
+                                  <path d="M2 12l5 5m5 -5l5 -5" />
+                                </svg>
+                              </span>
+                            </td>
+                            <td class="p-4">
+                              <div class="flex gap-2">
+                                <button
+                                  class="px-4 py-2 rounded-md bg-yellow-500 text-yellow-100 hover:bg-yellow-600 text-white">
+                                  Uredi
+                                </button>
+                                <button
+                                  class="px-4 py-2 rounded-md bg-red-500 text-red-100 hover:bg-red-600 text-white">
+                                  Obriši
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="p-4 text-sm">
+                              <div class="flex gap-6 items-center">
+                                <div class="h-12 w-12 inline-block">
+                                  <img src="../../assets/images/profile/user-3.jpg" alt class="rounded-full w-100" />
+                                </div>
+                                <div class="flex flex-col gap-1 text-gray-500">
+                                  <h3 class="font-bold">Marija Marković</h3>
+                                  <span class="font-normal">univ. bacc. ing. el.</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="p-4">
+                              <h3 class="font-medium">10.11.2023.</h3>
+                            </td>
+                            <td>
+                              Slušalice, USB Stick (2)
+                            </td>
+                            <td class="p-4">
+                              <span
+                                class="inline-flex items-center py-2 px-4 rounded-3xl font-semibold bg-teal-400 text-teal-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  class="icon icon-tabler icons-tabler-outline icon-tabler-checks text-var(--icon-color)">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M7 12l5 5l10 -10" />
+                                  <path d="M2 12l5 5m5 -5l5 -5" />
+                                </svg>
+                              </span>
+                            </td>
+                            <td class="p-4">
+                              <div class="flex gap-2">
+                                <button
+                                  class="px-4 py-2 rounded-md bg-yellow-500 text-yellow-100 hover:bg-yellow-600 text-white">
+                                  Uredi
+                                </button>
+                                <button
+                                  class="px-4 py-2 rounded-md bg-red-500 text-red-100 hover:bg-red-600 text-white">
+                                  Obriši
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="p-4 text-sm">
+                              <div class="flex gap-6 items-center">
+                                <div class="h-12 w-12 inline-block">
+                                  <img src="../../assets/images/profile/user-4.jpg" alt class="rounded-full w-100" />
+                                </div>
+                                <div class="flex flex-col gap-1 text-gray-500">
+                                  <h3 class="font-bold">Ana Duvnjak</h3>
+                                  <span class="font-normal">mag. ing. el.</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="p-4">
+                              <h3 class="font-medium">01.12.2022.</h3>
+                            </td>
+                            <td>
+                              Tipkovnica, miš
+                            </td>
+                            <td class="p-4">
+                              <span
+                                class="inline-flex items-center py-2 px-4 rounded-3xl font-semibold bg-teal-400 text-teal-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  class="icon icon-tabler icons-tabler-outline icon-tabler-checks text-var(--icon-color)">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M7 12l5 5l10 -10" />
+                                  <path d="M2 12l5 5m5 -5l5 -5" />
+                                </svg>
+                              </span>
+                            <td class="p-4">
+                              <div class="flex gap-2">
+                                <button
+                                  class="px-4 py-2 rounded-md bg-yellow-500 text-yellow-100 hover:bg-yellow-600 text-white">
+                                  Uredi
+                                </button>
+                                <button
+                                  class="px-4 py-2 rounded-md bg-red-500 text-red-100 hover:bg-red-600 text-white">
+                                  Obriši
+                                </button>
+                              </div>
+                            </td>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Graphs -->
+
+              <div class="card h-full">
+                <div class="card-body">
+                  <h4 class="text-gray-500 text-lg font-semibold mb-4 text-center">
+                    Korištena oprema
+                  </h4>
+                  <div class="flex items-center justify-between gap-12">
+                    <div>
+                      <h3 class="text-[22px] font-semibold text-gray-500 mb-4">
+                        Ukupno: 49
+                      </h3>
+                      <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                          <p class="text-gray-400 font-normal text-xs">
+                            Laptop
+                          </p>
+                          <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <p class="text-gray-400 font-normal text-xs">
+                            Tipkovnica
+                          </p>
+                          <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                          <p class="text-gray-400 font-normal text-xs">
+                            Ostalo
+                          </p>
+                          <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <div id="grade"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <footer>
+              <p class="text-base text-gray-400 font-normal p-3 text-center">
+                © Copyright 2024, All Rights Reserved by globalsoft -
+                <a href="https://www.globalsoft.ba/" target="_blank"
+                  class="text-blue-600 underline hover:text-blue-700">globalsoft.ba</a>
+              </p>
+            </footer>
+          </div>
+        </main>
+        <!-- Main Content End -->
+      </div>
+    </div>
+    <!-- Main Content End -->
+  </main>
+
+  <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../../assets/libs/simplebar/dist/simplebar.min.js"></script>
+  <script src="../../assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+  <script src="../../assets/libs/@preline/dropdown/index.js"></script>
+  <script src="../../assets/libs/@preline/overlay/index.js"></script>
+  <script src="../../assets/js/sidebarmenu.js"></script>
+
+  <script src="../../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+  <script src="../../assets/js/dashboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</body>
+
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon icon-->
+  <link rel="shortcut icon" type="image/png" href="../../assets/images/logos/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <!-- Core Css -->
+  <link rel="stylesheet" href="../../assets/css/theme.css" />
+  <title>Kreiraj korisnika</title>
+</head>
+
+<body class="bg-surface">
+  <main>
+    <!--start the project-->
+    <div id="main-wrapper" class="flex p-5 xl:pr-0">
+      <aside id="application-sidebar-brand"
+        class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transform hidden xl:block xl:translate-x-0 xl:end-auto xl:bottom-0 fixed xl:top-5 xl:left-auto top-0 left-0 with-vertical h-screen z-[999] shrink-0 w-[270px] shadow-md xl:rounded-md rounded-none bg-white left-sidebar transition-all duration-300">
+        <!-- ---------------------------------- -->
+        <!-- Start Vertical Layout Sidebar -->
+        <!-- ---------------------------------- -->
+        <div class="p-4">
+          <a href="/admin" class="text-nowrap flex items-center">
+            <img src="../../assets/images/logos/favicon.ico" alt="GlobalSoft" class="mr-2" />
+            <span class="logo-text">
+              <%= name + " (" + role + ")" ; %>
+            </span>
+          </a>
+        </div>
+        <div class="scroll-sidebar" data-simplebar>
+          <nav class="w-full flex flex-col sidebar-nav px-4 mt-5">
+            <ul id="sidebarnav" class="text-gray-600 text-sm">
+              <li class="text-xs font-bold pb-[5px]">
+                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center"></i>
+                <span class="text-xs text-gray-400 font-semibold">PRIKAZ</span>
+              </li>
+
+              <li class="sidebar-item">
+                <a class="sidebar-link gap-3 py-2.5 my-1 text-base flex items-center relative rounded-md text-gray-500 w-full"
+                  href="/admin">
+                  <i class="ti ti-layout-dashboard ps-2 text-2xl"></i>
+                  <span>Nadzorna ploča</span>
+                </a>
+              </li>
+
+              <li class="text-xs font-bold mb-4 mt-6">
+                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center"></i>
+                <span class="text-xs text-gray-400 font-semibold">UPRAVLJANJE</span>
+              </li>
+
+              <li class="sidebar-item">
+                <a class="sidebar-link gap-3 py-2.5 my-1 text-base flex items-center relative rounded-md text-gray-500 w-full"
+                  href="/admin/createUser">
+                  <i class="ti ti-file-description ps-2 text-2xl"></i>
+                  <span>Kreiraj korisnika</span>
+                </a>
+              </li>
+
+              <li class="sidebar-item">
+                <a class="sidebar-link gap-3 py-2.5 my-1 text-base flex items-center relative rounded-md text-gray-500 w-full"
+                  href="/admin/createEquipment">
+                  <i class="ti ti-cards ps-2 text-2xl"></i>
+                  <span>Dodaj opremu</span>
+                </a>
+              </li>
+
+            </ul>
+          </nav>
+        </div>
+      </aside>
+      <div class="w-full page-wrapper xl:px-6 px-0">
+        <!-- Main Content -->
+        <main class="h-full max-w-full">
+          <div class="container full-container p-0 flex flex-col gap-6">
+            <!--  Header Start -->
+            <header class="bg-white shadow-md rounded-md w-full text-sm py-4 px-6">
+              <!-- ========== HEADER ========== -->
+
+              <nav class="w-ful flex items-center justify-between" aria-label="Global">
+                <ul class="icon-nav flex items-center gap-4">
+                  <li class="relative xl:hidden">
+                    <a class="text-xl icon-hover cursor-pointer text-heading" id="headerCollapse"
+                      data-hs-overlay="#application-sidebar-brand" aria-controls="application-sidebar-brand"
+                      aria-label="Toggle navigation" href="javascript:void(0)">
+                      <i class="ti ti-menu-2 relative z-1"></i>
+                    </a>
+                  </li>
+
+                  <li class="relative">
+                    <div class="hs-dropdown relative inline-flex [--placement:bottom-left] sm:[--trigger:hover]">
+                      <a class="relative hs-dropdown-toggle inline-flex hover:text-gray-500 text-gray-300" href="#">
+                        <i class="ti ti-bell-ringing text-xl relative z-[1]"></i>
+                        <div
+                          class="absolute inline-flex items-center justify-center text-white text-[11px] font-medium bg-blue-600 w-2 h-2 rounded-full -top-[1px] -right-[6px]">
+                        </div>
+                      </a>
+                      <div
+                        class="card hs-dropdown-menu transition-[opacity,margin] rounded-md duration hs-dropdown-open:opacity-100 opacity-0 mt-2 min-w-max w-[300px] hidden z-[12]"
+                        aria-labelledby="hs-dropdown-custom-icon-trigger">
+                        <div>
+                          <h3 class="text-gray-500 font-semibold text-base px-6 py-3">
+                            ZAHTJEVI
+                          </h3>
+                          <ul class="list-none flex flex-col">
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Marko Marić želi zadužiti laptop
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano jučer
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Petar Perić želi zadužiti projektor
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano danas
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Ana Anić želi zadužiti tipkovnicu i miš
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano prije 2 dana
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Ivan Ivić želi zadužiti USB Stick
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano sada
+                                </p>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="py-3 px-6 block hover:bg-gray-200">
+                                <p class="text-sm text-gray-500 font-medium">
+                                  Jelena Jurić želi zadužiti SSD disk
+                                </p>
+                                <p class="text-xs text-gray-400 font-medium">
+                                  poslano prošli tjedan
+                                </p>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <div class="flex items-center gap-4">
+                  <div class="hs-dropdown relative inline-flex [--placement:bottom-right] sm:[--trigger:hover]">
+                    <a class="relative hs-dropdown-toggle cursor-pointer align-middle rounded-full">
+                      <img class="object-cover w-9 h-9 rounded-full" src="../../assets/images/profile/user-1.jpg" alt
+                        aria-hidden="true" />
+                    </a>
+                    <div
+                      class="card hs-dropdown-menu transition-[opacity,margin] rounded-md duration hs-dropdown-open:opacity-100 opacity-0 mt-2 min-w-max w-[200px] hidden z-[12]"
+                      aria-labelledby="hs-dropdown-custom-icon-trigger">
+                      <div class="card-body p-0 py-2">
+                        <a href="javscript:void(0)"
+                          class="flex gap-2 items-center font-medium px-4 py-1.5 hover:bg-gray-200 text-gray-400">
+                          <i class="ti ti-user text-xl"></i>
+                          <p class="text-sm">Moj Profil</p>
+                        </a>
+                        <a href="javscript:void(0)"
+                          class="flex gap-2 items-center font-medium px-4 py-1.5 hover:bg-gray-200 text-gray-400">
+                          <i class="ti ti-mail text-xl"></i>
+                          <p class="text-sm">Račun</p>
+                        </a>
+                        <a href="javscript:void(0)"
+                          class="flex gap-2 items-center font-medium px-4 py-1.5 hover:bg-gray-200 text-gray-400">
+                          <i class="ti ti-list-check text-xl"></i>
+                          <p class="text-sm">Zahtjevi</p>
+                        </a>
+                        <div class="px-4 mt-[7px] grid">
+                          <a href="/logout"
+                            class="btn-outline-primary font-medium text-[15px] w-full hover:bg-blue-600 hover:text-white">Odjava</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+
+              <!-- ========== END HEADER ========== -->
+            </header>
+            <div class="card">
+              <div class="card-body flex flex-col gap-6">
+                <h6 class="text-lg text-gray-500 font-semibold">Osobni podaci korisnika</h6>
+                <div class="card">
+                  <div class="card-body">
+                    <form action="/admin/createUser/saveUser" method="POST">
+                      <!-- Ime -->
+                      <div class="mb-6">
+                        <label for="forFirstName" class="block text-sm mb-2 text-gray-400"><span
+                            class="text-red-500">*</span>
+                          Ime: </label>
+                        <input type="text" id="forFirstName" name="first_name"
+                          class="py-3 px-4 text-gray-500 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
+                          placeholder="Unesite ime" aria-describedby="hs-input-helper-text">
+                      </div>
+                      <!-- Prezime -->
+                      <div class="mb-6">
+                        <label for="forLastName" class="block text-sm mb-2 text-gray-400">
+                          <span class="text-red-500">*</span>
+                          Prezime:</label>
+                        <input type="text" id="forLastName" name="last_name"
+                          class="py-3 px-4 text-gray-500 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
+                          placeholder="Unesite prezime" aria-describedby="hs-input-helper-text">
+                      </div>
+                      <!-- Korisnicko ime -->
+                      <div class="mb-6">
+                        <label for="forUsername" class="block text-sm mb-2 text-gray-400">
+                          <span class="text-red-500">*</span>
+                          Korisničko ime:</label>
+                        <input type="text" id="forUsername" name="username"
+                          class="py-3 px-4 text-gray-500 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
+                          placeholder="Unesite korisničko ime" aria-describedby="hs-input-helper-text">
+                      </div>
+                      <!-- Email -->
+                      <div class="mb-6">
+                        <label for="forEmail" class="block text-sm mb-2 text-gray-400">
+                          <span class="text-red-500">*</span>
+                          Email adresa:</label>
+                        <input type="email" id="forEmail" name="email"
+                          class="py-3 px-4 text-gray-500 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
+                          placeholder="Unesite email" aria-describedby="hs-input-helper-text">
+                      </div>
+                      <!-- Lozinka -->
+                      <div class="mb-6">
+                        <label for="forPassword" class="block text-sm mb-2 text-gray-400">
+                          <span class="text-red-500">*</span>
+                          Lozinka:</label>
+                        <input type="password" id="forPassword" name="password"
+                          class="py-3 px-4 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
+                          placeholder="••••••••" aria-describedby="hs-input-helper-text">
+                      </div>
+                      <!-- Lozinka -->
+                      <div class="mb-6">
+                        <label for="forContact" class="block text-sm mb-2 text-gray-400">Kontakt broj:</label>
+                        <input type="text" id="forContact" name="contact"
+                          class="py-3 px-4 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
+                          placeholder="Unesite kontakt broj" aria-describedby="hs-input-helper-text">
+                      </div>
+                      <!-- Uloga -->
+                      <div class="mb-6">
+                        <label for="forRole" class="block text-sm mb-2 text-gray-400">
+                          <span class="text-red-500">*</span>
+                          Uloga:</label>
+                        <select id="forRole" name="role"
+                          class="py-3 px-4 text-gray-500 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0">
+                          <option value="employee">Uposlenik</option>
+                          <option value="admin">Administrator</option>
+                        </select>
+                      </div>
+                      <button type="submit"
+                        class="mt-6 btn text-base py-2.5 text-white font-medium w-fit hover:bg-blue-700">
+                        Kreiraj
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <footer>
+              <p class="text-base text-gray-400 font-normal p-3 text-center">
+                © Copyright 2024, All Rights Reserved by globalsoft -
+                <a href="https://www.globalsoft.ba/" target="_blank"
+                  class="text-blue-600 underline hover:text-blue-700">globalsoft.ba</a>
+              </p>
+            </footer>
+            <!--  Header End -->
+          </div>
+
+        </main>
+      </div>
+  </main>
+  <!-- Main Content End -->
+  </div>
+  </div>
+  <!--end of project-->
+  </main>
+
+  <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../../assets/libs/simplebar/dist/simplebar.min.js"></script>
+  <script src="../../assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+  <script src="../../assets/libs/@preline/dropdown/index.js"></script>
+  <script src="../../assets/libs/@preline/overlay/index.js"></script>
+  <script src="../../assets/js/sidebarmenu.js"></script>
+
+  <script src="../../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+  <script src="../../assets/js/dashboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</body>
+
+</html>
