@@ -1,0 +1,36 @@
+.container{
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: start;
+}
+
+
+.menu{
+    flex:1;
+    background-color: black;
+    padding: 20px;
+    height: 100vh;
+    width: 100%;
+
+}
+
+.content{
+    flex:6;
+    padding: 20px;
+    background-color: white;
+}
+
+
+.bgi{
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
