@@ -7,7 +7,8 @@ import {
     MdSupervisedUserCircle,
     MdShoppingBag,
     MdOutlineSettings,
-    MdLogout
+    MdLogout,
+    MdEditDocument
 } from 'react-icons/md';
 
 
@@ -21,15 +22,12 @@ const menuItems = [
           icon: <MdDashboard />,
         },
         {
-          title: "Kreiraj korisnika",
-          path: "/dashboard/users",
-          icon: <MdSupervisedUserCircle />,
-        },
-        {
-          title: "Dodaj opremu",
-          path: "/dashboard/equipment",
+          title: "Zahtjevi",
+          path: "/dashboard/requests",
           icon: <MdShoppingBag />,
         },
+        
+        
       ],
     },
     
@@ -37,13 +35,33 @@ const menuItems = [
       title: "Upravljanje",
       list: [
         {
+          title: "Kreiraj korisnika",
+          path: "/dashboard/users",
+          icon: <MdSupervisedUserCircle />,
+        },
+        {
+          title: "Dodaj opremu",
+          path: "/dashboard/equipment",
+          icon: <MdEditDocument />,
+        },
+        
+        
+      ],
+    },
+
+
+    {
+      title: "Račun",
+      list: [
+        {
           title: "Postavke",
           path: "/dashboard/settings",
           icon: <MdOutlineSettings />,
         },
-        
+       
       ],
     },
+
   ];
 
 const Sidebar = () => {
@@ -52,7 +70,7 @@ const Sidebar = () => {
           <div className={styles.user}>
             <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50" />
             <div className={styles.userDetail}>
-              <span className={styles.username}>Milica</span>
+              <span className={styles.username}>Milica Bago</span>
               <span className={styles.userTitle} >Administrator</span>
             </div>
           </div>

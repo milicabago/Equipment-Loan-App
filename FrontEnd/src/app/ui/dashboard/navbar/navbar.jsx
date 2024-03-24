@@ -14,6 +14,7 @@ const Navbar = () => {
 
     return(
         <div className={styles.container}>
+            
             <div className={styles.title}>{pathname.split("/").pop()}</div>
             <div className={styles.menu}>
 
@@ -27,8 +28,8 @@ const Navbar = () => {
                     <MdNotifications size={20}/>
                     <MdPerson size={20}/>
                 </div>
-
             </div>
+            
         </div>
     );
 };

@@ -1,14 +1,7 @@
-import styles from '@/app/ui/dashboard/users/users.module.css';
-
-const UsersPage = () => {
+const Users = () => {
     return (
-        <div className={styles.container}>
-            <div className={styles.top}>
-                
-            </div>
-            <table className={styles.table}></table>
-        </div>
+        <div></div>
     );
 };
 
-export default UsersPage;
+export default Users;
