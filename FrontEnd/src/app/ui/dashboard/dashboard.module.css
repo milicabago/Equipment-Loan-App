@@ -10,8 +10,8 @@
 
 .menu{
     flex:1;
-    background-color: black;
-    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);    padding: 20px;
     height: 100vh;
     width: 100%;
 
@@ -19,8 +19,9 @@
 
 .content{
     flex:6;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
     padding: 20px;
-    background-color: white;
 }
 
 
