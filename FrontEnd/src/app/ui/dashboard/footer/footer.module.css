@@ -1,0 +1,16 @@
+/*.container{
+    display: flex;
+    background: #000000;
+    align-content: end;
+    justify-items: center;
+    align-items: center;
+    color: var(--text);
+}
+
+.logo{
+    font-weight: bold;
+}
+
+.text{
+    font-size: 12px;
+}*/

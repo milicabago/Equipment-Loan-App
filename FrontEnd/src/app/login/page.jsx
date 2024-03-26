@@ -5,8 +5,6 @@ import Image from "next/image";
 
 const LoginPage = () => {
 
-
-
     return(
         <div className={styles.container}>
             
@@ -38,7 +36,13 @@ const LoginPage = () => {
                     <button type="submit">Prijava</button>
                 </div>   
             </form> 
+
+            
             </div>
+
+            <footer>
+              <p>© Copyright 2024, All Rights Reserved by globalsoft -</p>
+            </footer>
         </div> 
     );
 };
