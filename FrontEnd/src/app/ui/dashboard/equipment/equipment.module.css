@@ -47,12 +47,8 @@
 
 
 .name,
-.surname,
-.username,
-.email,
-.password,
-.contact,
-.role {
+.model,
+.number {
     align-self: flex-start;
     width: 100%;
     font-size: 14px;
@@ -80,10 +76,34 @@
     cursor: pointer;
     border-radius: 25px;
 }
-.admin, 
-.employee{
+.true,
+.false{
     color: var(--textSoft);
     font-weight: bold;
     background-color: black;
     padding: 30px;
+}
+
+.detail{
+    align-self: flex-start;
+    width: 100%;
+    font-size: 14px;
+}
+
+.detail input{
+    align-self: flex-start;
+    width: 100%;
+    font-size: 14px;
+
+}
+.details{
+    padding: 15px;
+    width: 100%;
+    border: 1px solid #44516d;
+    border-radius: 10px;
+    background-color: transparent;
+    color: var(--text);
+    margin-top: 5px;
+    margin-bottom: 20px;
+    font-size: 14px;
 }

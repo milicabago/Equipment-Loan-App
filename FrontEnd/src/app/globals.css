@@ -5,6 +5,8 @@
   --textSoft: #bdc1d2;
   --btn: #blue;
   --button: #214895;
+  --border: #4b5dac;
+  /*--font-family: Nunito;*/
 }
 
 *{
@@ -46,7 +48,7 @@ time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
+  font: inherit;
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */

@@ -1,8 +1,16 @@
-const Equipment = () => {
+import styles from '@/app/ui/dashboard/equipment/equipment.module.css';
+import Equipment from '@/app/ui/dashboard/equipment/equipment';
+
+const EquipmentPage = () => {
     return (
-        <div>
+        <div className={styles.container}>
+            <div>
+                <Equipment/>
+            </div>
+            
         </div>
+
     );
 };
 
-export default Equipment;
+export default EquipmentPage;

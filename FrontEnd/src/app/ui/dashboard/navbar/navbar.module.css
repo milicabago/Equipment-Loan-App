@@ -33,7 +33,9 @@
     display: flex;
     width: 70%;
     gap: 10px;
-    background-color: #2e374a;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    border: 1px inset #4b5dac;
     padding: 15px;
     border-radius: 10px;
 }
@@ -43,6 +45,8 @@
     border: none;
     color: var(--text);
     width: 100%;
+    outline: none;
+    font-size: 14px;
 }
 
 .icons{
