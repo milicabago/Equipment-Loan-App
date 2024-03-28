@@ -35,12 +35,14 @@ const LoginPage = (data) => {
                     <span className={styles.title}>Equipment-Loan</span>
                     <span className={styles.desc} >Prijavi se!</span> 
                 </div>
-
+                
 
                 <label className={styles.username}>Korisničko ime:
-                <input type="text" placeholder="Unesite email ili korisničko ime" {...register("username")} /></label>  
+                {/* <p>{errors.username?.message}</p>*/}
+                <input type="text" placeholder="Unesite email ili korisničko ime" {...register("username")} autoComplete='off' /></label>  
+
                 <label className={styles.password}>Lozinka:
-                <input type="password" placeholder="Unesite lozinku" {...register("password")} /></label>
+                <input type="password" placeholder="Unesite lozinku" {...register("password")} autoComplete='off'/></label>
 
                 <div className={styles.btn}>
                       

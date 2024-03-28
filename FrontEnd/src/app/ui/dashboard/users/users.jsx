@@ -10,11 +10,11 @@ const Users = (data) => {
     const schema = yup.object().shape({
         firstname: yup.string().required("First name is required!"),
         lastname: yup.string().required("Last name is required!"),
-        username: yup.string().required("Username is required"),
-        phone: yup.string().required("Phone is required"),
-        email: yup.string().email().required("Email is required"),
-        password: yup.string().min(8).required("Password is required"),
-        confirmPassword: yup.string().oneOf([yup.ref("password"), null] ,"Passwords don't match").required("Password is required"),
+        username: yup.string().required("Username is required!"),
+        phone: yup.string().required("Phone is required!"),
+        email: yup.string().email().required("Email is required!"),
+        Password: yup.string().min(8).required("Password is required"),
+        confirmPassword: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),
         
     });
 
@@ -37,22 +37,32 @@ const Users = (data) => {
                     </div>
 
                     <label className={styles.firstname}>Ime:
-                       {/* <p>{errors.firstname?.message}</p>*/}
-                    <input type="text" placeholder="Unesite ime" {...register("firstname")} /></label>
+                    <p>{errors.firstname?.message}</p>
+                    <input type="text" placeholder="Unesite ime" {...register("firstname")}  autoComplete='off'/></label>
                     
                     <label className={styles.lastname}>Prezime:
-                    <input type="text" placeholder="Unesite prezime" {...register("lastname")}/></label>
+                    <p>{errors.lastname?.message}</p>
+                    <input type="text" placeholder="Unesite prezime" {...register("lastname")} autoComplete='off'/></label>
                     
                     <label className={styles.username}>Korisničko ime:
-                    <input type="text" placeholder="Unesite korisničko ime" {...register("username")} /></label>
+                    <p>{errors.username?.message}</p>
+                    <input type="text" placeholder="Unesite korisničko ime" {...register("username")} autoComplete='off'/></label>
+                    
                     <label className={styles.phone}>Kontakt:
-                    <input type="string" placeholder="Unesite kontakt broj" {...register("phone")}/></label> 
+                    <p>{errors.phone?.message}</p>
+                    <input type="string" placeholder="Unesite kontakt broj" {...register("phone")} autoComplete='off'/></label> 
+                    
                     <label className={styles.email}>Email adresa:
-                    <input type="email" placeholder="Unesite email" {...register("email")}/></label>
+                    <p>{errors.email?.message}</p>
+                    <input type="email" placeholder="Unesite email" {...register("email")} autoComplete='off'/></label>
+
                     <label className={styles.password}>Lozinka:
-                    <input type="password" placeholder="******" {...register("password")}/></label>
+                    <p>{errors.Password?.message}</p>
+                    <input type="password" placeholder="******" {...register("Password")} autoComplete='off'/></label>
+
                     <label className={styles.confirmPassword}>Potvrda lozinke:
-                    <input type="password" placeholder="******" {...register("confirmPassword")}/></label>
+                    <p>{errors.confirmPassword?.message}</p>
+                    <input type="password" placeholder="******" {...register("confirmPassword")} autoComplete='off'/></label>
                     
                     <label className={styles.role}>Uloga:
                     

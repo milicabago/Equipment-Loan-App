@@ -8,9 +8,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 const Equipment = (data) => {
 
     const schema = yup.object().shape({
-        equipment: yup.string().required(),
-        name: yup.string().required(),
-        phone: yup.string().required(),
+        equipment: yup.string().required("Equipment is required"),
+        name: yup.string().required("Name is required"),
+        number: yup.string().required("Number is required"),
     });
 
     const{ register, handleSubmit, formState: {errors}} = useForm({
@@ -32,11 +32,16 @@ const Equipment = (data) => {
                     </div>
 
                     <label className={styles.equipment}>Oprema:
-                    <input type="text" placeholder="Unesite naziv opreme" {...register ("equipment")} /></label>
+                    <p>{errors.equipment?.message}</p>
+                    <input type="text" placeholder="Unesite naziv opreme" {...register ("equipment")} autoComplete='off'/></label>
+
                     <label className={styles.name}>Naziv modela pripadajuće opreme:
-                    <input type="text" placeholder="Unesite naziv modela" {...register("name")} /></label>
-                    <label className={styles.phone}>Serijski broj:
-                    <input type="text" placeholder="Unesite serijski broj" {...register("phone")} /></label>
+                    <p>{errors.name?.message}</p>
+                    <input type="text" placeholder="Unesite naziv modela" {...register("name")} autoComplete='off' /></label>
+
+                    <label className={styles.number}>Serijski broj:
+                    <p>{errors.number?.message}</p>
+                    <input type="text" placeholder="Unesite serijski broj" {...register("phone")} autoComplete='off' /></label>
 
 
                     
