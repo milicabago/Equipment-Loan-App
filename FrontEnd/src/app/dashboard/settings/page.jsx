@@ -1,7 +1,14 @@
-const Settings = () => {
+import styles from '@/app/ui/dashboard/settings/settings.module.css';
+import Settings from '@/app/ui/dashboard/settings/settings';
+
+const SettingsPage = () => {
     return (
-        <div></div>
+        <div className={styles.container}>
+            <div>
+                <Settings/>
+            </div>
+        </div>
     );
 };
 
-export default Settings;
+export default SettingsPage;

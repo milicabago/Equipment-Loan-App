@@ -1,27 +1,46 @@
-import styles from './equipment.module.css'
+"use client";
+import styles from './equipment.module.css';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-const Equipment = () => {
+
+const Equipment = (data) => {
+
+    const schema = yup.object().shape({
+        equipment: yup.string().required(),
+        name: yup.string().required(),
+        phone: yup.string().required(),
+    });
+
+    const{ register, handleSubmit, formState: {errors}} = useForm({
+        resolver: yupResolver(schema)
+    });
+
+    const onSubmit = () => {
+        console.log(data);
+    };
+
     return(
         <div className={styles.container}>
-            {/*<MdSupervisedUserCircle size={24} />*/}
 
             <div className={styles.form}> 
-                <form action="" className={styles.form}>
+                <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>Podaci o opremi</span>
                         <span className={styles.desc}> </span> 
                     </div>
 
-                    <label className={styles.name}>Oprema:
-                    <input type="text" placeholder="Unesite naziv opreme" /></label>
-                    <label className={styles.model}>Naziv modela pripadajuće opreme:
-                    <input type="text" placeholder="Unesite naziv modela" /></label>
-                    <label className={styles.number}>Serijski broj:
-                    <input type="text" placeholder="Unesite serijski broj" /></label>
+                    <label className={styles.equipment}>Oprema:
+                    <input type="text" placeholder="Unesite naziv opreme" {...register ("equipment")} /></label>
+                    <label className={styles.name}>Naziv modela pripadajuće opreme:
+                    <input type="text" placeholder="Unesite naziv modela" {...register("name")} /></label>
+                    <label className={styles.phone}>Serijski broj:
+                    <input type="text" placeholder="Unesite serijski broj" {...register("phone")} /></label>
 
 
                     
-                    <label className={styles.role}>Stanje opreme:
+                    <label className={styles.status}>Stanje opreme:
                     
                         <select className={styles.select}>
                             <option  className={styles.true} value="1">Ispravno</option>

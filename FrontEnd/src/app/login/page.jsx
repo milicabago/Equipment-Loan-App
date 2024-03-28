@@ -1,9 +1,26 @@
+"use client";
 import styles from "@/app/ui/login/login.module.css";
 import Image from "next/image";
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from "@hookform/resolvers/yup";
 
 <link rel="icon" href="/favicon.ico" /> 
 
-const LoginPage = () => {
+const LoginPage = (data) => {
+
+    const schema = yup.object().shape({
+        username: yup.string().required("Username is required"),
+        password: yup.string().required("Password is required"),
+    });
+    
+    const{ register, handleSubmit, formState: {errors}} = useForm({
+        resolver: yupResolver(schema)
+    });
+
+    const onSubmit = () => {
+        console.log(data);
+    };
 
     return(
         <div className={styles.container}>
@@ -13,7 +30,7 @@ const LoginPage = () => {
                 src="/keyboard.avif" alt="" layout="fill" 
                 objectFit='cover' />
             
-            <form action="" className={styles.form}>
+            <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                 <div className={styles.start}>
                     <span className={styles.title}>Equipment-Loan</span>
                     <span className={styles.desc} >Prijavi se!</span> 
@@ -21,9 +38,9 @@ const LoginPage = () => {
 
 
                 <label className={styles.username}>Korisničko ime:
-                <input type="text" placeholder="Unesite email ili korisničko ime" /></label>  
+                <input type="text" placeholder="Unesite email ili korisničko ime" {...register("username")} /></label>  
                 <label className={styles.password}>Lozinka:
-                <input type="password" placeholder="Unesite lozinku"/></label>
+                <input type="password" placeholder="Unesite lozinku" {...register("password")} /></label>
 
                 <div className={styles.btn}>
                       
@@ -36,13 +53,7 @@ const LoginPage = () => {
                     <button type="submit">Prijava</button>
                 </div>   
             </form> 
-
-            
             </div>
-
-            <footer>
-              <p>© Copyright 2024, All Rights Reserved by globalsoft -</p>
-            </footer>
         </div> 
     );
 };

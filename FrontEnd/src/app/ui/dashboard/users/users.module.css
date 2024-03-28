@@ -46,12 +46,12 @@
 }
 
 
-.name,
-.surname,
+.firstname,
+.lastname,
 .username,
 .email,
 .password,
-.contact,
+.phone,
 .role {
     align-self: flex-start;
     width: 100%;
@@ -86,4 +86,8 @@
     font-weight: bold;
     background-color: black;
     padding: 30px;
+}
+
+.form p{
+    color:rgb(185, 185, 2);
 }
