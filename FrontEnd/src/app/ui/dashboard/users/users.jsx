@@ -37,15 +37,13 @@ const Users = (data) => {
                     </div>
 
                     <label className={styles.firstname}>Ime:
-                        <p>{errors.firstname?.message}</p>
+                       {/* <p>{errors.firstname?.message}</p>*/}
                     <input type="text" placeholder="Unesite ime" {...register("firstname")} /></label>
                     
                     <label className={styles.lastname}>Prezime:
-                        <p>{errors.lastname?.message}</p>
                     <input type="text" placeholder="Unesite prezime" {...register("lastname")}/></label>
                     
                     <label className={styles.username}>Korisničko ime:
-                    <p>{errors.username?.message}</p>
                     <input type="text" placeholder="Unesite korisničko ime" {...register("username")} /></label>
                     <label className={styles.phone}>Kontakt:
                     <input type="string" placeholder="Unesite kontakt broj" {...register("phone")}/></label> 
@@ -56,13 +54,13 @@ const Users = (data) => {
                     <label className={styles.confirmPassword}>Potvrda lozinke:
                     <input type="password" placeholder="******" {...register("confirmPassword")}/></label>
                     
-                   {/* } <label className={styles.role}>Uloga:
+                    <label className={styles.role}>Uloga:
                     
                         <select className={styles.select}>
                             <option  className={styles.admin} value="1">Administrator</option>
                             <option className={styles.employee} value="2">Uposlenik</option>
                         </select>
-                    </label> */}
+                    </label> 
                     <div>
                     <button className={styles.button} type="submit">Kreiraj</button>
                     </div>
