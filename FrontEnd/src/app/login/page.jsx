@@ -8,15 +8,6 @@ import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import axios from 'axios';
 
-
-/*
-import React, { useEffect} from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
-import cookies from 'js-cookie';
-*/
-
 <link rel="icon" href="/favicon.ico" /> 
 
 const LoginPage = (data) => {
