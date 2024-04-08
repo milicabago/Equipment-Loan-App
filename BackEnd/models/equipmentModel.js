@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const EquipmentSchema = new mongoose.Schema(
   {
     name: {
@@ -17,6 +18,10 @@ const EquipmentSchema = new mongoose.Schema(
     condition: {
       type: Boolean,
       required: [true, "Condition is required"],
+    },
+    quantity: {
+      type: Number,
+      required: [true, "Quantity is required"],
     },
     description: {
       type: String,

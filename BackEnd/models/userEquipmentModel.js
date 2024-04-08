@@ -22,22 +22,28 @@ const UserEquipmentSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Quantity is required"],
     },
-    request: {
+    request_status: {
       type: String,
       enum: Object.values(UserEquipmentStatus),
-      default: UserEquipmentStatus.PENDING, // Postavljanje na false po defaultu dok korisnik ne klikne na dugme
+      default: UserEquipmentStatus.INACTIVE,
     },
-    debit_date: {
+    assign_date: {
       type: Date,
       required: [true, "Debit date is required"],
     },
-    return_date: {
+    unassign_date: {
       type: Date,
       required: false,
+    },
+    unassigned_quantity: {
+      type: Number, // Dodajte polje za razduženu količinu opreme
+      required: false,
+      default: 0,
     },
   },
   {
     timestamps: true,
+    collection: "user_equipment",
   }
 );
 

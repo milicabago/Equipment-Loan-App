@@ -2,11 +2,24 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const Joi = require("joi");
+// Definicija sheme za validaciju ažuriranja korisnika
+// TRENUTNO nekoristeno
+const userUpdateSchema = Joi.object({
+  first_name: Joi.string().required(),
+  last_name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  username: Joi.string().alphanum().min(3).max(30).required(),
+  role: Joi.string().valid('admin', 'user').required(),
+  contact: Joi.string().allow('').optional(), // Dozvoljava prazan string
+  position: Joi.string().required(),
+  password: Joi.string().min(8).optional(), // Opcionalno polje
+});
 
-//@desc Create New user
+//@desc Register/Create New user
 //@route POST /api/users/create_user
 //@access public  /* Kasnije prebaciti --> private */
-const createUser = asyncHandler(async (req, res) => {
+const registerOrCreateUser = asyncHandler(async (req, res) => {
   // Unesi sve podatke u formu
   const {
     first_name,
@@ -22,7 +35,8 @@ const createUser = asyncHandler(async (req, res) => {
   if (
     !first_name ||
     !last_name ||
-    (!email && !username) || // Može se koristiti email ili username
+    !email ||
+    !username ||
     !password ||
     !role ||
     !position
@@ -39,7 +53,8 @@ const createUser = asyncHandler(async (req, res) => {
     throw new Error("User with email or username already created!");
   }
   // Hashiraj lozinku
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
   console.log("Hashed password: " + hashedPassword);
   // Kreiraj novog korisnika
   const user = await User.create({
@@ -58,7 +73,7 @@ const createUser = asyncHandler(async (req, res) => {
   if (user) {
     res
       .status(201)
-      .json({ _id: user._id, email: user.email, username: user.username });
+      .json({ message: "User created!", _id: user._id, email: user.email, username: user.username });
   } else {
     res.status(400);
     throw new Error("User data is not valid!");
@@ -66,57 +81,62 @@ const createUser = asyncHandler(async (req, res) => {
 });
 
 //@desc Login user
-//@route POST /api/users/login
+//@route POST /api/login
 //@access public
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { email, password } = req.body;
   // Provjeri jesu li svi OBVEZNI podaci uneseni za prijavu (Unos: email ili username i lozinka))
-  if ((!email && !username) || !password) {
+  if (!email || !password) {
     res.status(400);
-    throw new Error("Email/Username and password are mandatory!");
+    throw new Error("Email and password are mandatory!");
   }
 
-  let user;
-  if (email) {
-    user = await User.findOne({ email });
-  } else if (username) {
-    user = await User.findOne({ username });
-  }
+  // Pronađi korisnika u bazi podataka na temelju jedinstvenog emaila
+  const user = await User.findOne({ email });
+
+  // Provjeri je li korisnik pronađen
   if (!user) {
     res.status(401);
-    throw new Error("Invalid email/username!");
+    throw new Error("Invalid email!");
   }
+
   // Usporedi lozinku s hashiranom lozinkom
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     res.status(401);
-    throw new Error("Invalid email or password!");
+    throw new Error("Invalid password!");
   }
   // Generiraj JWT token
   const accessToken = jwt.sign(
     {
-      username: user.username,
-      email: user.email,
       id: user.id,
+      email: user.email,
+      username: user.username,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "12h" }
   );
 
-  res.status(200).json({ accessToken });
+  res.status(200).json({ message: "Login successful!", email: user.email, accessToken });
 });
 
 //@desc Current user info (User Profile)
 //@route GET /api/users/current
 //@access private
 const currentUser = asyncHandler(async (req, res) => {
-  // Informacije o korisniku dostupne su u `req.user` objektu
+  // Korisnički podaci dostupni su u `req.user` objektu koji je postavljen nakon provjere tokena
   const currentUserData = req.user;
   res.json(currentUserData);
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find({});
+
+  if (!users) {
+    res.status(404);
+    throw new Error("Users not found!");
+  }
+  // Vrati rezultat s korisnicima i opremom
   res.status(200).json(users);
 });
 
@@ -141,17 +161,45 @@ const updateUser = asyncHandler(async (req, res) => {
     throw new Error("User not found!");
   }
 
-  // Ako nije upisano ostaje prethodna vrijednost
-  user.first_name = req.body.first_name || user.first_name;
-  user.last_name = req.body.last_name || user.last_name;
-  user.email = req.body.email || user.email;
-  user.username = req.body.username || user.username;
-  user.role = req.body.role || user.role;
-  user.contact = req.body.contact || user.contact;
-  user.position = req.body.position || user.position;
+  // Validacija podataka za update koristeći Joi shemu
+  const { error } = userUpdateSchema.validate(req.body, { abortEarly: false }); // Dodajemo opciju abortEarly: false kako bi prikazali sve greške
+
+  if (error) {
+    const errorMessages = error.details.map(detail => detail.message); // Mapiramo sve greške u niz
+    res.status(400);
+    throw new Error(errorMessages.join(', ')); // Spajamo sve greške u jednu poruku
+  }
+
+  // Provjeri je li novi email već zauzet
+  if (req.body.email) {
+    const existingEmail = await User.findOne({ email: req.body.email });
+    if (existingEmail && existingEmail._id.toString() !== req.params.id) {
+      res.status(400);
+      throw new Error("Email already exists!");
+    }
+  }
+
+  // Provjeri je li novo korisničko ime već zauzeto
+  if (req.body.username) {
+    const existingUsername = await User.findOne({ username: req.body.username });
+    if (existingUsername && existingUsername._id.toString() !== req.params.id) {
+      res.status(400);
+      throw new Error("Username already exists!");
+    }
+  }
+
+  // Ažuriranje korisnika
+  user.first_name = req.body.first_name;
+  user.last_name = req.body.last_name;
+  user.email = req.body.email;
+  user.username = req.body.username;
+  user.role = req.body.role;
+  user.contact = req.body.contact || "";
+  user.position = req.body.position;
 
   if (req.body.password) {
-    user.password = await bcrypt.hash(req.body.password, 10);
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(req.body.password, salt);
   }
 
   const updatedUser = await user.save();
@@ -170,11 +218,11 @@ const deleteUser = asyncHandler(async (req, res) => {
     throw new Error("User not found!");
   }
   let deleteUser = await User.findByIdAndDelete(req.params.id);
-  res.status(200).json(deleteUser);
+  res.status(200).json({ message: "User has been deleted!", deleteUser });
 });
 
 module.exports = {
-  createUser,
+  registerOrCreateUser,
   loginUser,
   currentUser,
   getAllUsers,

@@ -13,17 +13,23 @@ const equipmentSchema = Joi.object({
 });
 
 //@desc Get all equipments
-//@route GET /api/equipment
+//@route GET /api/admin/equipment
 //@access public
 const getAllEquipment = asyncHandler(async (req, res) => {
-  const equipment = await Equipment.find({});
+  const equipment = await Equipment.find();
+
+  if (!equipment) {
+    res.status(404);
+    throw new Error("Equipment not found!");
+  }
+
   res.status(200).json(equipment);
 });
 
-//@desc Create New equipment
+//@desc Add New equipment
 //@route POST /api/equipment
 //@access public
-const createEquipment = asyncHandler(async (req, res) => {
+const addEquipment = asyncHandler(async (req, res) => {
   console.log("The request body is:\n", req.body);
   const { name, full_name, serial_number, condition, description } = req.body;
   if (!name || !full_name || !serial_number || !condition) {
@@ -45,7 +51,7 @@ const createEquipment = asyncHandler(async (req, res) => {
     condition,
     description,
   });
-  res.status(201).json(equipment);
+  res.status(201).json({ messagee: "Added equipment!", equipment });
 });
 
 //@desc Get equipment
@@ -75,6 +81,12 @@ const updateEquipment = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error(error.details[0].message);
   }
+  // Provjeri postoji li oprema s istim serijskim brojem u bazi osim trenutne opreme koju ažuriranam
+  const existingEquipment = await Equipment.findOne({ serial_number: value.serial_number, _id: { $ne: req.params.id } });
+  if (existingEquipment) {
+    res.status(400);
+    throw new Error("Equipment with serial number already exists!");
+  }
 
   const updateEquipment = await Equipment.findByIdAndUpdate(
     req.params.id,
@@ -83,7 +95,7 @@ const updateEquipment = asyncHandler(async (req, res) => {
       new: true,
     }
   );
-  res.status(200).json(updateEquipment);
+  res.status(200).json({ message: "Updated equipment!", updateEquipment });
 });
 
 //@desc Delete equipment
@@ -97,12 +109,12 @@ const deleteEquipment = asyncHandler(async (req, res) => {
   }
 
   const deleteEquipment = await Equipment.findByIdAndDelete(req.params.id);
-  res.status(200).json(deleteEquipment);
+  res.status(200).json({ message: "Deleted equipment!", deleteEquipment });
 });
 
 module.exports = {
   getAllEquipment,
-  createEquipment,
+  addEquipment,
   getEquipment,
   updateEquipment,
   deleteEquipment,

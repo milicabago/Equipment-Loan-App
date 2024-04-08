@@ -1,23 +1,30 @@
 const express = require("express");
-// const routes = require("./routes");
+const routes = require("./routes");
 const connectDB = require("./config/dbConnection");
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv");
 const cors = require("cors");
+const cookeParser = require("cookie-parser");
 const errorHandler = require("./middleware/errorHandler");
 
-const port = process.env.PORT || 5000;
-
+/**  Defined PORT (5001) and Connect to Database **/
+dotenv.config();
+const PORT = process.env.PORT || 5000;
 connectDB();
-const app = express();
 
-// Middleware
-app.use(express.json()); // Parse JSON bodies
+const app = express();
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(cookeParser());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/equipment", require("./routes/equipmentRoutes"));
+/** Routes **/
+app.use("/api", routes);
+
+/** Defined errors **/
 app.use(errorHandler);
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+/**  Starting Server **/
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
