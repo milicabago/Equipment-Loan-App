@@ -20,8 +20,8 @@ const LoginPage = (data) => {
     };
 
     const schema = yup.object().shape({
-        username: yup.string().required("Username is required"),
-        password: yup.string().required("Password is required"),
+        email: yup.string().required("Email is required"),
+        password: yup.string().min(8).required("Password is required"),
     });
     
     const{ register, handleSubmit, formState:{errors },} = useForm({
@@ -52,14 +52,14 @@ const LoginPage = (data) => {
             
             <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                 <div className={styles.start}>
-                    <span className={styles.title}>Equipment-Loan</span>
+                    <span className={styles.title}>Equipment Loan</span>
                     <span className={styles.desc} >Prijavi se!</span> 
                 </div>
                 
 
-                <label className={styles.username}>Korisničko ime:
+                <label className={styles.email}>Email:
                 {/* <p>{errors.username?.message}</p>*/}
-                <input type="text" className={styles.autofill} placeholder="Unesite email ili korisničko ime" {...register("username")} autoComplete="off" /></label>  
+                <input type="text" className={styles.autofill} placeholder="Unesite email" {...register("username")} autoComplete="off" /></label>  
 
                 <label className={styles.password}>Lozinka:
                     <div className={styles.passwordInputContainer}>
