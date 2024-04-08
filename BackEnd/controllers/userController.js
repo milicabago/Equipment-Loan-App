@@ -127,18 +127,20 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error("Invalid password!");
   }
-  // Generiraj JWT token
-  const accessToken = jwt.sign(
-    {
-      id: user.id,
+
+  // Podaci korisnika koji će biti spremljeni u JWT token
+  const payload = {
+    user: {
+      _id: user._id,
+      role: user.role,
       email: user.email,
       username: user.username,
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "12h" }
-  );
+    }
+  };
 
-  res.status(200).json({ message: "Login successful!", email: user.email, accessToken });
+  // Generiraj JWT token
+  const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+  res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 3600000 }).status(200).json({ message: "Login successful!", accessToken });
 });
 
 //@desc Current user info (User Profile)
