@@ -8,13 +8,14 @@ const { getAllEquipment, addEquipment, getEquipment, updateEquipment, deleteEqui
 /**** START: Routes for ADMIN --> ****/
 
 /** GET all users with assigned equipment **/
-router.get("/dashboard", getActiveRequests);
-router.delete("/dashboard/:id", deleteRequest); // Proučiti što uraditi kada uklanjamo zahtjev ili ga postavljamo na 'inactive'
+router.get("/", getActiveRequests);
+router.patch("/:id", /* deactivateRequest */); // Kada mijenjamo aktivan zahtjev u "returned" jer razužujemo korisnika opreme  --> return_status_request = "return" 
+router.delete("/:id", deleteRequest); // Kada uklanjamo zahtjev 
 
 /** GET all requests for ACCEPT or DELETE request **/
 router.get("/requests", getPendingRequests);
 router.post("/requests/request", activateRequest);
-router.delete("/requests/:id", deleteRequest);
+router.patch("/requests/:id", /* denidedRequest */); // promijeni status na "denied"
 
 /** POST for create new User **/
 router.post("/createUser", registerOrCreateUser);
@@ -22,7 +23,7 @@ router.post("/createUser", registerOrCreateUser);
 /** GET all users, GET user and DELETE user **/
 router.get("/users", getAllUsers);
 router.get("/users/:id", getUser);
-// router.put("/users/:id", updateUser); // Provjeriti da li će ADMIN moći mijenjati podatke korisnika
+router.patch("/users/:id", updateUser); // patch --> Promijenit neke dijelove 
 router.delete("/users/:id", deleteUser);
 
 /** POST for create new Equipment **/
@@ -35,7 +36,7 @@ router.put("/equipment/:id", updateEquipment);
 router.delete("/equipment/:id", deleteEquipment);
 
 /** GET user profile by ID **/
-router.route("/settings/:id").get(getUser).put(updateUser);
+router.route("/settings/:id").get(getUser)/* .patch(adminUpdateUser); */ // adminuUpdateUser kreirati
 
 /**** END: <-- Routes for ADMIN ****/
 

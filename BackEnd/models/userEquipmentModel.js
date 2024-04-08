@@ -4,6 +4,8 @@ const UserEquipmentStatus = {
   PENDING: "pending",
   ACTIVE: "active",
   INACTIVE: "inactive",
+  DENIED: "denied",
+  RETURNED: "returned",
 };
 
 const UserEquipmentSchema = new mongoose.Schema(
@@ -26,6 +28,11 @@ const UserEquipmentSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(UserEquipmentStatus),
       default: UserEquipmentStatus.INACTIVE,
+    },
+    return_status_request: {
+      type: String,
+      enum: Object.values(UserEquipmentStatus),
+      default: UserEquipmentStatus.RETURNED,
     },
     assign_date: {
       type: Date,

@@ -7,7 +7,7 @@ const validateToken = require("../middleware/validateTokenHandler");
 
 /** Routes for all USERS **/
 router.post("/login", loginUser);
-router.post("/register", registerOrCreateUser); // ograničiti pristup samo adminu
+router.post("/register", registerOrCreateUser); // Defaultu da su svi role === "user"
 router.get("/current", validateToken, currentUser);
 router.get("/logout", (req, res) => res.send("Logout user"));
 

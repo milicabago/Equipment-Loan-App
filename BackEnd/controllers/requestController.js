@@ -149,7 +149,7 @@ const unassignEquipment = asyncHandler(async (req, res) => {
 // @access public
 const getEquipmentHistory = asyncHandler(async (req, res) => {
   // Izvrši upit u bazu podataka za dohvat razdužene opreme
-  const history = await Request.find({ request_status: "inactive" }).sort({ unassign_date: -1 });
+  const history = await Request.find({ request_status: "inactive" }).sort({ unassign_date: -1 }); // status = returned
 
   if (!history) {
     res.status(404);

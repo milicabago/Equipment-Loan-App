@@ -16,6 +16,13 @@ const userUpdateSchema = Joi.object({
   password: Joi.string().min(8).optional(), // Opcionalno polje
 });
 
+// Funkcija za provjeru valjanosti e-mail adrese
+function isValidEmail(email) {
+  // Koristi regularni izraz za provjeru valjanosti e-mail adrese
+  const emailRegex = /.+\@.+\..+/;
+  return emailRegex.test(email);
+}
+
 //@desc Register/Create New user
 //@route POST /api/users/create_user
 //@access public  /* Kasnije prebaciti --> private */
@@ -46,6 +53,13 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
       "Fields for 'fistname, lastname, email, username, password, role, position' are mandatory!"
     );
   }
+
+  // Provjeri valjanost e-mail adrese
+  if (!isValidEmail(email)) {
+    res.status(400);
+    throw new Error("Invalid email address!");
+  }
+
   // Provjeri postoji li korisnik u bazi prema jedinstenom email-u ili username-u
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
@@ -78,26 +92,33 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("User data is not valid!");
   }
+
+  // Funkcija za provjeru valjanosti e-mail adrese
+  function isValidEmail(email) {
+    // Koristi regularni izraz za provjeru valjanosti e-mail adrese
+    const emailRegex = /.+\@.+\..+/;
+    return emailRegex.test(email);
+  }
 });
 
 //@desc Login user
 //@route POST /api/login
 //@access public
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  // Provjeri jesu li svi OBVEZNI podaci uneseni za prijavu (Unos: email ili username i lozinka))
-  if (!email || !password) {
+  const { username, password } = req.body;
+  // Provjeri jesu li svi OBVEZNI podaci uneseni za prijavu (Unos: username ili username i lozinka))
+  if (!username || !password) {
     res.status(400);
-    throw new Error("Email and password are mandatory!");
+    throw new Error("username and password are mandatory!");
   }
 
-  // Pronađi korisnika u bazi podataka na temelju jedinstvenog emaila
-  const user = await User.findOne({ email });
+  // Pronađi korisnika u bazi podataka na temelju jedinstvenog usernamea
+  const user = await User.findOne({ username });
 
   // Provjeri je li korisnik pronađen
   if (!user) {
     res.status(401);
-    throw new Error("Invalid email!");
+    throw new Error("Invalid username!");
   }
 
   // Usporedi lozinku s hashiranom lozinkom
@@ -110,14 +131,14 @@ const loginUser = asyncHandler(async (req, res) => {
   const accessToken = jwt.sign(
     {
       id: user.id,
-      email: user.email,
+      username: user.username,
       username: user.username,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "12h" }
   );
 
-  res.status(200).json({ message: "Login successful!", email: user.email, accessToken });
+  res.status(200).json({ message: "Login successful!", username: user.username, accessToken });
 });
 
 //@desc Current user info (User Profile)
