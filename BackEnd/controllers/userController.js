@@ -105,20 +105,20 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
 //@route POST /api/login
 //@access public
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
-  // Provjeri jesu li svi OBVEZNI podaci uneseni za prijavu (Unos: username ili username i lozinka))
-  if (!username || !password) {
+  const { email, password } = req.body;
+  // Provjeri jesu li svi OBVEZNI podaci uneseni za prijavu
+  if (!email || !password) {
     res.status(400);
-    throw new Error("username and password are mandatory!");
+    throw new Error("Email and password are mandatory!");
   }
 
-  // Pronađi korisnika u bazi podataka na temelju jedinstvenog usernamea
-  const user = await User.findOne({ username });
+  // Pronađi korisnika u bazi podataka na temelju jedinstvenog email-a
+  const user = await User.findOne({ email });
 
   // Provjeri je li korisnik pronađen
   if (!user) {
     res.status(401);
-    throw new Error("Invalid username!");
+    throw new Error("Invalid email!");
   }
 
   // Usporedi lozinku s hashiranom lozinkom
@@ -131,14 +131,14 @@ const loginUser = asyncHandler(async (req, res) => {
   const accessToken = jwt.sign(
     {
       id: user.id,
-      username: user.username,
+      email: user.email,
       username: user.username,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "12h" }
   );
 
-  res.status(200).json({ message: "Login successful!", username: user.username, accessToken });
+  res.status(200).json({ message: "Login successful!", email: user.email, accessToken });
 });
 
 //@desc Current user info (User Profile)
