@@ -139,7 +139,7 @@ const loginUser = asyncHandler(async (req, res) => {
   };
 
   // Generiraj JWT token
-  const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+  const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1hr" });
   res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 3600000 }).status(200).json({ message: "Login successful!", accessToken });
 });
 
