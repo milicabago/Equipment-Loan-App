@@ -6,11 +6,12 @@ import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { useRouter } from "next/navigation";
 import axios from 'axios';
 
-<link rel="icon" href="/favicon.ico" /> 
 
 const LoginPage = (data) => {
+    const router = useRouter();
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -23,39 +24,26 @@ const LoginPage = (data) => {
         password: yup.string().required("Password is required"),
     });
     
-    const{ register, handleSubmit, formState: {errors }} = useForm({
+    const{ register, handleSubmit, formState:{errors },} = useForm({
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = (data, e) => {
-        e.preventDefault();
+    const onSubmit = (data) => {
         axios
-          .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
-          .then((response) => {
-            const accessToken = response.data.accessToken;
-            setCookie("token", accessToken);
-            axios
-              .get(process.env.NEXT_PUBLIC_BASE_URL + "/current", {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              })
-              .then((userResponse) => {
-                setUser(userResponse.data);
-                router.push("/admin/page.jsx");
-              })
-              .catch((error) => {
-                console.error("Error fetching user data:", error);
-              });
-          })
-          .catch((error) => {
-            alert("Invalid email or password");
-          });
-      };
-
+        .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
+        .then((response) => {
+            console.log("Logged in successfully!");
+            router.push("/admin");
+        })
+        .catch((error) => {
+            console.error("Login error:", error.response.data.message);
+            alert("Invalid username or password");
+        });
+    };
 
     return(
         <div className={styles.container}>
+            <link rel="icon" href="/favicon.ico" /> 
             
             <div className={styles.bgi}>
             <Image 
