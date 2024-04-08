@@ -37,7 +37,7 @@ const LoginPage = (data) => {
         })
         .catch((error) => {
             console.error("Login error:", error.response.data.message);
-            alert("Invalid username or password");
+            alert("Invalid email or password");
         });
     };
 
@@ -58,8 +58,8 @@ const LoginPage = (data) => {
                 
 
                 <label className={styles.email}>Email:
-                {/* <p>{errors.username?.message}</p>*/}
-                <input type="text" className={styles.autofill} placeholder="Unesite email" {...register("username")} autoComplete="off" /></label>  
+                {/* <p>{errors.email?.message}</p>*/}
+                <input type="text" className={styles.autofill} placeholder="Unesite email" {...register("email")} autoComplete="off" /></label>  
 
                 <label className={styles.password}>Lozinka:
                     <div className={styles.passwordInputContainer}>
