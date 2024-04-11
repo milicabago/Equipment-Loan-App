@@ -1,6 +1,13 @@
+"use client"
 import styles from './sidebar.module.css';
+import React, { useState, useEffect } from 'react';
 import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
+import { useCookies } from 'react-cookie';
+import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
+
+
 
 import {
     MdDashboard,
@@ -50,13 +57,57 @@ const menuItems = [
   ];
 
 const Sidebar = () => {
+    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [userData, setUserData] = useState();
+    const [role, setRole] = useState(null);
+    const [firstName, setFirstName] = useState(null);
+    const [lastName, setLastName] = useState(null);
+    const [id, setId] = useState('');
+    const router = useRouter();
+
+
+useEffect(() => {
+  const token = cookies.accessToken; 
+  if (token) {
+    const decodedToken = jwtDecode(token); 
+    const id = decodedToken.user._id;
+    const userRole = decodedToken.user.role; 
+    const userFirstName = decodedToken.user.first_name; 
+    const userLastName = decodedToken.user.last_name;
+    setRole(userRole === 'user' ? '' : ''); 
+    setFirstName(userFirstName); 
+    setLastName(userLastName);
+    setId(id); 
+  } else {
+    setRole(null); 
+    setFirstName(''); 
+    setLastName('');
+    setId(''); 
+  }
+}, [cookies.accessToken]);
+
+const handleLogout = () => {
+  removeCookie('accessToken');
+  localStorage.removeItem('accessToken');
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
+  }
+
+
+};
+
+
+
     return(
         <div className={styles.container}>
           <div className={styles.user}>
             <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50" />
             <div className={styles.userDetail}>
-              <span className={styles.username}> Ime Prezime</span>
-              <span className={styles.userTitle}> Employee </span>
+            <div className={styles.username}>
+              <span className={styles.firstname}>{firstName}</span>{' '}
+              <span className={styles.lastname}>{lastName}</span>
+              </div>
+              <span className={styles.userRole}>{role}</span>
             </div>
           </div>
 
@@ -71,7 +122,7 @@ const Sidebar = () => {
                     </li>
                 ))}
             </ul>
-            <button className={styles.logout}>
+            <button className={styles.logout} onClick={handleLogout}>
               <MdLogout/>
               Odjava</button>
 

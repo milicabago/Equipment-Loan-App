@@ -4,14 +4,18 @@ import Image from "next/image";
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import { useRouter } from "next/navigation";
 import axios from 'axios';
+import { useCookies } from 'react-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 
 const LoginPage = (data) => {
+    const [role, setRole] = useState(null);
     const router = useRouter();
+    const [cookies, setCookies] = useCookies(['accessToken']);
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -24,22 +28,46 @@ const LoginPage = (data) => {
         password: yup.string().min(8).required("Password is required"),
     });
     
-    const{ register, handleSubmit, formState:{errors },} = useForm({
+    const{ register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
 
+    useEffect(() => {
+        const token = cookies.accessToken; 
+        if (token) {
+          const decodedToken = jwtDecode(token); 
+          const id = decodedToken.user._id;
+          const userRole = decodedToken.user.role; 
+          setRole(userRole === 'admin' ? 'Administrator' : ''); 
+        } else {
+          setRole(null); 
+        }
+      }, [cookies.accessToken]);
+
+
     const onSubmit = (data) => {
         axios
-        .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
-        .then((response) => {
-            console.log("Logged in successfully!");
+    .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
+    .then((response) => {
+        console.log("Logged in successfully!");
+        const token = response.data.accessToken;
+        const decodedToken = jwtDecode(token); 
+        const userRole = decodedToken.user.role; 
+
+        setCookies('accessToken', token);
+        window.localStorage.setItem('user._id', decodedToken.user._id);
+
+        if (userRole === "admin") {
             router.push("/admin");
-        })
-        .catch((error) => {
-            console.error("Login error:", error.response.data.message);
-            alert("Invalid email or password");
-        });
-    };
+        } else if (userRole === "user") {
+            router.push("/user");
+        }
+    })
+    .catch((error) => {
+        console.error("Login error:", error.response.data.message);
+        alert("Invalid email or password");
+    });
+};
 
     return(
         <div className={styles.container}>
@@ -58,7 +86,6 @@ const LoginPage = (data) => {
                 
 
                 <label className={styles.email}>Email:
-                {/* <p>{errors.email?.message}</p>*/}
                 <input type="text" className={styles.autofill} placeholder="Unesite email" {...register("email")} autoComplete="off" /></label>  
 
                 <label className={styles.password}>Lozinka:
@@ -92,4 +119,3 @@ const LoginPage = (data) => {
 };
 
 export default LoginPage;
-
