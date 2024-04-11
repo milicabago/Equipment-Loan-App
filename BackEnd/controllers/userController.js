@@ -3,8 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const Joi = require("joi");
+
 // Definicija sheme za validaciju ažuriranja korisnika
-// TRENUTNO nekoristeno
 const userUpdateSchema = Joi.object({
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
@@ -16,16 +16,15 @@ const userUpdateSchema = Joi.object({
   password: Joi.string().min(8).optional(), // Opcionalno polje
 });
 
-// Funkcija za provjeru valjanosti e-mail adrese
+//desc Validation email
 function isValidEmail(email) {
-  // Koristi regularni izraz za provjeru valjanosti e-mail adrese
   const emailRegex = /.+\@.+\..+/;
   return emailRegex.test(email);
 }
 
-//@desc Register/Create New user
-//@route POST /api/users/create_user
-//@access public  /* Kasnije prebaciti --> private */
+//@desc Create New user or /** Register user (JOŠ NEODLUČENO) **/ 
+//@route POST /api/admin/createUser or /** POST /api/register **/
+//@access public (default role is "user")
 const registerOrCreateUser = asyncHandler(async (req, res) => {
   // Unesi sve podatke u formu
   const {
@@ -133,6 +132,8 @@ const loginUser = asyncHandler(async (req, res) => {
     user: {
       _id: user._id,
       role: user.role,
+      first_name: user.first_name,
+      last_name: user.last_name,
       email: user.email,
       username: user.username,
     }
@@ -143,8 +144,8 @@ const loginUser = asyncHandler(async (req, res) => {
   res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 3600000 }).status(200).json({ message: "Login successful!", accessToken });
 });
 
-//@desc Current user info (User Profile)
-//@route GET /api/users/current
+//@desc Current user with access token information
+//@route GET /api/current
 //@access private
 const currentUser = asyncHandler(async (req, res) => {
   // Korisnički podaci dostupni su u `req.user` objektu koji je postavljen nakon provjere tokena
@@ -152,6 +153,9 @@ const currentUser = asyncHandler(async (req, res) => {
   res.json(currentUserData);
 });
 
+//@desc Get all users
+//@route GET /api/admin/users
+//@access private
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find({});
 
@@ -163,6 +167,9 @@ const getAllUsers = asyncHandler(async (req, res) => {
   res.status(200).json(users);
 });
 
+//@desc Get user
+//@route GET /api/admin/users/:id
+//@access private
 const getUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
@@ -173,8 +180,9 @@ const getUser = asyncHandler(async (req, res) => {
   res.status(200).json(user);
 });
 
-//@desc Update user
-//@route PUT /api/users/:id
+/** ODRADITI ZA PATCH - Admin mijenja neke dijelove --> adminUpdateUser **/
+//@desc Update user 
+//@route PUT/PATCH /api/admin/users/:id
 //@access private
 const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
@@ -231,7 +239,7 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 
 //@desc Delete user
-//@route DELETE /api/users/:id
+//@route DELETE /api/admin/users/:id
 //@access private
 const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);

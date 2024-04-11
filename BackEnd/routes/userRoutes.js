@@ -5,7 +5,7 @@ const { updateUser } = require("../controllers/userController");
 const { getActiveRequests, assignEquipment, unassignEquipment, getEquipmentHistory } = require("../controllers/requestController");
 const { getAllEquipment, getEquipment } = require("../controllers/equipmentController");
 
-/**** START: Routes for USER (EMPLOYEE OF THE COMPANY) --> ****/
+/**** Routes for USER (EMPLOYEE OF THE COMPANY) ****/
 
 /** GET all users with assigned equipment **/
 router.get("/", getActiveRequests);
@@ -19,7 +19,5 @@ router.get("/equipmentHistory", getEquipmentHistory);
 
 /** GET user profile by ID **/
 router.route("/settings/:id").put(updateUser); // ovo je funkcija samo za UPDATE usera
-
-/**** END: <-- Routes for USER ****/
 
 module.exports = router;

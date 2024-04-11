@@ -5,7 +5,7 @@ const { registerOrCreateUser, getAllUsers, getUser, updateUser, deleteUser } = r
 const { getActiveRequests, getPendingRequests, deleteRequest, activateRequest } = require("../controllers/requestController");
 const { getAllEquipment, addEquipment, getEquipment, updateEquipment, deleteEquipment } = require("../controllers/equipmentController");
 
-/**** START: Routes for ADMIN --> ****/
+/**** Routes for ADMIN ****/
 
 /** GET all users with assigned equipment **/
 router.get("/", getActiveRequests);
@@ -15,7 +15,7 @@ router.delete("/:id", deleteRequest); // Kada uklanjamo zahtjev
 /** GET all requests for ACCEPT or DELETE request **/
 router.get("/requests", getPendingRequests);
 router.post("/requests/request", activateRequest);
-router.patch("/requests/:id", /* denidedRequest */); // promijeni status na "denied"
+router.patch("/requests/:id", /* denidedRequest */); // promijeni status na "denied" umjesto DELETE
 
 /** POST for create new User **/
 router.post("/createUser", registerOrCreateUser);
@@ -37,7 +37,5 @@ router.delete("/equipment/:id", deleteEquipment);
 
 /** GET user profile by ID **/
 router.route("/settings/:id").get(getUser)/* .patch(adminUpdateUser); */ // adminuUpdateUser kreirati
-
-/**** END: <-- Routes for ADMIN ****/
 
 module.exports = router;

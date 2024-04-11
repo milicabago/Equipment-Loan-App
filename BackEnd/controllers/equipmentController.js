@@ -13,8 +13,8 @@ const equipmentSchema = Joi.object({
 });
 
 //@desc Get all equipments
-//@route GET /api/admin/equipment
-//@access public
+//@route GET /api/admin/equipment *//* @route GET /api/user/equipment
+//@access private
 const getAllEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.find();
 
@@ -27,8 +27,8 @@ const getAllEquipment = asyncHandler(async (req, res) => {
 });
 
 //@desc Add New equipment
-//@route POST /api/equipment
-//@access public
+//@route POST /api/admin/addEquipment
+//@access private
 const addEquipment = asyncHandler(async (req, res) => {
   console.log("The request body is:\n", req.body);
   const { name, full_name, serial_number, condition, description } = req.body;
@@ -55,8 +55,8 @@ const addEquipment = asyncHandler(async (req, res) => {
 });
 
 //@desc Get equipment
-//@route GET /api/equipment/:id
-//@access public
+//@route GET /api/admin/equipment/:id *//* @route GET /api/user/equipment/:id
+//@access private
 const getEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.findById(req.params.id);
   if (!equipment) {
@@ -67,8 +67,8 @@ const getEquipment = asyncHandler(async (req, res) => {
 });
 
 //@desc Update equipment
-//@route PUT /api/equipment/:id
-//@access public
+//@route PUT /api/admin/equipment/:id
+//@access private
 const updateEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.findById(req.params.id);
   if (!equipment) {
@@ -99,8 +99,8 @@ const updateEquipment = asyncHandler(async (req, res) => {
 });
 
 //@desc Delete equipment
-//@route DELETE /api/equipment/:id
-//@access public
+//@route DELETE /api/admin/equipment/:id
+//@access private
 const deleteEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.findById(req.params.id);
   if (!equipment) {

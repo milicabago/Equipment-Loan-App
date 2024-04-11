@@ -5,8 +5,8 @@ const Request = require("../models/userEquipmentModel");
 /** START: ADMIN --> **/
 
 // @desc Get all Active requests (Users + Equipment)
-// @route GET /api/admin/dashboard
-// @access public
+// @route GET /api/admin/ *//* @route GET /api/user/
+// @access private
 const getActiveRequests = asyncHandler(async (req, res) => {
   const requests = await Request.find({ request_status: "active" });
   res.status(200).json(requests);
@@ -14,15 +14,16 @@ const getActiveRequests = asyncHandler(async (req, res) => {
 
 // @desc Get all Pending requests (Users + Equipment)
 // @route GET /api/admin/requests
-// @access public
+// @access private
 const getPendingRequests = asyncHandler(async (req, res) => {
   const requests = await Request.find({ request_status: "pending" });
   res.status(200).json(requests);
 });
 
+//** DODATI REQUEST za DENIDED umjasto DELETE**/
 // @desc Delete request
 // @route DELETE /api/admin/requests/:id
-// @access public
+// @access private
 const deleteRequest = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id)
   try {
@@ -41,7 +42,7 @@ const deleteRequest = asyncHandler(async (req, res) => {
 
 // @desc Activate request
 // @route POST /api/admin/requests/request
-// @access public
+// @access private
 const activateRequest = asyncHandler(async (req, res) => {
   // Pronađi zahtjev po ID-u
   const request = await Request.findById(req.params.id);
@@ -64,7 +65,7 @@ const activateRequest = asyncHandler(async (req, res) => {
 
 // @desc Request equipment assignment
 // @route POST /api/user/equipment/request
-// @access Public
+// @access private
 const assignEquipment = asyncHandler(async (req, res) => {
   const { equipment_id, quantity } = req.body;
   // Pronađi opremu po ID-u
@@ -109,8 +110,8 @@ const assignEquipment = asyncHandler(async (req, res) => {
 });
 
 // @desc Unsign equipment
-// @route PUT /api/user/dashboard/:id
-// @access public
+// @route PUT /api/user/:id
+// @access private
 const unassignEquipment = asyncHandler(async (req, res) => {
   // Pronađi opremu po ID-u
   const userEquipment = await Request.findById(req.params.id);
@@ -146,7 +147,7 @@ const unassignEquipment = asyncHandler(async (req, res) => {
 
 // @desc Get equipment history
 // @route GET /api/user/equipmentHistory
-// @access public
+// @access private
 const getEquipmentHistory = asyncHandler(async (req, res) => {
   // Izvrši upit u bazu podataka za dohvat razdužene opreme
   const history = await Request.find({ request_status: "inactive" }).sort({ unassign_date: -1 }); // status = returned

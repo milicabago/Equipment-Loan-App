@@ -58,4 +58,5 @@ const UserEquipmentModel = mongoose.model(
   "user_equipment",
   UserEquipmentSchema
 );
+
 module.exports = UserEquipmentModel;
