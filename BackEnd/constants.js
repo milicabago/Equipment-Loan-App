@@ -5,3 +5,11 @@ exports.constants = {
   NOT_FOUND: 404,
   SERVER_ERROR: 500,
 };
+
+exports.UserEquipmentStatus = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  PENDING: "pending",
+  DENIED: "denied",
+  RETURNED: "returned",
+};

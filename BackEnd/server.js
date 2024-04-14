@@ -3,7 +3,7 @@ const routes = require("./routes");
 const connectDB = require("./config/dbConnection");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const cookeParser = require("cookie-parser");
+const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/errorHandler");
 
 /**  Defined PORT (5001) and Connect to Database **/
@@ -13,7 +13,7 @@ connectDB();
 
 const app = express();
 app.use(express.json());
-app.use(cookeParser());
+app.use(cookieParser());
 app.use(cors());
 
 /** Routes **/
@@ -22,7 +22,7 @@ app.use("/api", routes);
 /** Defined errors **/
 app.use(errorHandler);
 
-/**  Starting Server **/
+/** Starting Server **/
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

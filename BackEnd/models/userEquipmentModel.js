@@ -1,12 +1,5 @@
 const mongoose = require("mongoose");
-
-const UserEquipmentStatus = {
-  PENDING: "pending",
-  ACTIVE: "active",
-  INACTIVE: "inactive",
-  DENIED: "denied",
-  RETURNED: "returned",
-};
+const { UserEquipmentStatus } = require("../constants");
 
 const UserEquipmentSchema = new mongoose.Schema(
   {
@@ -17,7 +10,7 @@ const UserEquipmentSchema = new mongoose.Schema(
     },
     equipment_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Equipment",
+      ref: "equipment",
       required: [true, "Equipment ID is required"],
     },
     quantity: {
@@ -32,7 +25,7 @@ const UserEquipmentSchema = new mongoose.Schema(
     return_status_request: {
       type: String,
       enum: Object.values(UserEquipmentStatus),
-      default: UserEquipmentStatus.RETURNED,
+      default: UserEquipmentStatus.INACTIVE,
     },
     assign_date: {
       type: Date,
@@ -40,6 +33,7 @@ const UserEquipmentSchema = new mongoose.Schema(
     },
     unassign_date: {
       type: Date,
+      default: null,
       required: false,
     },
     unassigned_quantity: {
