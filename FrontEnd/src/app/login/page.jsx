@@ -32,42 +32,51 @@ const LoginPage = (data) => {
         resolver: yupResolver(schema)
     });
 
+    const clearHistory = () => {
+        window.history.pushState(null, '', window.location.href);
+        window.history.forward();
+    };
+
     useEffect(() => {
         const token = cookies.accessToken; 
         if (token) {
           const decodedToken = jwtDecode(token); 
           const id = decodedToken.user._id;
           const userRole = decodedToken.user.role; 
-          setRole(userRole === 'admin' ? 'Administrator' : ''); 
-        } else {
-          setRole(null); 
+
+          if (userRole === 'admin') {
+                router.push('/admin');
+            } else if (userRole === 'user') {
+                router.push('/user');
+            }
         }
       }, [cookies.accessToken]);
-
-
+    
+    
     const onSubmit = (data) => {
         axios
-    .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
-    .then((response) => {
-        console.log("Logged in successfully!");
-        const token = response.data.accessToken;
-        const decodedToken = jwtDecode(token); 
-        const userRole = decodedToken.user.role; 
+            .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
+            .then((response) => {
+                console.log("Logged in successfully!");
+                const token = response.data.accessToken;
+                const decodedToken = jwtDecode(token); 
+                const userRole = decodedToken.user.role; 
 
-        setCookies('accessToken', token);
-        window.localStorage.setItem('user._id', decodedToken.user._id);
+                setCookies('accessToken', token);
+                window.localStorage.setItem('user._id', decodedToken.user._id);
 
-        if (userRole === "admin") {
-            router.push("/admin");
-        } else if (userRole === "user") {
-            router.push("/user");
-        }
-    })
-    .catch((error) => {
-        console.error("Login error:", error.response.data.message);
-        alert("Invalid email or password");
-    });
-};
+                if (userRole === "admin") {
+                    router.push("/admin");
+                } else if (userRole === "user") {
+                    router.push("/user");
+                }
+                clearHistory();
+            })
+            .catch((error) => {
+                console.error("Login error:", error.response.data.message);
+                alert("Invalid email or password");
+            });
+        };
 
     return(
         <div className={styles.container}>

@@ -1,11 +1,108 @@
-.container{
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 0px;
-    display: flex;
-    width: 100%;
-    gap: 20px;
-    cursor: pointer;
+.container {
+  background: none;
+  padding: 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 40px;
+}
+
+.table {
+  width: 100%;
+  background-color: none;
+  padding: 15px;
+  border-radius: 15px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th,
+.table td {
+  border: 1px solid #000000;
+  padding: 20px;
+  color: #ffffff;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+}
+
+.table th:first-child {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.table th:last-child {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.table th {
+  background-color: var(--button);
+}
+
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.photo {
+  margin-right: 10px;
+}
+
+.photoImg {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.details {
+  overflow: hidden;
+}
+
+.name {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.email {
+  color: #ffffff;
+}
+
+.role {
+  font-style: italic;
+
+}
+
+.position {
+  font-style: italic;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.profession {
+  font-style: italic;
+}
+
+.status {
+  font-weight: bold;
+  color: #44516d;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 8px 12px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #007bff;
 }

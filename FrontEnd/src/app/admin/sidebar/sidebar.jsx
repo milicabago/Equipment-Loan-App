@@ -113,13 +113,17 @@ const Sidebar = () => {
     }
   }, [cookies.accessToken]);
 
+
   const handleLogout = () => {
     removeCookie('accessToken');
     localStorage.removeItem('accessToken');
     if (typeof window !== 'undefined') {
       window.location.href = '/login';
     }
-  
+  const clearHistory = () => {
+    window.history.pushState(null, '', window.location.href);
+    window.history.forward();
+};
 
   };
 

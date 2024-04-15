@@ -54,7 +54,8 @@
 .password,
 .confirmPassword,
 .phone,
-.role {
+.role 
+.position{
     align-self: flex-start;
     width: 100%;
     font-size: 14px;

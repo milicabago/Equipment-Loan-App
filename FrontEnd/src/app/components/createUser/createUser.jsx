@@ -68,9 +68,24 @@ const Users = (data) => {
                     
                         <select className={styles.select}>
                             <option  className={styles.admin} value="1">Administrator</option>
-                            <option className={styles.employee} value="2">Uposlenik</option>
+                            <option className={styles.user} value="2">Uposlenik</option>
                         </select>
                     </label> 
+
+                    <label className={styles.position}>Uloga:
+                    
+                    <select className={styles.select}>
+                        
+                        <option className={styles.employee} value="1">Project manager</option>
+                        <option className={styles.employee} value="2">Software developer</option>
+                        <option className={styles.employee} value="3">Graphic designer</option>
+                        <option  className={styles.employee} value="4">Financial accountant</option>
+                        <option className={styles.employee} value="5">DevOps Engineer</option>
+                        <option className={styles.employee} value="6">Junior Product Owner</option>
+
+                    </select>
+                    </label> 
+
                     <div>
                     <button className={styles.button} type="submit">Kreiraj</button>
                     </div>
