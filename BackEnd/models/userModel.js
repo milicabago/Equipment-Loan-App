@@ -25,6 +25,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    confirm_password: {
+      type: String,
+      required: [true, "Confirm password is required"],
+    },
     contact: {
       type: String,
       required: false,

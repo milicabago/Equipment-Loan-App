@@ -12,7 +12,7 @@ const Joi = require("joi");
 //@access2 private (only admin)
 const registerOrCreateUser = asyncHandler(async (req, res) => {
 
-  const { first_name, last_name, email, username, password, role, contact, position } = req.body;
+  const { first_name, last_name, email, username, password, confirm_password, role, contact, position } = req.body;
 
   // User validation schema
   const userSchema = Joi.object({
@@ -25,6 +25,9 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
     email: Joi.string().email().required(),
     username: Joi.string().alphanum().min(3).max(30).required(),
     password: Joi.string().min(8).required(),
+    confirm_password: Joi.string().valid(Joi.ref('password')).required().label('Confirm password').messages({
+      'any.only': 'Passwords must match',
+    }),
     role: Joi.string().valid("admin", "user").optional(),
     contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
