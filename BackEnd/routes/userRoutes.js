@@ -12,10 +12,10 @@ router.get("/", getActiveRequests); // Kada se korisnik prijavi, prikazuje svu o
 router.patch("/:id", unassignEquipment); // Kada korisnik razdužuje opremu --> request_status = "inactive" i return_status_request = "returned"
 
 /** GET all assigned equipment, GET equipment, request for assign and assign eqipment history **/
-router.get("/equipment", getAllEquipment); // Prikazuje svu dostupnu opremu
+router.get("/equipment", getAllEquipment); // Prikazuje svu dostupnu opremu u firmi
 router.get("/equipment/:id", getEquipment); // Prikazuje više informacija o određenoj opremi
-router.post("/equipment/request", assignEquipment); // Korisnik može zatražiti opremu
-router.get("/equipmentHistory", getEquipmentHistory); // Prikazuje povijest razduživanja opreme
+router.post("/equipment/request", assignEquipment); // Korisnik može zatražiti opremu request_status = "pending"
+router.get("/equipmentHistory", getEquipmentHistory); // Prikazuje povijest razduživanja opreme za svakog korisnika
 
 /** GET user profile by ID **/
 router.route("/settings").get(getUserProfile); // Prikazuje osobne podatke korisnika

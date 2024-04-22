@@ -1,6 +1,4 @@
 const asyncHandler = require("express-async-handler");
-const { constants } = require("../constants");
-const errorHandler = require("./errorHandler");
 
 /** ADMIN **/
 const checkAdmin = asyncHandler(async (req, res, next) => {

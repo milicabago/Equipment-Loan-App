@@ -17,6 +17,11 @@ const validateToken = asyncHandler(async (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
+
+    if (error.name === 'TokenExpiredError') {
+      console.log('WARNING: Token expired.');
+    }
+
     res.status(401);
     throw new Error("User is not authorized, token failed!");
   }

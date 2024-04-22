@@ -4,76 +4,42 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const Joi = require("joi");
 
-// Definicija sheme za validaciju ažuriranja korisnika
-
-const adminUpdateProfileShema = Joi.object({
-  first_name: Joi.string().required(),
-  last_name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  username: Joi.string().alphanum().min(3).max(30).required(),
-  role: Joi.string().valid('admin', 'user'),
-  contact: Joi.string().allow('').optional(), // Dozvoljava prazan string
-  position: Joi.string().required(),
-  password: Joi.string().min(8).optional(), // Opcionalno polje
-});
-
-// Definicija sheme za validaciju ažuriranja korisnika
-const userUpdateSchema = Joi.object({
-  first_name: Joi.string().required(),
-  last_name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  username: Joi.string().alphanum().min(3).max(30).required(),
-  role: Joi.string().forbidden(), // Onemogućiti ažuriranje uloge
-  contact: Joi.string().allow('').optional(), // Dozvoljava prazan string
-  position: Joi.string().forbidden(), // Onemogućiti ažuriranje pozicije
-  password: Joi.string().min(8).optional(), // Opcionalno polje
-});
-
-const adminUpdateSchemaForUser = Joi.object({
-  role: Joi.string().valid('admin', 'user'),
-  position: Joi.string(),
-});
-
-//@desc Validation email
-function isValidEmail(email) {
-  const emailRegex = /.+\@.+\..+/;
-  return emailRegex.test(email);
-}
-
-//@desc Create New user or /** Register user (JOŠ NEODLUČENO) **/ 
-//@route POST /api/admin/createUser or /** POST /api/register **/
-//@access public (default role is "user")
+//@desc1 Register user
+//@desc2 Create New user
+//@route1 POST /api/register
+//@route2 POST /api/admin/createUser
+//@access1 public
+//@access2 private (only admin)
 const registerOrCreateUser = asyncHandler(async (req, res) => {
-  // Unesi sve podatke u formu
-  const {
-    first_name,
-    last_name,
-    email,
-    username,
-    password,
-    role,
-    contact,
-    position,
-  } = req.body;
-  // Provjeri jesu li svi OBVEZNI podaci uneseni (samo kontakt NIJE OBVEZAN)
-  if (
-    !first_name ||
-    !last_name ||
-    !email ||
-    !username ||
-    !password ||
-    !position
-  ) {
-    res.status(400);
-    throw new Error(
-      "Fields for 'Fist name, Last name, Email, Username, Password, Position' are mandatory!"
-    );
-  }
 
-  // Provjeri valjanost e-mail adrese
-  if (!isValidEmail(email)) {
+  const { first_name, last_name, email, username, password, role, contact, position } = req.body;
+
+  // User validation schema
+  const userSchema = Joi.object({
+    first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({ // za koristenje početnih i završnih razmaka trim() dodati ispred pattern
+      'string.pattern.base': '\"first_name\" cannot contain multiple consecutive spaces!',
+    }),
+    last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    email: Joi.string().email().required(),
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().min(8).required(),
+    role: Joi.string().valid("admin", "user").optional(),
+    contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+  });
+
+  // Validacija podataka korisnika koristeći Joi shemu
+  const { error } = userSchema.validate(req.body, { abortEarly: false });
+  if (error) {
+    const errorMessages = error.details.map(detail => detail.message);
     res.status(400);
-    throw new Error("Invalid email address!");
+    throw new Error(errorMessages.join(', '));
   }
 
   // Provjeri postoji li korisnik u bazi prema jedinstenom email-u ili username-u
@@ -82,10 +48,12 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("User with email or username already created!");
   }
+
   // Hashiraj lozinku
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
   console.log("Hashed password: " + hashedPassword);
+
   // Kreiraj novog korisnika
   const user = await User.create({
     first_name,
@@ -98,7 +66,6 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
     position,
   });
 
-  console.log(`User created: ${user}`);
   //  Ako je korisnik kreiran, vrati status 201 i podatke korisnika
   if (user) {
     res
@@ -108,12 +75,6 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("User data is not valid!");
   }
-
-  // Funkcija za provjeru valjanosti e-mail adrese
-  function isValidEmail(email) {
-    const emailRegex = /.+\@.+\..+/;
-    return emailRegex.test(email);
-  }
 });
 
 //@desc Login user
@@ -121,26 +82,33 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
 //@access public
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  // Provjeri jesu li svi OBVEZNI podaci uneseni za prijavu
-  if (!email || !password) {
+
+  // Login validation
+  const loginSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  });
+
+  const { error } = loginSchema.validate(req.body, { abortEarly: false });
+  if (error) {
+    const errorMessages = error.details.map(detail => detail.message);
     res.status(400);
-    throw new Error("Email and password are mandatory!");
+    throw new Error(errorMessages.join(', '));
   }
 
-  // Pronađi korisnika u bazi podataka na temelju jedinstvenog email-a
   const user = await User.findOne({ email });
 
   // Provjeri je li korisnik pronađen
   if (!user) {
-    res.status(401);
-    throw new Error("Invalid email!");
+    res.status(404);
+    throw new Error("User not found!");
   }
 
-  // Usporedi lozinku s hashiranom lozinkom
+  // Provjeri je li lozinka ispravna
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    res.status(401);
-    throw new Error("Invalid password!");
+    res.status(400);
+    throw new Error("Invalid email or password!");
   }
 
   // Podaci korisnika koji će biti spremljeni u JWT token
@@ -155,7 +123,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
   };
 
-  // Generiraj JWT token
+  // Generate JWT token
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1hr" });
   res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 3600000 }).status(200).json({ message: "Login successful!", accessToken });
 });
@@ -166,14 +134,26 @@ const loginUser = asyncHandler(async (req, res) => {
 const currentUser = asyncHandler(async (req, res) => {
   // Korisnički podaci dostupni su u `req.user` objektu koji je postavljen nakon provjere tokena
   const currentUserData = req.user;
-  res.json(currentUserData);
+  if (currentUserData) {
+    // Korisnik je prijavljen, ispiši poruku da je trenutni korisnik prijavljen
+    currentUserData.iat = new Date(currentUserData.iat * 1000).toLocaleString();
+    currentUserData.exp = new Date(currentUserData.exp * 1000).toLocaleString();
+
+    res.json({
+      message: `User \'${currentUserData.user.first_name} ${currentUserData.user.last_name}\' is logged.`,
+      user: currentUserData,
+    });
+  } else {
+    // Korisnik nije prijavljen
+    res.json({ message: "No user logged in." });
+  }
 });
 
 //@desc Get all users (ADMIN)
 //@route GET /api/admin/users
 //@access private
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({}).sort({ first_name: 1, last_name: 1 });
 
   if (!users) {
     res.status(404);
@@ -220,6 +200,24 @@ const getUserProfile = asyncHandler(async (req, res) => {
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
+  // User validation 
+  const updateUserSchema = Joi.object({
+    first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"first_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    email: Joi.string().email().required(),
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    role: Joi.string().forbidden(),
+    contact: Joi.string().allow('').optional().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    position: Joi.string().forbidden(),
+    password: Joi.string().min(8).optional(),
+  });
+
   if (!user) {
     res.status(404);
     throw new Error("User not found!");
@@ -232,7 +230,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 
   // Validacija podataka za ažuriranje koristeći Joi shemu
-  const { error } = userUpdateSchema.validate(req.body, { abortEarly: false });
+  const { error } = updateUserSchema.validate(req.body, { abortEarly: false });
 
   if (error) {
     const errorMessages = error.details.map(detail => detail.message);
@@ -293,6 +291,27 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     throw new Error("User doesn't have permission to UPDATE another user profile!");
   }
 
+  //****** PROVJERITI SA MENTOROM da li kada je UPDATE vrijednosti staviti na REQUIRED ili ostaviti OPTIONAL *******/
+  // Definicija sheme za validaciju ažuriranja korisnika
+  const adminUpdateProfileShema = Joi.object({
+    first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"first_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    email: Joi.string().email().required(),
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().min(8).optional(),
+    role: Joi.string().valid('admin', 'user').optional(),
+    contact: Joi.string().allow('').optional().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+    position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+      'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+  });
+
   // Validacija podataka za update koristeći Joi shemu
   const { error } = adminUpdateProfileShema.validate(req.body, { abortEarly: false }); // Dodajemo opciju abortEarly: false kako bi prikazali sve greške
 
@@ -320,14 +339,16 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     }
   }
 
-  // Ažuriranje korisnika
-  user.first_name = req.body.first_name;
-  user.last_name = req.body.last_name;
-  user.email = req.body.email;
-  user.username = req.body.username;
+  // Ažuriranje korisnika 
+  // Ako je required() onda se ne mora stavljati prethodna vrijednost || user.first_name itd.
+  // Ako je optional() onda se mora staviti prethodna vrijednost || user.first_name itd.
+  user.first_name = req.body.first_name || user.first_name;
+  user.last_name = req.body.last_name || user.last_name;
+  user.email = req.body.email || user.email;
+  user.username = req.body.username || user.username;
   user.role = req.body.role || user.role; // Default role is "user"
   user.contact = req.body.contact || "";
-  user.position = req.body.position;
+  user.position = req.body.position || user.position;
 
   if (req.body.password) {
     const salt = await bcrypt.genSalt(10);
@@ -350,38 +371,45 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
     throw new Error("User not found!");
   }
 
+  // Validation schema
+  const adminUpdateSchemaForUser = Joi.object({
+    email: Joi.string().email().optional(),
+    username: Joi.string().alphanum().min(3).max(30).optional(),
+    role: Joi.string().valid('admin', 'user').optional(),
+    position: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({ // za dodavanje početnih i završnih razmaka trim() dodati ispred pattern
+      'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+    }),
+  });
+
   // Validacija podataka za update koristeći Joi shemu
-  const { error } = adminUpdateSchemaForUser.validate(req.body, { abortEarly: false }); // Dodajemo opciju abortEarly: false kako bi prikazali sve greške
+  const { error } = adminUpdateSchemaForUser.validate(req.body, { abortEarly: false });
 
   if (error) {
-    const errorMessages = error.details.map(detail => detail.message); // Mapiramo sve greške u niz
+    const errorMessages = error.details.map(detail => detail.message);
     res.status(400);
-    throw new Error(errorMessages.join(', ')); // Spajamo sve greške u jednu poruku
+    throw new Error(errorMessages.join(', '));
   }
 
-  // Provjeri je li se mijenjaju osim role i position
-  const allowedUpdates = ['role', 'position']; // Dozvoljene promjene
-  const requestedUpdates = Object.keys(req.body);
-  const isUpdateValid = requestedUpdates.every(update => allowedUpdates.includes(update));
+  const { email, username } = req.body;
 
-  if (!isUpdateValid) {
+  // Provjeri postoji li korisnik u bazi prema jedinstenom email-u ili username-u
+  const existingUser = await User.findOne({ $and: [{ _id: { $ne: user._id } }, { $or: [{ email }, { username }] }] });
+  if (existingUser) {
     res.status(400);
-    throw new Error("You can only update role and position!");
+    throw new Error("User with email or username already exists!");
   }
 
   // Ažuriranje korisnika
-  user.role = req.body.role || user.role; // Default role is "user"
+  user.email = req.body.email || user.email;
+  user.username = req.body.username || user.username;
+  user.role = req.body.role || user.role;
   user.position = req.body.position || user.position;
-
-  if (req.body.password) {
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(req.body.password, salt);
-  }
 
   const updatedUser = await user.save();
 
   res.status(200).json({ message: "User updated.", updatedUser });
 });
+
 
 //@desc Delete user
 //@route DELETE /api/admin/users/:id
@@ -393,7 +421,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found!");
   }
-  let deleteUser = await User.findByIdAndDelete(req.params.id);
+  const deleteUser = await User.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "User has been deleted!", deleteUser });
 });
 

@@ -9,8 +9,7 @@ const { checkAdmin, checkUser } = require("../middleware/checkRoleHandler");
 /** Routes for all USERS **/
 router.post("/login", loginUser);
 router.post("/register", registerOrCreateUser); // Default --> role === "user"
-router.get("/current", validateToken, currentUser); // Provjerava trenutno prijavljenog korisnika
-router.get("/logout", (req, res) => res.send("Logout user"));
+router.get("/current", validateToken, currentUser);
 
 /** Routes for ADMIN **/
 router.use("/admin", validateToken, checkAdmin, require("./adminRoutes"));
