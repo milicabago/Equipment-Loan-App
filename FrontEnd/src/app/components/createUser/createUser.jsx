@@ -3,18 +3,29 @@ import styles from './createUser.module.css';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
+import { jwtDecode } from 'jwt-decode';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { reset } from 'react-hook-form'; 
 
 const Users = (data) => {
 
+    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [formData, setFormData] = useState(null);
+
+
     const schema = yup.object().shape({
-        firstname: yup.string().required("First name is required!"),
-        lastname: yup.string().required("Last name is required!"),
+        first_name: yup.string().required("First name is required!"),
+        last_name: yup.string().required("Last name is required!"),
         username: yup.string().required("Username is required!"),
-        phone: yup.string().required("Phone is required!"),
+        contact: yup.string().required("Contact is required!"),
         email: yup.string().email().required("Email is required!"),
-        Password: yup.string().min(8).required("Password is required"),
-        confirmPassword: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),
+        password: yup.string().min(8).required("Password is required"),
+        confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),
+        position: yup.string().required("Position is required!"),
+        role: yup.string().required("Role is required!")
         
     });
 
@@ -22,9 +33,28 @@ const Users = (data) => {
         resolver: yupResolver(schema)
     });
 
-   const onSubmit = () => {
-        console.log(data);
+    
+    const onSubmit = async (data) => {
+        try{
+            const token = cookies.accessToken;
+            if (token) {
+                const decodedToken = jwtDecode(token);
+                const config = {
+                    headers: {
+                        'Authorization': 'Bearer ' + cookies.accessToken
+                    }   
+                };
+                const response = await axios.post(process.env.NEXT_PUBLIC_BASE_URL + 'admin/createUser', data, config);
+                console.log("New user created:", response.data);
+                toast.success('New user created successfully!');
+                reset();
+            }
+            } catch (error) {
+                console.error("Error:", error);
+                toast.error('Error creating new user!');
+            }
     };
+
 
     return (
         <div className={styles.container}>
@@ -37,44 +67,44 @@ const Users = (data) => {
                     </div>
 
                     <label className={styles.firstname}>Ime:
-                    <p>{errors.firstname?.message}</p>
-                    <input type="text" placeholder="Unesite ime" {...register("firstname")}  autoComplete='off'/></label>
+                    <p>{errors.first_name?.message}</p>
+                    <input type="text" placeholder="Unesite ime" {...register("first_name")}  autoComplete='off'/></label>
                     
                     <label className={styles.lastname}>Prezime:
-                    <p>{errors.lastname?.message}</p>
-                    <input type="text" placeholder="Unesite prezime" {...register("lastname")} autoComplete='off'/></label>
+                    <p>{errors.last_name?.message}</p>
+                    <input type="text" placeholder="Unesite prezime" {...register("last_name")} autoComplete='off'/></label>
                     
                     <label className={styles.username}>Korisničko ime:
                     <p>{errors.username?.message}</p>
                     <input type="text" placeholder="Unesite korisničko ime" {...register("username")} autoComplete='off'/></label>
                     
-                    <label className={styles.phone}>Kontakt:
-                    <p>{errors.phone?.message}</p>
-                    <input type="string" placeholder="Unesite kontakt broj" {...register("phone")} autoComplete='off'/></label> 
+                    <label className={styles.contact}>Kontakt:
+                    <p>{errors.contact?.message}</p>
+                    <input type="string" placeholder="Unesite kontakt broj" {...register("contact")} autoComplete='off'/></label> 
                     
                     <label className={styles.email}>Email adresa:
                     <p>{errors.email?.message}</p>
                     <input type="email" placeholder="Unesite email" {...register("email")} autoComplete='off'/></label>
 
                     <label className={styles.password}>Lozinka:
-                    <p>{errors.Password?.message}</p>
-                    <input type="password" placeholder="******" {...register("Password")} autoComplete='off'/></label>
+                    <p>{errors.password?.message}</p>
+                    <input type="password" placeholder="******" {...register("password")} autoComplete='off'/></label>
 
                     <label className={styles.confirmPassword}>Potvrda lozinke:
-                    <p>{errors.confirmPassword?.message}</p>
-                    <input type="password" placeholder="******" {...register("confirmPassword")} autoComplete='off'/></label>
+                    <p>{errors.confirm_password?.message}</p>
+                    <input type="password" placeholder="******" {...register("confirm_password")} autoComplete='off'/></label>
                     
                     <label className={styles.role}>Uloga:
                     
-                        <select className={styles.select}>
-                            <option  className={styles.admin} value="1">Administrator</option>
-                            <option className={styles.user} value="2">Uposlenik</option>
+                    <select {...register("role")} className={styles.select} defaultValue="user">
+                            <option  className={styles.admin} value="admin">Administrator</option>
+                            <option className={styles.user} value="user">Uposlenik</option>
                         </select>
                     </label> 
 
-                    <label className={styles.position}>Uloga:
+                    <label className={styles.position}>Pozicija:
                     
-                    <select className={styles.select}>
+                    <select {...register("position")} className={styles.select}>
                         
                         <option className={styles.employee} value="1">Project manager</option>
                         <option className={styles.employee} value="2">Software developer</option>

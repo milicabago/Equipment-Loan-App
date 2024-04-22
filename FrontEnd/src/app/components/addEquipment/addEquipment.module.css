@@ -45,10 +45,11 @@
 }
 
 
-.equipment,
 .name,
-.number,
-.status {
+.full_name,
+.serial_number,
+.quantity,
+.condition {
     align-self: flex-start;
     width: 100%;
     font-size: 14px;
@@ -97,7 +98,7 @@
     font-size: 14px;
 
 }
-.details{
+.description{
     padding: 15px;
     width: 100%;
     border: 1px solid #44516d;

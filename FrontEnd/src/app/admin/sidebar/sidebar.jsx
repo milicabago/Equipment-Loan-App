@@ -101,10 +101,17 @@ const Sidebar = () => {
       const userRole = decodedToken.user.role; 
       const userFirstName = decodedToken.user.first_name; 
       const userLastName = decodedToken.user.last_name;
-      setRole(userRole === 'admin' ? 'Administrator' : ''); 
-      setFirstName(userFirstName); 
-      setLastName(userLastName);
-      setId(id); 
+      const expirationTime = decodedToken.exp * 1000;
+      const currentTime = Date.now();
+
+      if ( expirationTime < currentTime ) {
+        handleLogout();
+      }else {
+        setRole(userRole === 'admin' ? 'Administrator' : ''); 
+        setFirstName(userFirstName); 
+        setLastName(userLastName);
+        setId(id); 
+      } 
     } else {
       setRole(null); 
       setFirstName(''); 
@@ -116,16 +123,21 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     removeCookie('accessToken');
-    localStorage.removeItem('accessToken');
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login';
-    }
-  const clearHistory = () => {
-    window.history.pushState(null, '', window.location.href);
-    window.history.forward();
-};
-
+    localStorage.removeItem('user._id');
+    clearHistoryAndRedirect();
+    
   };
+
+  const clearHistoryAndRedirect = () => {
+    window.history.replaceState({}, document.title, '/');
+    router.replace('/login');
+  };
+  useEffect(() => {
+    if (router.pathname === '/login') {
+      localStorage.setItem('user._id', '');
+    }
+  }, [router.pathname]);
+
 
     return(
         <div className={styles.container}>

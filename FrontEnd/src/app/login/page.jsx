@@ -55,7 +55,7 @@ const LoginPage = (data) => {
     
     const onSubmit = (data) => {
         axios
-            .post(process.env.NEXT_PUBLIC_BASE_URL + "/login", data)
+            .post(process.env.NEXT_PUBLIC_BASE_URL + "login", data)
             .then((response) => {
                 console.log("Logged in successfully!");
                 const token = response.data.accessToken;

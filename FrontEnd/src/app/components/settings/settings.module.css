@@ -1,11 +1,69 @@
-.container{
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 0px;
-    display: flex;
-    width: 100%;
-    gap: 20px;
-    cursor: pointer;
+.container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100vh;
+}
+
+.user {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  
+}
+.img{
+  flex-direction: column;
+  flex: 1;
+  
+}
+.userImage {
+  border-radius: 50%;
+  margin-right: 20px;
+  width: 100px;
+  height: 100px;
+}
+
+.userDetail {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 2;
+}
+
+
+
+.firstname,
+.lastname,
+.username,
+.email,
+.contact,
+.userRole {
+  margin: 5px;
+  color: #000;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

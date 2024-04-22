@@ -73,18 +73,18 @@
   color: #ffffff;
 }
 
-.role {
+.userRole {
   font-style: italic;
 
 }
 
-.position {
+.role {
   font-style: italic;
   color: #ffffff;
   font-weight: bold;
 }
 
-.profession {
+.position {
   font-style: italic;
 }
 
@@ -105,4 +105,85 @@
   cursor: pointer;
   font-size: 14px;
   color: #007bff;
+}
+
+.delete:hover {
+  background-color: var(--button);
+}
+
+.edit:hover {
+  background-color: var(--button);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.5);
+}
+
+.modalTitle {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.modalMessage {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modalButtons button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modalButtons button:first-child {
+  background-color: #ccc;
+}
+
+.modalButtons button:last-child {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.modalButtons button:last-child:hover {
+  background-color: #e74c3c;
+}
+
+.toast{
+  background-color: #333;
+  color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toast-success{
+  background-color: #4caf50;
+}
+
+.toast-error{
+  background-color: #f44336;
+}
+
+.modalContent{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
 }
