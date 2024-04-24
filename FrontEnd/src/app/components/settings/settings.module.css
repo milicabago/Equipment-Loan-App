@@ -1,25 +1,21 @@
 .container {
   display: flex;
+  background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
   justify-content: flex-start;
   align-items: flex-start;
   height: 100vh;
 }
 
 .user {
-  background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   display: flex;
-  align-items: center;
-  flex-direction: column;
+  align-items: flex-start;
   
 }
-.img{
-  flex-direction: column;
-  flex: 1;
-  
-}
+
 .userImage {
   border-radius: 50%;
   margin-right: 20px;
@@ -31,17 +27,42 @@
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  flex: 2;
+}
+.label{
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 5px;
 }
 
 
+
+.inputField {
+  padding: 15px;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #44516d;
+  background-color: transparent !important;
+  outline: none;
+  color: var(--text);
+  margin-top: 5px;
+  margin-bottom: 20px;
+  font-size: 14px;
+
+}
+
+
+
+.details {
+  margin-top: 10px; /* Promijenjeno */
+}
 
 .firstname,
 .lastname,
 .username,
 .email,
 .contact,
-.userRole {
+.position,
+.role {
   margin: 5px;
   color: #000;
 }
@@ -66,4 +87,15 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.button{
+  padding: 15px;
+  margin-top: 20px;    
+  width: 100%;
+  background-color: var(--button);
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  border-radius: 25px;
 }

@@ -88,11 +88,11 @@ const Users = (data) => {
 
                     <label className={styles.password}>Lozinka:
                     <p>{errors.password?.message}</p>
-                    <input type="password" placeholder="******" {...register("password")} autoComplete='off'/></label>
+                    <input type="password" placeholder="••••••••" {...register("password")} autoComplete='off'/></label>
 
                     <label className={styles.confirmPassword}>Potvrda lozinke:
                     <p>{errors.confirm_password?.message}</p>
-                    <input type="password" placeholder="******" {...register("confirm_password")} autoComplete='off'/></label>
+                    <input type="password" placeholder="••••••••" {...register("confirm_password")} autoComplete='off'/></label>
                     
                     <label className={styles.role}>Uloga:
                     

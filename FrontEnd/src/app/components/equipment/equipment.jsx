@@ -176,10 +176,10 @@ const Equipment = () => {
                 <table className={styles.table}>
                     <thead>
                         <tr>
-                        <th>NAME</th> 
-                        <th>MODEL</th>
-                        <th>SERIAL NUMBER</th>
-                        <th>ACTIONS</th>
+                            <th>NAME</th> 
+                            <th>MODEL</th>
+                            <th>SERIAL NUMBER</th>
+                            <th>ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>

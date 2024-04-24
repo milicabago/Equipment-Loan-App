@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 const Layout = ({ children }) => {
     return(
-        <div className={styles.bgi}>
+        <div className={styles.background}>
             <Image src="/keyboard.avif" alt="" layout="fill" objectFit="cover"/>
             <div className={styles.container}>
 

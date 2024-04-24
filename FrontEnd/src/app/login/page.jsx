@@ -82,7 +82,7 @@ const LoginPage = (data) => {
         <div className={styles.container}>
             <link rel="icon" href="/favicon.ico" /> 
             
-            <div className={styles.bgi}>
+            <div className={styles.background}>
             <Image 
                 src="/keyboard.avif" alt="" layout="fill" 
                 objectFit='cover' />
@@ -100,11 +100,7 @@ const LoginPage = (data) => {
                 <label className={styles.password}>Lozinka:
                     <div className={styles.passwordInputContainer}>
                         <input 
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Unesite lozinku" 
-                            {...register("password")}  
-                            autoComplete="off"
-                        />
+                            type={showPassword ? "text" : "password"} placeholder="Unesite lozinku" {...register("password")} autoComplete="off"/>
                         <span className={styles.passwordToggle} onClick={togglePasswordVisibility}>
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>

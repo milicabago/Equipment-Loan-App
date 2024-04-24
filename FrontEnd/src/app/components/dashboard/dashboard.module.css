@@ -1,39 +1,13 @@
 .container{
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 0px;
-    display: flex;
-    width: 100%;
-    gap: 20px;
-    cursor: pointer;
-}
-
-.cardsContainer {
-  flex-direction: column;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.card {
-  background-color: #f5f5f5;
-  color: #000;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  border-radius: 20px;
   padding: 10px;
-  width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.card h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-
-.card p {
-  margin: 0;
+  margin-top: 0px;
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  cursor: pointer;
 }
 
 .loading {
@@ -43,7 +17,7 @@
   transform: translate(-50%, -50%);
   text-align: center;
 }
-  
+    
 .spinner {
   width: 40px;
   height: 40px;
@@ -52,7 +26,7 @@
   border-top: 4px solid #3498db;
   animation: spin 1s linear infinite;
 }
-
+  
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -95,6 +69,37 @@
 }
 
 .table th {
+  background-color: var(--button);
+}
+
+.user_info,
+.equipment_info,
+.quantity,
+.assign_date{
+    font-style: italic;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+  
+
+
+.actions button {
+  padding: 8px 12px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #007bff;
+}
+
+.delete:hover {
+  background-color: var(--button);
+}
+
+.edit:hover {
   background-color: var(--button);
 }
 
@@ -148,3 +153,27 @@
 .modalButtons button:last-child:hover {
   background-color: #e74c3c;
 }
+
+.toast{
+  background-color: #333;
+  color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toast-success{
+  background-color: #4caf50;
+}
+
+.toast-error{
+  background-color: #f44336;
+}
+
+.modalContent{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+}
+      
