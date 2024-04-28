@@ -10,6 +10,7 @@ exports.UserEquipmentStatus = {
   ACTIVE: "active",
   INACTIVE: "inactive",
   PENDING: "pending",
+  CANCELED: "canceled",
   DENIED: "denied",
   RETURNED: "returned",
 };

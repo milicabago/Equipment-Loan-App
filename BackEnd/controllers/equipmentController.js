@@ -1,6 +1,9 @@
 const asyncHandler = require("express-async-handler");
-const Equipment = require("../models/equipmentModel");
 const Joi = require("joi");
+/** Models **/
+const Equipment = require("../models/equipmentModel");
+const UserEquipment = require("../models/userEquipmentModel");
+const { UserEquipmentStatus } = require("../constants");
 
 //@desc Get all equipments
 //@route GET /api/admin/equipment
@@ -144,6 +147,19 @@ const deleteEquipment = asyncHandler(async (req, res) => {
   if (!equipment) {
     res.status(404);
     throw new Error("Equipment not found!");
+  }
+
+  const userEquipment = await UserEquipment.find({ equipment_id: equipment._id });
+
+  // Provjera zaduženja korisnika za opremu
+  if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.ACTIVE)) {
+    res.status(400);
+    throw new Error("Equipment is assigned to the user. Please unassign equipment before deleting!");
+  }
+
+  if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.PENDING)) {
+    res.status(400);
+    throw new Error("Equipment request has been sent. Please resolve request before deleting the equipment!");
   }
 
   const deleteEquipment = await Equipment.findByIdAndDelete(req.params.id);

@@ -1,8 +1,12 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/userModel");
 const Joi = require("joi");
+/** Models **/
+const User = require("../models/userModel");
+const UserEquipment = require("../models/userEquipmentModel");
+/** Constants **/
+const { UserEquipmentStatus } = require("../constants");
 
 //@desc1 Register user
 //@desc2 Create New user
@@ -10,9 +14,9 @@ const Joi = require("joi");
 //@route2 POST /api/admin/createUser
 //@access1 public
 //@access2 private (only admin)
-const registerOrCreateUser = asyncHandler(async (req, res) => {
+const createUser = asyncHandler(async (req, res) => {
 
-  const { first_name, last_name, email, username, password, confirm_password, role, contact, position } = req.body;
+  const { first_name, last_name, email, username, password, role, contact, position } = req.body;
 
   // User validation schema
   const userSchema = Joi.object({
@@ -22,13 +26,12 @@ const registerOrCreateUser = asyncHandler(async (req, res) => {
     last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
-    email: Joi.string().email().required(),
+    email: Joi.string().email({ minDomainSegments: 2 }).required().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).messages({
+      'string.pattern.base': '\"email\" is not valid!',
+    }),
     username: Joi.string().alphanum().min(3).max(30).required(),
     password: Joi.string().min(8).required(),
-    confirm_password: Joi.string().valid(Joi.ref('password')).required().label('Confirm password').messages({
-      'any.only': 'Passwords must match',
-    }),
-    role: Joi.string().valid("admin", "user").optional(),
+    role: Joi.string().valid("admin", "user").required(),
     contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
@@ -214,7 +217,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     email: Joi.string().email().required(),
     username: Joi.string().alphanum().min(3).max(30).required(),
     role: Joi.string().forbidden(),
-    contact: Joi.string().allow('').optional().pattern(/^(\S+\s)*\S+$/).messages({
+    contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
     position: Joi.string().forbidden(),
@@ -260,11 +263,11 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 
   // Ažuriranje korisnika
-  user.first_name = req.body.first_name;
-  user.last_name = req.body.last_name;
-  user.email = req.body.email;
-  user.username = req.body.username;
-  user.contact = req.body.contact || "";
+  user.first_name = req.body.first_name || user.first_name;
+  user.last_name = req.body.last_name || user.last_name;
+  user.email = req.body.email || user.email;
+  user.username = req.body.username || user.username;
+  user.contact = req.body.contact || user.contact || "";
 
 
   if (req.body.password) {
@@ -306,8 +309,7 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     email: Joi.string().email().required(),
     username: Joi.string().alphanum().min(3).max(30).required(),
     password: Joi.string().min(8).optional(),
-    role: Joi.string().valid('admin', 'user').optional(),
-    contact: Joi.string().allow('').optional().pattern(/^(\S+\s)*\S+$/).messages({
+    contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
     position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
@@ -349,8 +351,7 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
   user.last_name = req.body.last_name || user.last_name;
   user.email = req.body.email || user.email;
   user.username = req.body.username || user.username;
-  user.role = req.body.role || user.role; // Default role is "user"
-  user.contact = req.body.contact || "";
+  user.contact = req.body.contact || user.contact || "";
   user.position = req.body.position || user.position;
 
   if (req.body.password) {
@@ -376,10 +377,10 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
 
   // Validation schema
   const adminUpdateSchemaForUser = Joi.object({
-    email: Joi.string().email().optional(),
-    username: Joi.string().alphanum().min(3).max(30).optional(),
-    role: Joi.string().valid('admin', 'user').optional(),
-    position: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({ // za dodavanje početnih i završnih razmaka trim() dodati ispred pattern
+    email: Joi.string().email().required(),
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    role: Joi.string().valid("admin", "user").required(),
+    position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({ // za dodavanje početnih i završnih razmaka trim() dodati ispred pattern
       'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
   });
@@ -419,17 +420,30 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
 //@access private
 const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
-
   if (!user) {
     res.status(404);
     throw new Error("User not found!");
   }
+
+  const userEquipment = await UserEquipment.find({ user_id: user._id });
+
+  // Provjera zaduženja korisnika za opremu
+  if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.ACTIVE)) {
+    res.status(400);
+    throw new Error("User has equipment assigned. Please unassign equipment before deleting the user!");
+  }
+
+  if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.PENDING)) {
+    res.status(400);
+    throw new Error("User has pending request. Please resolve request before deleting the user!");
+  }
+
   const deleteUser = await User.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "User has been deleted!", deleteUser });
 });
 
 module.exports = {
-  registerOrCreateUser,
+  createUser,
   loginUser,
   currentUser,
   getAllUsers,
@@ -438,5 +452,5 @@ module.exports = {
   adminUpdateUser,
   updateUserProfile,
   updateAdminProfile,
-  deleteUser,
+  deleteUser
 };

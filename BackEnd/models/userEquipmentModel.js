@@ -29,7 +29,7 @@ const UserEquipmentSchema = new mongoose.Schema(
     },
     assign_date: {
       type: Date,
-      required: [true, "Debit date is required"],
+      required: [true, "Assign date is required"],
     },
     unassign_date: {
       type: Date,
@@ -37,7 +37,7 @@ const UserEquipmentSchema = new mongoose.Schema(
       required: false,
     },
     unassigned_quantity: {
-      type: Number, // Dodajte polje za razduženu količinu opreme
+      type: Number,
       required: false,
       default: 0,
     },

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 /** Controllers **/
 const { updateUserProfile, getUserProfile } = require("../controllers/userController");
-const { getActiveRequests, assignEquipment, unassignEquipment, getEquipmentHistory } = require("../controllers/requestController");
+const { getActiveRequests, assignEquipment, unassignEquipment, cancelEquipmentRequest, getEquipmentHistory } = require("../controllers/requestController");
 const { getAllEquipment, getEquipment } = require("../controllers/equipmentController");
 
 /**** Routes for USER (EMPLOYEE OF THE COMPANY) ****/
@@ -15,6 +15,7 @@ router.patch("/:id", unassignEquipment); // Kada korisnik razdužuje opremu --> 
 router.get("/equipment", getAllEquipment); // Prikazuje svu dostupnu opremu u firmi
 router.get("/equipment/:id", getEquipment); // Prikazuje više informacija o određenoj opremi
 router.post("/equipment/request", assignEquipment); // Korisnik može zatražiti opremu request_status = "pending"
+router.patch("/equipment/request/:id", cancelEquipmentRequest); // // Dodajemo rutu za poništavanje zahtjeva za opremu, ako je "pending" prebacujemo u "canceled"
 router.get("/equipmentHistory", getEquipmentHistory); // Prikazuje povijest razduživanja opreme za svakog korisnika
 
 /** GET user profile by ID **/
