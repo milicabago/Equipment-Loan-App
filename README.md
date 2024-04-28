@@ -1,6 +1,6 @@
 # Equipment Loan App
 
-### Aplikacija za zaduživanje opreme u tvrtki Global Soft d.o.o.
+### Aplikacija za zaduživanje opreme u tvrtki "globalsoft" 
 
 • **BackEnd:** Dario Klarić
 
