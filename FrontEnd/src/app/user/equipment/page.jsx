@@ -1,11 +1,11 @@
-import Equipment from "@/app/components/equipment/equipment";
-import styles from "@/app/components/equipment/equipment.module.css"
+import MyEquipment from "@/app/components/myEquipment/myEquipment";
+import styles from "@/app/components/myEquipment/myEquipment.module.css"
 
 const EquipmentPage = () => {
     return (
         <div className={styles.container}>
             <div>
-                <Equipment/>
+                <MyEquipment/>
             </div>
             
         </div>

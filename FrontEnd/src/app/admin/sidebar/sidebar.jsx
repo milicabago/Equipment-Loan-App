@@ -94,34 +94,36 @@ const Sidebar = () => {
 
  
   useEffect(() => {
-    const token = cookies.accessToken; 
+    const token = cookies.accessToken;
     if (token) {
-      const decodedToken = jwtDecode(token); 
-      const id = decodedToken.user._id;
-      const userRole = decodedToken.user.role; 
-      const userFirstName = decodedToken.user.first_name; 
-      const userLastName = decodedToken.user.last_name;
-      const expirationTime = decodedToken.exp * 1000;
-      const currentTime = Date.now();
+        const decodedToken = jwtDecode(token);
+        const id = decodedToken.user._id;
+        const userRole = decodedToken.user.role;
+        const userFirstName = decodedToken.user.first_name;
+        const userLastName = decodedToken.user.last_name;
+        const expirationTime = decodedToken.exp * 1000;
+        const currentTime = Date.now();
 
-      if ( expirationTime < currentTime ) {
-        handleLogout();
-      }else {
-        setRole(userRole === 'admin' ? 'Administrator' : ''); 
-        setFirstName(userFirstName); 
-        setLastName(userLastName);
-        setId(id); 
-      } 
+        if (expirationTime < currentTime) {
+            handleLogout();
+        } else {
+            setRole(userRole === 'admin' ? 'Administrator' : '');
+            setFirstName(userFirstName);
+            setLastName(userLastName);
+        }
     } else {
-      setRole(null); 
-      setFirstName(''); 
-      setLastName('');
-      setId(''); 
+        handleLogout();
+        setFirstName(null);
+        setLastName(null);
+        setRole(null);
     }
-  }, [cookies.accessToken]);
+}, [cookies.accessToken]);
 
 
   const handleLogout = () => {
+    setFirstName(null);
+    setLastName(null);
+    setRole(null);
     removeCookie('accessToken');
     localStorage.removeItem('user._id');
     clearHistoryAndRedirect();
@@ -129,14 +131,22 @@ const Sidebar = () => {
   };
 
   const clearHistoryAndRedirect = () => {
-    window.history.replaceState({}, document.title, '/');
     router.replace('/login');
   };
+
+
   useEffect(() => {
-    if (router.pathname === '/login') {
-      localStorage.setItem('user._id', '');
+    const token = cookies.accessToken;
+    if (token) {
+        const decodedToken = jwtDecode(token);
+        const expirationTime = decodedToken.exp * 1000;
+        const currentTime = Date.now();
+        if (expirationTime < currentTime) {
+            handleLogout();
+        }
     }
-  }, [router.pathname]);
+}, [cookies.accessToken]);
+
 
 
     return(

@@ -11,18 +11,14 @@ import Modal from 'react-modal';
 
 const Equipment = () => {
     const [equipment, setEquipment] = useState([]);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isUser, setIsUser] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
-    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
     const [equipmentToDelete, setEquipmentToDelete] = useState(null);
     const [equipmentToEdit, setEquipmentToEdit] = useState(null);
     const [editModalIsOpen, setEditModalIsOpen] = useState(false);
-    const [equipmentToRead, setEquipmentToRead] = useState(null);
-    const [readModalIsOpen, setReadModalIsOpen] = useState(false);
-
 
     useEffect(() => {
         const token = cookies.accessToken;
@@ -34,9 +30,9 @@ const Equipment = () => {
                     'Authorization': `Bearer ${token}`
                 }
             };
-            if (decodedToken.user.role.includes('admin')) {
-                setIsAdmin(true);
-                axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/equipment", config)
+            if (decodedToken.user.role.includes('user')) {
+                setIsUser(true);
+                axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/equipment", config)
                     .then((response) => {
                         setEquipment(response.data);
                     })
@@ -48,26 +44,6 @@ const Equipment = () => {
                 }
             }
         }, [cookies.accessToken]);
-
-        const readEquipment = async (equipmentId) => {
-            try{
-                const token = cookies.accessToken;
-                const decodedToken = jwtDecode(token);
-                const config = {
-                headers: {
-                    'Authorization': 'Bearer ' + cookies.accessToken
-                }
-                };
-                const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment${equipmentId}` , config);
-                setEquipmentToRead(response.data);
-                setReadModalIsOpen(true);
-            } catch (error) {
-                console.error("Error:", error);
-                toast.error('Error fetching item data!');
-            }
-        
-            };
-            
 
 
     const deleteEquipment = (itemId) => {
@@ -81,8 +57,8 @@ const Equipment = () => {
                     'Authorization': `Bearer ${token}`
                 }
             };
-            if (decodedToken.user.role.includes('admin')) {
-            axios.delete(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment/${itemId}`, config)
+            if (decodedToken.user.role.includes('user')) {
+            axios.delete(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/${itemId}`, config)
                 .then((response) => {
                     setEquipment(equipment.filter(item => item._id !== itemId));
                     setDeleteModalIsOpen(false);
@@ -105,7 +81,7 @@ const Equipment = () => {
               'Authorization': 'Bearer ' + cookies.accessToken
             }
           };
-          const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment/${itemId}` , config);
+          const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/${itemId}` , config);
           setEquipmentToEdit(response.data);
           setEditModalIsOpen(true);
         } catch (error) {
@@ -126,7 +102,7 @@ const Equipment = () => {
               'Authorization': 'Bearer ' + cookies.accessToken
             }
           };
-          const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment/${itemId}` , config);
+          const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/${itemId}` , config);
           setEquipmentToDelete(response.data);
           setDeleteModalIsOpen(true);
           
@@ -152,26 +128,17 @@ const Equipment = () => {
         setEditModalIsOpen(false);
       };
 
-      const openReadModal = (equipment) => {
-        setEquipmentToRead(equipment);
-        setReadModalIsOpen(true);
-      };
-    
-      const closeReadModal = () => {
-        setEquipmentToRead(null);
-        setReadModalIsOpen(false);
-      };
 
 
     return (
         <div className={styles.container}>
-            
+            <div className={styles.title}>
+                 <h1>Oprema</h1>
+             </div>
+
 
              
              <div>
-             <div className={styles.title}>
-                 <h1>Oprema</h1>
-             </div>
                 <table className={styles.table}>
                     <thead>
                         <tr>
@@ -190,7 +157,6 @@ const Equipment = () => {
                             <td>
                                 <button className={styles.edit} onClick={() => openEditModal(item)}>Edit</button>
                                 <button className={styles.delete} onClick={() => openDeleteModal(item._id)}>Delete</button>
-                                <button className={styles.seeMore} onClick={() => openReadModal(item)}>See More</button>
                                 
                             </td>                            
                         </tr>
@@ -206,7 +172,7 @@ const Equipment = () => {
                 overlayClassName={styles.overlay}
                 contentLabel="Delete Equipment Confirmation Modal"
                  >
-                <h2 className={styles.modalTitle}>Delete equipment</h2>
+                <h2 className={styles.modalTitle}>Delete Equipment</h2>
                 {equipmentToDelete && (
                 <div className={styles.modalContent}>
                     <p className={styles.modalMessage}>
@@ -220,37 +186,15 @@ const Equipment = () => {
                     <button onClick={() => deleteEquipment(equipmentToDelete._id)}>Delete</button>
                 )}
                 </div>
-                <Modal
-            isOpen={readModalIsOpen}
-            onRequestClose={closeReadModal}
-            className={styles.modal}
-            overlayClassName={styles.overlay}
-            contentLabel="Read Equipment Modal"
-            >
-            <h2 className={styles.modalTitle}>Equipment details</h2>
-            {equipmentToRead && (
-                <div className={styles.modalContent}>
-                    <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
-                    <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
-                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition}</span></p>
-                    <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
-                    <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description}</span></p>
-                </div>
-            
-            )}
-            <div className={styles.modalButtons}>
-                <button onClick={closeReadModal}>Close</button>
-            </div>
             </Modal>
-
-             <Modal
+            <Modal
             isOpen={editModalIsOpen}
             onRequestClose={closeEditModal}
             className={styles.modal}
             overlayClassName={styles.overlay}
             contentLabel="Edit Equipment Modal"
             >
-            <h2 className={styles.modalTitle}>Edit equipment</h2>
+            <h2 className={styles.modalTitle}>Edit Equipment</h2>
             {equipmentToEdit && (
                 <div className={styles.modalContent}>
                 
@@ -277,7 +221,6 @@ const Equipment = () => {
                 <button onClick={closeEditModal}>Cancel</button>
                 <button onClick={updateEquipment}>Save</button>
             </div>
-            </Modal>
             </Modal>
 
             

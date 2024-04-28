@@ -66,35 +66,58 @@ const Sidebar = () => {
     const router = useRouter();
 
 
-useEffect(() => {
-  const token = cookies.accessToken; 
-  if (token) {
-    const decodedToken = jwtDecode(token); 
-    const id = decodedToken.user._id;
-    const userRole = decodedToken.user.role; 
-    const userFirstName = decodedToken.user.first_name; 
-    const userLastName = decodedToken.user.last_name;
-    setRole(userRole === 'user' ? '' : ''); 
-    setFirstName(userFirstName); 
-    setLastName(userLastName);
-    setId(id); 
-  } else {
-    setRole(null); 
-    setFirstName(''); 
-    setLastName('');
-    setId(''); 
-  }
-}, [cookies.accessToken]);
+    useEffect(() => {
+      const token = cookies.accessToken;
+      if (token) {
+          const decodedToken = jwtDecode(token);
+          const id = decodedToken.user._id;
+          const userRole = decodedToken.user.role;
+          const userFirstName = decodedToken.user.first_name;
+          const userLastName = decodedToken.user.last_name;
+          const expirationTime = decodedToken.exp * 1000;
+          const currentTime = Date.now();
+  
+          if (expirationTime < currentTime) {
+              handleLogout();
+          } else {
+              setRole(userRole === 'user' ? '' : '');
+              setFirstName(userFirstName);
+              setLastName(userLastName);
+          }
+      } else {
+          handleLogout();
+          setFirstName(null);
+          setLastName(null);
+          setRole(null);
+        }
+  }, [cookies.accessToken])
 
 const handleLogout = () => {
+  setFirstName(null);
+  setLastName(null);
+  setRole(null);
   removeCookie('accessToken');
-  localStorage.removeItem('accessToken');
-  if (typeof window !== 'undefined') {
-    window.location.href = '/login';
-  }
-
-
+  localStorage.removeItem('user._id');
+  clearHistoryAndRedirect();
+  
 };
+
+const clearHistoryAndRedirect = () => {
+  router.replace('/login');
+};
+
+
+useEffect(() => {
+  const token = cookies.accessToken;
+  if (token) {
+      const decodedToken = jwtDecode(token);
+      const expirationTime = decodedToken.exp * 1000;
+      const currentTime = Date.now();
+      if (expirationTime < currentTime) {
+          handleLogout();
+      }
+  }
+}, [cookies.accessToken]);
 
 
 

@@ -1,7 +1,12 @@
-.container {
-  background: none;
-  padding: 20px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+.container{
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  border-radius: 20px;
+  padding: 10px;
+  margin-top: 0px;
+  display: flex;
+  width: 100%;
+  gap: 20px;
   cursor: pointer;
 }
 
@@ -11,36 +16,6 @@
   color: #ffffff;
   margin-bottom: 40px;
 }
-
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 40px;
-}
-.loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-    
-.spinner {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  animation: spin 1s linear infinite;
-}
-  
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-
 
 .table {
   width: 100%;
@@ -74,23 +49,15 @@
 .table th {
   background-color: var(--button);
 }
-
-.user_info,
-.equipment_info,
-.quantity,
-.assign_date{
-    font-style: italic;
+.name{
+  font-size: 16px;
+  font-weight: bold;
 }
-/*.status{
-  position: relative;
-  display: inline-block;
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: var(--button);
-  color: #ffffff;
-  border-radius: 5px;
-  
-}*/
+
+.model
+{
+  font-style: italic;
+}
 
 .actions {
   display: flex;
@@ -121,8 +88,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #ffffff;
-  color:#000;
+  background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   max-width: 400px;
@@ -133,9 +99,6 @@
 .modalTitle {
   font-size: 24px;
   margin-bottom: 10px;
-  font-weight: bold;
-  text-align: center;
-
 }
 
 .modalMessage {
@@ -190,17 +153,6 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin: 20px 0;
+
 }
-   
-.label{
-  font-size: 16px;
-  color: #000000;
-  font-weight: bold;
-}
-.value{
-  font-size: 16px;
-  color: #000000;
-  border-bottom: 1px solid var(--button);
-  font-style: italic;
-}
+      

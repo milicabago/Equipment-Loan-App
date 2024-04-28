@@ -1,0 +1,167 @@
+.container{
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.background{
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  align-items: center;
+  display: flex;
+  padding: 20px;
+  background-color: none;
+  border-radius: 15px;
+  min-height: 50%;
+  overflow-y: auto;
+}
+
+.form{
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  padding: 50px;
+  border-radius: 15px;
+  margin: 10px;
+  width: 600px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+  align-items: center;
+  color: beige;
+}
+.form::-webkit-scrollbar {
+  display: none;
+}
+
+.form input{
+  padding: 20px;
+  margin: 10px;
+  width: 500px;
+  border: 1px solid #44516d;
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--text);
+  margin-bottom: 20px;
+  font-size: 16px;  
+}
+.form button{
+  padding: 15px;
+  width: 100%;
+  background-color: var(--button);
+  color: var(--text);
+  border: none; 
+  cursor: pointer;
+  border-radius: 25px;
+  margin-bottom: 50px;
+}
+.field {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.field::-webkit-scrollbar {
+  display: none;
+}
+
+.start{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  gap: 15px;
+}
+
+.title{
+  color: var(--text);
+  font-weight: bold;
+  font-size: 25px;
+}
+.desc{
+  color: var(--text);
+  font-size: 15px;}
+
+.firstName,
+.lastName,
+.username,
+.contact,
+.email,
+.password,
+.confirmPassword,
+.position{
+  align-self: flex-start;
+  width: 100%;
+  font-size: 15px;
+  padding: 10px;
+}
+.btn{
+  width: 100%;
+  margin-top: 10px;
+}
+.error{
+  color: red;
+  font-size: 15px;
+  align-self: flex-start;
+}
+.form p{
+  color:rgb(185, 185, 2);
+  margin-left: 10px;
+}
+
+
+.passwordInputContainer {
+  position: relative;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 30px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--textSoft);
+}
+
+.passwordToggle svg {
+  font-size: 18px;
+}
+  
+.position {
+  align-self: flex-start;
+  width: 100%;
+  font-size: 15px;
+  padding: 10px;
+  color: beige;
+}
+
+.select {
+  padding: 20px;
+  margin: 10px;
+  width: 500px;
+  border: 1px solid #44516d;
+  border-radius: 10px;
+  background-color: transparent;
+  color: beige;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); /* Add custom arrow */
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+}
+

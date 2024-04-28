@@ -6,16 +6,10 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
 import { reset } from 'react-hook-form'; 
-
-const Users = (data) => {
-
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
-    const [formData, setFormData] = useState(null);
-
-
+    
     const schema = yup.object().shape({
         first_name: yup.string().required("First name is required!"),
         last_name: yup.string().required("Last name is required!"),
@@ -29,30 +23,54 @@ const Users = (data) => {
         
     });
 
-    const{register, handleSubmit, formState: {errors}} = useForm({
+const Users = (data) => {
+
+    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [formData, setFormData] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const{register, handleSubmit, formState: {errors}, reset} = useForm({
         resolver: yupResolver(schema)
     });
 
+    useEffect(() => {
+        const token = cookies.accessToken;
     
+        if (token) {
+          const decodedToken = jwtDecode(token);
+          setLoggedInUser(decodedToken);
+          console.log("Logged in user:", decodedToken)
+          console.log("Logged in admin:", decodedToken.user.role)
+          let config = {
+            headers: {
+              'Authorization': 'Bearer ' + cookies.accessToken
+            }
+          }
+          if (decodedToken.user.role.includes('admin') ) {
+            console.log("uspjeh", decodedToken.user.role)
+            setIsAdmin(true);
+            
+
+          } else (console.log("greskaa:"))
+        }
+      }, [cookies.accessToken]);
+
+
     const onSubmit = async (data) => {
+        
         try{
-            const token = cookies.accessToken;
-            if (token) {
-                const decodedToken = jwtDecode(token);
-                const config = {
-                    headers: {
-                        'Authorization': 'Bearer ' + cookies.accessToken
-                    }   
-                };
-                const response = await axios.post(process.env.NEXT_PUBLIC_BASE_URL + 'admin/createUser', data, config);
-                console.log("New user created:", response.data);
-                toast.success('New user created successfully!');
-                reset();
-            }
-            } catch (error) {
-                console.error("Error:", error);
-                toast.error('Error creating new user!');
-            }
+            let config = {
+                headers: {
+                  'Authorization': 'Bearer ' + cookies.accessToken
+                }
+              }
+            const response = await axios.post(process.env.NEXT_PUBLIC_BASE_URL + 'admin/createUser', data, config);
+            console.log('Novi korisnik je uspješno kreiran:', response.data);
+            reset();            
+        } catch (error) {
+            console.log('Greška prilikom kreiranja korisnika:', error);
+        }
     };
 
 
@@ -60,7 +78,7 @@ const Users = (data) => {
         <div className={styles.container}>
 
             <div className={styles.form}> 
-                <form  onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
+            <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>Osobni podaci korisnika</span>
                         <span className={styles.desc}> </span> 

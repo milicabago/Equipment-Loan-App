@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { useRouter } from "next/navigation";
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
@@ -15,168 +14,172 @@ const Request = () => {
     const [loading, setLoading] = useState(true);
     const [requestToRead, setRequestToRead] = useState(null);
     const [readModalIsOpen, setReadModalIsOpen] = useState(false);
+    const [requestToAccept, setRequestToAccept] = useState(null);
+    const [acceptModalIsOpen, setAcceptModalIsOpen] = useState(false);
+    const formatDate = (dateTimeString) => {
+        const date = new Date(dateTimeString);
+        const formattedDate = date.toLocaleDateString();
+        const formattedTime = date.toLocaleTimeString();
+        return `${formattedDate} ${formattedTime}`;
+    };
 
     useEffect(() => {
         const token = cookies.accessToken;
         if (token) {
-            const decodedToken = jwtDecode(token);
-            let config = {
+            const config = {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             }
-            if (decodedToken.user.role.includes('admin') ) {
-                console.log("uspjeh", decodedToken.user.role)
-                setIsAdmin(true);
-                axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/requests", config)
-                .then((response) => {
-                  setRequests(response.data);
-                  console.log("Requests:", response.data);
-                  setLoading(false);
-                })
-                .catch((error) => {
-                  console.error("Error:", error);
-                  setLoading(false);
-                });
-              }
-            }
-          }, [cookies.accessToken]);
+            axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/requests", config)
+            .then((response) => {
+                setRequests(response.data);
+                console.log("Requests:", response.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                setLoading(false);
+            }); 
+        }
+        }, [cookies.accessToken]);
 
-          const readRequests = async (requestId) => {
-            try{
-                const token = cookies.accessToken;
-                const decodedToken = jwtDecode(token);
-                const config = {
+    const readRequests = async (requestId) => {
+        try{
+            const token = cookies.accessToken;
+            const config = {
                 headers: {
-                    'Authorization': 'Bearer ' + cookies.accessToken
+                    'Authorization': 'Bearer ' + token
                 }
                 };
-                const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/requests${requestId}` , config);
-                setRequestToRead(response.data);
-                setReadModalIsOpen(true);
-            } catch (error) {
-                console.error("Error:", error);
-                toast.error('Error fetching item data!');
-            }
-        
+            const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/requests${requestId}` , config);
+            setRequestToRead(response.data);
+            setReadModalIsOpen(true);
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error('Error fetching item data!');
+        }
+    };
+
+    const acceptRequests = async (requestId) => {
+        try{
+            const token = cookies.accessToken;
+            const config = {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
             };
-            const openReadModal = (request) => {
-                setRequestToRead(request);
-                setReadModalIsOpen(true);
-              };
-            
-              const closeReadModal = () => {
-                setRequestToRead(null);
-                setReadModalIsOpen(false);
-              };
-
-              const acceptRequests = async (requestId) => {
-                try{
-                    const token = cookies.accessToken;
-                    const decodedToken = jwtDecode(token);
-                    const config = {
-                    headers: {
-                        'Authorization': 'Bearer ' + cookies.accessToken
-                    }
-                    };
-                    const response = await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/activate/${requestId}`, config);
-                    toast.success('Request accepted!');
-                    const newRequests = requests.filter(request => request._id !== requestId);
-                    setRequests(newRequests);
-                }
-                catch (error) {
-                    console.error("Error:", error);
-                    toast.error('Error accepting request!');
-                }
-            }
-            const rejectRequests = async (requestId) => {
-                try {
-                    const token = cookies.accessToken;
-                    const decodedToken = jwtDecode(token);
-                    const config = {
-                        headers: {  
-                            'Authorization': 'Bearer' + cookies.accessToken
-                        }
-                    };
-                    const response = await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/deny/${requestId}`, config);
-                    toast.success('Request rejected!');
-                    const newRequests = requests.filter(request => request._id !== requestId);
-                    setRequests(newRequests);
-                }
-                catch (error) {
-                    console.error("Error:", error);
-                    toast.error('Error rejecting request!');
-                }
-            }
-
+            const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/active/${requestId}`, config);
+            setRequests(response.data);
+            console.log("Requests:", response.data);
+            setLoading(false);
+            console.log("Accepting request with ID:", requestId);
+        } catch (error) {
+            console.error("Error:", error);
+            setLoading(false);
+        }
+    };
+    const openReadModal = (request) => {
+        setRequestToRead(request);
+        setReadModalIsOpen(true);
+    };
+    const closeReadModal = () => {
+        setRequestToRead(null);
+        setReadModalIsOpen(false);
+    };
+    const openAcceptModal = (request) => {
+        setRequestToAccept(request);
+        setAcceptModalIsOpen(true);
+    };
+    const closeAcceptModal = () => {
+        setRequestToAccept(null);
+        setAcceptModalIsOpen(false);
+    };
     return (
         <div className={styles.container}>
+            {loading ? (
+                <div className={styles.loading}>
+                    <div className={styles.spinner}></div>
+                </div>
+            ) : (
+                <div>
+                    <div className={styles.title}>
+                        <h1>Svi zahtjevi</h1>
+                        </div>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>USER</th>
+                                    <th>EQUIPMENT</th>
+                                    <th>QUANTITY</th>
+                                    <th>DATE</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {requests.map(request => (
+                                    <tr key={request._id}>
+                                        <td>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
+                                        <td>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
+                                        <td>{request.quantity}</td>
+                                        <td>{formatDate(request.assign_date)}</td>
+                                        
+                                        <td className={`${styles.status} ${request.request_status === 'pending' ? styles.active : ''}`}>
+                                            {request.request_status === 'pending' ? 'Pending..' : request.request_status}
+                                        </td>
+                                        <td>
+                                            <button className={styles.accept} onClick={() => openAcceptModal(request)}>Accept</button>
+                                            <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    
+                </div>
+            )}
             <Modal
                 isOpen={readModalIsOpen}
                 onRequestClose={closeReadModal}
                 className={styles.modal}
                 overlayClassName={styles.overlay}
-                contentLabel="Read Request Modal"
-                >
-                <h2 className={styles.modalTitle}>Request Details</h2>
+                contentLabel="Read Request Modal" >
+                <h2 className={styles.modalTitle}>Pending request details</h2>
                 {requestToRead && (
-                    <div className={styles.modalContent}>
-                    <p>User: {requestToRead.user_info.first_name} {requestToRead.user_info.last_name}</p>
-                    <p>Equipment: {requestToRead.equipment_info.name}</p>
-                    <p>Serial Number: {requestToRead.equipment_info.serial_number}</p>
-                    <p>Quantity: {requestToRead.quantity}</p>
-                    <p>Date: {requestToRead.assign_date}</p>
                     
+                    <div className={styles.modalContent}>
+                        <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user_info.first_name} {requestToRead.user_info.last_name}</span></p>
+                        <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user_info.username}</span> </p>
+                        <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'N/A'}</span></p>
+                        <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info.serial_number}</span></p>
+                        <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
                     </div>
                 )}
                 <div className={styles.modalButtons}>
                     <button onClick={closeReadModal}>Close</button>
                 </div>
-                </Modal>
-        {loading ? (
-            <div className={styles.loading}>
-                <div className={styles.spinner}></div>
-            </div>
-        ) : (
-            <div>
-                <div className={styles.title}>
-                  <h1>Svi zahtjevi</h1>
-                 </div>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>USER</th>
-                                <th>EQUIPMENT</th>
-                                <th>QUANTITY</th>
-                                <th>DATE</th>
-                                <th>STATUS</th>
-                                <th>ACTIONS</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {requests.map(request => (
-                                <tr key={request._id}>
-                                    <td>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
-                                    <td>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
-                                    <td>{request.quantity}</td>
-                                    <td>{request.assign_date}</td>
-                                    <td>{request.request_status}</td>
-                                    <td>
-                                        <button className={styles.accept} onClick={() => acceptRequests(request._id)}>Accept</button>
-                                        <button className={styles.reject} onClick={() => rejectRequests(request._id)}>Reject</button>
-                                        <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                
-            </div>
-        )}
-    </div>
-);
+            </Modal>
+            <Modal
+                isOpen={acceptModalIsOpen}
+                onRequestClose={closeAcceptModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Accept Request Modal" >
+                <h2 className={styles.modalTitle}>Accept Request</h2>
+                {requestToAccept && (
+                    <div>
+                        <p> Are you sure you want to accept this request?</p>
+                        <div className={styles.modalButtons}>
+                            <button className={styles.accept} onClick={() => acceptRequests(requestToAccept._id)}>Accept</button>
+                            <button onClick={closeAcceptModal}>Close</button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+        </div>
+    );
 }
 export default Request;
-
-

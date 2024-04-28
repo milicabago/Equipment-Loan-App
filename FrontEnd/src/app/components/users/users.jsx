@@ -15,10 +15,19 @@ const Users = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
   const router = useRouter();
-  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null)
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
+  const [userToRead, setUserToRead] = useState(null);
+  const [readModalIsOpen, setReadModalIsOpen] = useState(false);
+  const [editedUserData, setEditedUserData] = useState({});
+  const formatDate = (dateTimeString) => {
+        const date = new Date(dateTimeString);
+        const formattedDate = date.toLocaleDateString();
+        const formattedTime = date.toLocaleTimeString();
+        return `${formattedDate} ${formattedTime}`;
+    };
 
 
   useEffect(() => {
@@ -31,7 +40,7 @@ const Users = () => {
       console.log("Logged in admin:", decodedToken.user.role)
       let config = {
         headers: {
-          'Authorization': 'Bearer ' + cookies.accessToken
+          'Authorization': 'Bearer ' + token
         }
       }
       if (decodedToken.user.role.includes('admin') ) {
@@ -58,7 +67,7 @@ const Users = () => {
       setLoggedInUser(decodedToken);
       let config = {
         headers: {
-          'Authorization': 'Bearer ' + cookies.accessToken
+          'Authorization': 'Bearer ' + token
         }
       }
       if (decodedToken.user.role.includes('admin')) {
@@ -80,24 +89,58 @@ const Users = () => {
   const updateUser = async (id) => {
     try{
       const token = cookies.accessToken;
-      const decodedToken = jwtDecode(token);
       const config = {
         headers: {
-          'Authorization': 'Bearer ' + cookies.accessToken
+          'Authorization': 'Bearer ' + token
         }
       };
-      const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${id}`, config);
-      setUserToEdit(response.data);
-      setEditModalIsOpen(true);
+      const isDataChanged = Object.keys(editedUserData).some(key => editedUserData[key] !== userToEdit[key]);
+
+      if (isDataChanged) {
+        await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${userToEdit._id}`, editedUserData, config);
+        toast.success('User updated successfully!');
+      } else {
+        toast.info('No changes detected!');
+      }
+      closeEditModal();
     } catch (error) {
       console.error("Error:", error);
-      toast.error('Error fetching user data!');
+      toast.error('Error updating user!');  
     }
-
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedUserData({ ...editedUserData, [name]: value });
+  };
 
-
+  const readUser = async (id) => {
+    try{
+        const token = cookies.accessToken;
+        const config = {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+            };
+        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${id}` , config);
+        setUserToRead(response.data);
+        setReadModalIsOpen(true);
+    } catch (error) {
+        console.error("Error:", error);
+        toast.error('Error fetching user data!');
+    }
+};
+  const openReadModal = (id) => {
+    setUserToRead(id);
+    readUser(id);
+    setReadModalIsOpen(true);
+    console.log(id);
+    console.log(userToRead);
+    console.log(readModalIsOpen);
+  };
+  const closeReadModal = () => {
+    setReadModalIsOpen(false);
+  };
   const openDeleteModal = async (id) => {
     try{
       const token = cookies.accessToken;
@@ -124,6 +167,7 @@ const Users = () => {
 
   const openEditModal = (user) => {
     setUserToEdit(user);
+    setEditedUserData(user);
     setEditModalIsOpen(true);
   };
 
@@ -137,60 +181,7 @@ const Users = () => {
       <div className={styles.title}>
         <h1>Korisnici</h1>
       </div>
-
-      <Modal
-      isOpen={editModalIsOpen}
-      onRequestClose={closeEditModal}
-      className={styles.modal}
-      overlayClassName={styles.overlay}
-      contentLabel="Edit User Modal"
-    >
-      <h2 className={styles.modalTitle}>Edit User</h2>
-      {userToEdit && (
-        <div className={styles.modalContent}>
-          
-          <input
-            type="text"
-            value={userToEdit.first_name}
-            onChange={(e) => setUserToEdit({...userToEdit, first_name: e.target.value})}
-          />
-          <input
-            type="text"
-            value={userToEdit.last_name}
-            onChange={(e) => setUserToEdit({...userToEdit, last_name: e.target.value})}
-          />
-          <input
-            type="text"
-            value={userToEdit.email}
-            onChange={(e) => setUserToEdit({...userToEdit, email: e.target.value})} 
-          />
-          <select
-            value={userToEdit.role}
-            onChange={(e) => setUserToEdit({...userToEdit, role: e.target.value})}
-          >
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
-
-          <input
-            type="text"
-            value={userToEdit.username}
-            onChange={(e) => setUserToEdit({...userToEdit, username: e.target.value})}
-          />
-          <input
-            type="text"
-            value={userToEdit.phone}
-            onChange={(e) => setUserToEdit({...userToEdit, phone: e.target.value})}
-          />
-
-          
-        </div>
-      )}
-      <div className={styles.modalButtons}>
-        <button onClick={closeEditModal}>Cancel</button>
-        <button onClick={updateUser}>Save</button>
-      </div>
-    </Modal>
+      
       <div>
         <table className={styles.table}>
           <thead>
@@ -225,6 +216,8 @@ const Users = () => {
               <td>
                 <button className={styles.edit} onClick={() => openEditModal(user)}>Edit</button>
                 <button className={styles.delete} onClick={() => openDeleteModal(user._id)}>Delete</button>
+                <button className={styles.seeMore} onClick={() => openReadModal(user._id)}>See More</button>
+
                 
               </td>
               </tr>
@@ -239,7 +232,7 @@ const Users = () => {
         overlayClassName={styles.overlay}
         contentLabel="Delete User Confirmation Modal"
       >
-        <h2 className={styles.modalTitle}>Delete User</h2>
+        <h2 className={styles.modalTitle}>Delete user</h2>
         {userToDelete && (
           <div className={styles.modalContent}>
             <p className={styles.modalMessage}>
@@ -248,14 +241,89 @@ const Users = () => {
           </div>
         )}
         <div className={styles.modalButtons}>
-          <button onClick={closeDeleteModal}>Cancel</button>
           {userToDelete && (
             <button onClick={() => deleteUser(userToDelete._id)}>Delete</button>
           )}
+          <button onClick={closeDeleteModal}>Cancel</button>
         </div>
       </Modal>
+      <Modal
+        isOpen={readModalIsOpen}
+        onRequestClose={closeReadModal}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+        contentLabel="Read User Modal" >
+        <h2 className={styles.modalTitle}>User details</h2>
+        {userToRead && (
+            <div className={styles.modalContent}>
+                <p><span className={styles.label}>Name: </span><span className={styles.value}>{userToRead.first_name} {userToRead.last_name}</span></p>
+                <p><span className={styles.label}>Email: </span><span className={styles.value}>{userToRead.email}</span></p>
+                <p><span className={styles.label}>Role: </span><span className={styles.value}>{userToRead.role}</span></p>
+                <p><span className={styles.label}>Username: </span><span className={styles.value}>{userToRead.username}</span></p>
+                <p><span className={styles.label}>Contact: </span><span className={styles.value}>{userToRead.contact}</span></p>
+                <p><span className={styles.label}>Created at: </span><span className={styles.value}>{formatDate(userToRead.createdAt)}</span></p>
+                <p><span className={styles.label}>Updated at: </span><span className={styles.value}>{formatDate(userToRead.updatedAt)}</span></p>
+            </div>
+        
+        )}
+        <div className={styles.modalButtons}>
+            <button onClick={closeReadModal}>Close</button>
+        </div>
+    </Modal>
 
+      <Modal
+      isOpen={editModalIsOpen}
+      onRequestClose={closeEditModal}
+      className={styles.modal}
+      overlayClassName={styles.overlay}
+      contentLabel="Edit User Modal"
+    >
+      <h2 className={styles.modalTitle}>Edit user</h2>
+      {userToEdit && (
+        <div className={styles.modalContent}>
+          <input
+            type="text"
+            name="username"
+            value={editedUserData.username || userToEdit.username}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="email"
+            value={editedUserData.email || userToEdit.email}
+            onChange={handleInputChange}
+          />
+          <select
+          name="role"
+            value={editedUserData.role || userToEdit.role}
+            onChange={handleInputChange}
+          >
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+          </select>
+          <select
+          name="position"
+          value={editedUserData.position || userToEdit.position}
+          onChange={handleInputChange}
+          >
+            <option value="1">Project manager</option>
+            <option value="2">Software developer</option>
+            <option value="3">Graphic designer</option>
+            <option value="4">Financial accountant</option>
+            <option value="5">DevOps Engineer</option>
+            <option value="6">Junior Product Owner</option>
+          </select>
 
+          
+          
+
+          
+        </div>
+      )}
+      <div className={styles.modalButtons}>
+      <button onClick={updateUser} disabled={Object.keys(editedUserData).length === 0}>Save</button>        <button onClick={closeEditModal}>Cancel</button>
+      </div>
+    </Modal>
     </div>
   );
 }

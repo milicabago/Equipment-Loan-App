@@ -75,6 +75,11 @@ const AddEquipment = (data) => {
                     <p>{errors.serial_number?.message}</p>
                     <input type="text" placeholder="Unesite serijski broj" {...register("serial_number")} autoComplete='off' /></label>
 
+                    <label className={styles.quantity}>Količina:
+                    <p>{errors.quantity?.message}</p>
+                    <input type="number" placeholder="Unesite količinu" {...register("quantity")} autoComplete='off' /></label>
+                    
+
 
                     
                     <label className={styles.condition}>Stanje opreme:

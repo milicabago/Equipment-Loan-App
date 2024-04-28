@@ -1,11 +1,7 @@
-.container{
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 0px;
-    width: 100%;
-    gap: 20px;
+.container {
+    background: none;
+    padding: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
 }
 

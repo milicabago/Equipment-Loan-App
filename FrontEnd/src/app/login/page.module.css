@@ -28,9 +28,9 @@
 
 .email,
 .password {
-align-self: flex-start;
-width: 100%;
-font-size: 15px;
+  align-self: flex-start;
+  width: 100%;
+  font-size: 15px;
 
 }
   

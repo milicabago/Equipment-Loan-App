@@ -1,5 +1,5 @@
 "use client"
-import styles from './dashboard.module.css';
+import styles from './myDashboard.module.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
@@ -8,13 +8,14 @@ import { useRouter } from "next/navigation";
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
-const Dashboard = () => {
+
+const MyDashboard = () => {
+
     const [requests, setRequests] = useState([]);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isUser, setIsUser] = useState(false);
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const [loading, setLoading] = useState(true);
-    const [requestsToDelete, setRequestsToDelete] = useState(null);
-    const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+
     const [requestToRead, setRequestToRead] = useState(null);
     const [readModalIsOpen, setReadModalIsOpen] = useState(false);
     const formatDate = (dateTimeString) => {
@@ -23,7 +24,11 @@ const Dashboard = () => {
         const formattedTime = date.toLocaleTimeString();
         return `${formattedDate} ${formattedTime}`;
     };
-    
+    useEffect(() => {
+        Modal.setAppElement('body');
+      }, []);
+
+
     useEffect(() => {
         const token = cookies.accessToken;
         if (token) {
@@ -33,10 +38,10 @@ const Dashboard = () => {
                     'Authorization': 'Bearer ' + cookies.accessToken
                 }
             };
-            if (decodedToken.user.role.includes('admin') ) {
+            if (decodedToken.user.role.includes('user') ) {
                 console.log("uspjeh", decodedToken.user.role)
-                setIsAdmin(true);
-                axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin", config)
+                setIsUser(true);
+                axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user", config)
                 .then((response) => {
                     setRequests(response.data);
                   console.log("Requests:", response.data);
@@ -46,20 +51,21 @@ const Dashboard = () => {
                   console.error("Error:", error);
                   setLoading(false);
                 });
+              }
             }
-        }
-    }, [cookies.accessToken]);
+          }, [cookies.accessToken]);
 
+    
     const readRequests = async (itemId) => {
     try{
         const token = cookies.accessToken;
-        const decodedToken = jwtDecode(token);  
+        const decodedToken = jwtDecode(token);
         let config = {
             headers: {
                 'Authorization': 'Bearer ' + cookies.accessToken
             }
         };
-        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/${itemId}` , config);
+        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/${itemId}` , config);
         setRequestToRead(response.data);
         setReadModalIsOpen(true);
     } catch (error) {
@@ -68,88 +74,101 @@ const Dashboard = () => {
     }
 
     };
-    const deleteRequests = (itemId) => {
-    const token = cookies.accessToken;
 
-    if (token) {
-        const decodedToken = jwtDecode(token);
-        let config = {
-        headers: {
-            'Authorization': 'Bearer ' + cookies.accessToken
-        }
-        }
-        if (decodedToken.user.role.includes('admin')) {
-        axios.delete(process.env.NEXT_PUBLIC_BASE_URL + `admin/${itemId}`, config)
-            .then((response) => {
-            setRequests(requests.filter(item => item._id !== itemId));
-            console.log("Request successfully deleted:", itemId); 
-            toast.success(`Request ${itemId} has been deleted successfully!`);
-            setDeleteModalIsOpen(false);
-            })
-            .catch((error) => {
-            console.error("Error:", error);
-            toast.error('Error deleting Request!');
-            });
-        }
-        }
-    };
-    const openDeleteModal = async (itemId) => {
-        try{
-          const token = cookies.accessToken;
-          const decodedToken = jwtDecode(token);
-          const config = {
-            headers: {
-              'Authorization': 'Bearer ' + cookies.accessToken
+
+ 
+
+    const deactivateEquipment = async (itemId) => {
+        try {
+            const token = cookies.accessToken;
+            const config = {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            };
+            const equipmentDataToUpdate = {
+                status: 'inactive'
+            };console.log(`${process.env.NEXT_PUBLIC_BASE_URL} user/${itemId}`);
+
+            const response = await axios.patch(
+                `${process.env.NEXT_PUBLIC_BASE_URL} user/${itemId}`, 
+                equipmentDataToUpdate, 
+                config
+            );
+            console.log("Equipment successfully deactivated:", response.data);
+        toast.success('Equipment has been deactivated successfully!');
+        refreshRequests();
+    } catch (error) {
+        console.error("Error:", error);
+        toast.error('Error deactivating equipment!');
+    }
+};
+
+    const refreshRequests = async () => {
+        try {
+            const token = cookies.accessToken;
+            const decodedToken = jwtDecode(token);
+            let config = {
+                headers: {
+                    'Authorization': 'Bearer ' + cookies.accessToken
+                }
+            };
+            if (decodedToken.user.role.includes('user')) {
+                setIsUser(true);
+                const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user", config);
+                setRequests(response.data);
+                console.log("Requests:", response.data);
+                setLoading(false);
             }
-          };
-          const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/${itemId}`, config);
-          setRequestsToDelete(response.data);
-          setDeleteModalIsOpen(true);
-          
         } catch (error) {
-          console.error("Error:", error);
-          toast.error('Error fetching item data!');
+            console.error("Error:", error);
+            setLoading(false);
         }
     };
-    const closeDeleteModal = () => {
-        setDeleteModalIsOpen(false);
-        setRequestsToDelete(null);
-    };    
-    const openReadModal = (item) => {
+
+
+
+      const openReadModal = (item) => {
         setRequestToRead(item);
         setReadModalIsOpen(true);
-    };
-    const closeReadModal = () => {
+      };
+    
+      const closeReadModal = () => {
         setRequestToRead(null);
         setReadModalIsOpen(false);
-    };
+      };
 
+            
+    
     return (
         <div className={styles.container}>
+            
+            
         {loading ? (
             <div className={styles.loading}>
                 <div className={styles.spinner}></div>
             </div>
         ) : (
+            
             <div>
                 <div className={styles.title}>
                   <h1>Zadužena oprema</h1>
-                </div>
+                 </div>
+
                 <table className={styles.table}>
                     <thead>
                         <tr>
-                            <th>USER</th>
                             <th>EQUIPMENT</th>
                             <th>QUANTITY</th>
-                            <th>DATE</th>
+                            <th>ASSIGN DATE</th>
                             <th>STATUS</th>
                             <th>ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
                       {requests.map(item => (
+                        
                                 <tr key={item._id}>
-                                    <td className={styles.user_info}>{item.user_info ? `${item.user_info.first_name} ${item.user_info.last_name}` : 'Unknown'}</td>
                                     <td className={styles.equipment_info}>{item.equipment_info ? item.equipment_info.name : 'Unkrnown'}</td>
                                     <td className={styles.quantity}>{item.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(item.assign_date)}</td>
@@ -157,43 +176,28 @@ const Dashboard = () => {
                                         {item.request_status === 'active' ? 'Active' : item.request_status}
                                     </td>
                                     <td>
-                                        <button className={styles.delete} onClick={() => openDeleteModal(item._id)}>Return</button>
+                                        <button className={styles.read} onClick={() => deactivateEquipment(item._id)}>Return</button>
                                         <button className={styles.seeMore} onClick={() => openReadModal(item)}>See More</button>
                                     </td>
                                 </tr>
                             ))}
+                        
                     </tbody>
+                
                 </table>
             </div>
+            
+
+
         )}
-        <Modal
-            isOpen={deleteModalIsOpen}
-            onRequestClose={closeDeleteModal}
-            className={styles.modal}
-            overlayClassName={styles.overlay}
-            contentLabel="Delete  Request Confirmation Modal">
-            <h2 className={styles.modalTitle}>Delete  Request</h2>
-            {requestsToDelete && (
-            <div className={styles.modalContent}>
-                <p className={styles.modalMessage}>
-                Are you sure you want to delete <strong>{requestsToDelete.user_info.first_name} {requestsToDelete.user_info.last_name} {requestsToDelete.equipment_info.name}</strong>?
-                </p>
-            </div>
-            )}
-            <div className={styles.modalButtons}>
-            <button onClick={closeDeleteModal}>Cancel</button>
-            {requestsToDelete && (
-                <button onClick={() => deleteRequests(requestsToDelete._id)}>Delete</button>
-            )}
-            </div>
-        </Modal>
         <Modal
                 isOpen={readModalIsOpen}
                 onRequestClose={closeReadModal}
                 className={styles.modal}
                 overlayClassName={styles.overlay}
-                contentLabel="Read Request Modal">
-                <h2 className={styles.modalTitle}>Active assignment details</h2>
+                contentLabel="Read Request Modal"
+                >
+                <h2 className={styles.modalTitle}>Request details</h2>
                 {requestToRead && (
                     <div className={styles.modalContent}>
                         <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user_info ? `${requestToRead.user_info.first_name} ${requestToRead.user_info.last_name}` : 'Unknown'}</span></p>
@@ -211,5 +215,6 @@ const Dashboard = () => {
         </div>
     );
 }
-export default Dashboard;
+
+export default MyDashboard;
 

@@ -1,5 +1,5 @@
 "use client"
-import styles from './settings.module.css';
+import styles from './mySettings.module.css';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useCookies } from 'react-cookie';
@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import Modal from 'react-modal';
 
-const Settings = () => {
+const MySettings = () => {
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const [user, setUser] = useState(null);
     const [loggedInUser, setLoggedInUser] = useState(null);
@@ -41,7 +41,7 @@ const Settings = () => {
                     'Authorization': 'Bearer ' + token
                 },
             };
-            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/settings`, userToEdit, config);
+            await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `user/settings`, userToEdit, config);
             setEditModalIsOpen(false);
             window.location.reload();
         } catch (error) {
@@ -57,7 +57,7 @@ const Settings = () => {
                 'Authorization': 'Bearer ' + token
             },
         };
-        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'admin/settings', config)
+        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'user/settings', config)
             .then(response => {
                 setUser(response.data);
                 setLoading(false);
@@ -70,7 +70,45 @@ const Settings = () => {
 
     return (
         <div className={styles.container}>
-             
+            <Modal
+                isOpen={editModalIsOpen}
+                onRequestClose={closeEditModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Edit User Modal"
+                >
+                <h2 className={styles.modalTitle}>Edit User</h2>
+                {userToEdit && (
+                    <div className={styles.modalContent}>
+                        <label htmlFor="first_name" className={styles.labels}>Ime:</label>
+                        <input 
+                            type="text"
+                            name="first_name"
+                            value={userToEdit && userToEdit.first_name}
+                            onChange={handleInputChange}
+                            className={styles.values}
+                        />
+                        <label htmlFor="last_name" className={styles.labels}>Prezime:</label>
+                        <input
+                            type="text"
+                            name="last_name"
+                            value={userToEdit && userToEdit.last_name}
+                            onChange={handleInputChange}
+                            className={styles.values}
+                        />
+                        
+                    </div>
+                
+                )}
+                <div className={styles.modalButtons}>
+                <button  onClick={editUser} disabled={
+                   !userToEdit || (!userToEdit.first_name && !userToEdit.last_name && !userToEdit.password && !userToEdit.confirm_password)
+                  }>Save
+                </button>
+
+                <button onClick={closeEditModal}>Cancel</button>
+                </div>
+                </Modal> 
             
             {loading ? (
                 <div className={styles.loading}>
@@ -154,10 +192,10 @@ const Settings = () => {
 
                 <button onClick={closeEditModal}>Cancel</button>
                 </div>
-                </Modal>
+                </Modal> 
         </div>
       
     );
     
 };
-export default Settings;
+export default MySettings;
