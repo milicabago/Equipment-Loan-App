@@ -5,15 +5,16 @@ import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-import Modal from 'react-modal';
+import toast from 'react-hot-toast';
 
-const MySettings = () => {
+const Settings = () => {
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const [user, setUser] = useState(null);
+    const [userId, setUserId] = useState(null);
     const [loggedInUser, setLoggedInUser] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [editUser, setEditUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [userToEdit, setUserToEdit] = useState(null)
-    const [editModalIsOpen, setEditModalIsOpen] = useState(false);
 
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
@@ -22,93 +23,74 @@ const MySettings = () => {
         return `${formattedDate} ${formattedTime}`;
     };
 
-    const openEditModal = (user) => {
-        setUserToEdit(user);
-        setEditModalIsOpen(true);
-    };
-    const closeEditModal = () => {
-        setEditModalIsOpen(false);
-    };
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setUserToEdit((prevUser) => ({ ...prevUser, [name]: value }));
-    };
-    const editUser = async () => {
-        try {
-            const token = cookies.accessToken;
-            let config = {
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                },
-            };
-            await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `user/settings`, userToEdit, config);
-            setEditModalIsOpen(false);
-            window.location.reload();
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
-
     useEffect(() => {
         const token = cookies.accessToken;
-        const config = {
+        axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/settings", {
             headers: {
                 'Authorization': 'Bearer ' + token
-            },
-        };
-        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'user/settings', config)
-            .then(response => {
-                setUser(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching user:', error);
-                setLoading(false);
+            }
+        })
+        .then((response) => {
+            setUser(response.data);
+            setEditUser(response.data);
+            setLoading(false);
+            console.log("User:", response.data);
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            setLoading(false);
+        });
+    }, [cookies.accessToken]);
+
+      const handleEdit = (field, value) => {
+    
+        if (field === 'contact' && isNaN(value)) {
+            return; 
+        }
+        setEditUser({...editUser, [field]: value});
+    };
+
+
+    const handleSave = async () => {
+        try{
+            const token = cookies.accessToken;
+            const userId = localStorage.getItem('userId');
+            console.log("UserId:", userId);
+            if(!userId) {
+                console.log("userId not found in localStorage");
+                return;
+            }
+            const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}user/settings/${userId}`, {
+                first_name: editUser.first_name,
+                last_name: editUser.last_name,
+                email: editUser.email,
+                username: editUser.username,
+                contact: editUser.contact,
+                
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
-    }, [ cookies.accessToken ]);
+            toast.success('User has been successfully updated.', { duration: 3000 });
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message, { duration: 3000 });
+            } else {
+                toast.error('Failed to update user!', { duration: 3000 });
+            }
+            
+        }
+    }
+    
+
+   
+   
+    
 
     return (
         <div className={styles.container}>
-            <Modal
-                isOpen={editModalIsOpen}
-                onRequestClose={closeEditModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Edit User Modal"
-                >
-                <h2 className={styles.modalTitle}>Edit User</h2>
-                {userToEdit && (
-                    <div className={styles.modalContent}>
-                        <label htmlFor="first_name" className={styles.labels}>Ime:</label>
-                        <input 
-                            type="text"
-                            name="first_name"
-                            value={userToEdit && userToEdit.first_name}
-                            onChange={handleInputChange}
-                            className={styles.values}
-                        />
-                        <label htmlFor="last_name" className={styles.labels}>Prezime:</label>
-                        <input
-                            type="text"
-                            name="last_name"
-                            value={userToEdit && userToEdit.last_name}
-                            onChange={handleInputChange}
-                            className={styles.values}
-                        />
-                        
-                    </div>
-                
-                )}
-                <div className={styles.modalButtons}>
-                <button  onClick={editUser} disabled={
-                   !userToEdit || (!userToEdit.first_name && !userToEdit.last_name && !userToEdit.password && !userToEdit.confirm_password)
-                  }>Save
-                </button>
-
-                <button onClick={closeEditModal}>Cancel</button>
-                </div>
-                </Modal> 
+             
             
             {loading ? (
                 <div className={styles.loading}>
@@ -125,77 +107,53 @@ const MySettings = () => {
                     </div>
                         <div className={styles.userDetail}>
                             <div className={styles.detailItem}>
-                                <p className={styles.label}>Ime:</p>
-                                <p className={styles.value}>{user && user.first_name}</p>
+                                <p className={styles.label}>First name:</p>
+                                <input className={styles.value} value={editUser && editUser.first_name} onChange={(e) => handleEdit('first_name', e.target.value)} />
                             </div>
                             <div className={styles.detailItem}>
-                                <p className={styles.label}>Prezime:</p>
-                                <p className={styles.value}>{user && user.last_name}</p>
+                                <p className={styles.label}>Last name:</p>
+                                <input className={styles.value} value={editUser && editUser.last_name} onChange={(e) => handleEdit('last_name', e.target.value)} />
                             </div>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Email:</p>
-                                <p className={styles.value}>{user && user.email}</p>
+                                <input className={styles.value} value={editUser && editUser.email} onChange={(e) => handleEdit('email', e.target.value)} />
                             </div>
                             <div className={styles.detailItem}>
-                                <p className={styles.label}>Pozicija:</p>
+                                <p className={styles.label}>Contact:</p>
+                                <input className={styles.value} value={editUser && editUser.contact} onChange={(e) => handleEdit('contact', e.target.value)} />
+                            </div>
+
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Username:</p>
+                                <input className={styles.value} value={editUser && editUser.username} onChange={(e) => handleEdit('username', e.target.value)} />
+                            </div>
+
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Position:</p>
                                 <p className={styles.value}>{user && user.position}</p>
                             </div>
                             <div className={styles.detailItem}>
-                                <p className={styles.label}>Uloga:</p>
+                                <p className={styles.label}>Role:</p>
                                 <p className={styles.value}>{user && user.role}</p>
                             </div>
                             <div className={styles.detailItem}>
-                                <p className={styles.label}>Kreirano:</p>
+                                <p className={styles.label}>Created:</p>
                                 <p className={styles.value}>{user && formatDate(user.createdAt)}</p>
                             </div>
-                            <button className={styles.button} onClick={() => openEditModal(user)}>Edit</button>
-                
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Ažurirano:</p>
+                                <p className={styles.value}>{user && formatDate(user.updatedAt)}</p>
+                            </div>
+                            <button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>
+                        
                         </div>
                 </div>
                 </div>
             )}
-            <Modal
-                isOpen={editModalIsOpen}
-                onRequestClose={closeEditModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Edit User Modal"
-                >
-                <h2 className={styles.modalTitle}>Edit User</h2>
-                {userToEdit && (
-                    <div className={styles.modalContent}>
-                        <label htmlFor="first_name" className={styles.labels}>Ime:</label>
-                        <input 
-                            type="text"
-                            name="first_name"
-                            value={userToEdit && userToEdit.first_name}
-                            onChange={handleInputChange}
-                            className={styles.values}
-                        />
-                        <label htmlFor="last_name" className={styles.labels}>Prezime:</label>
-                        <input
-                            type="text"
-                            name="last_name"
-                            value={userToEdit && userToEdit.last_name}
-                            onChange={handleInputChange}
-                            className={styles.values}
-                        />
-                        
-                    </div>
-                
-                )}
-                <div className={styles.modalButtons}>
-                <button  onClick={editUser} disabled={
-                   !userToEdit || (!userToEdit.first_name && !userToEdit.last_name && !userToEdit.password && !userToEdit.confirm_password)
-                  }>Save
-                </button>
-
-                <button onClick={closeEditModal}>Cancel</button>
-                </div>
-                </Modal> 
+            
         </div>
       
     );
     
 };
-export default MySettings;
+export default Settings;

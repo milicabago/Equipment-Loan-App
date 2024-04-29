@@ -6,52 +6,66 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
 
-
-const AddEquipment = (data) => {
-
-    const schema = yup.object().shape({
+     const schema = yup.object().shape({
         name: yup.string().required("Name is required"),
         full_name: yup.string().required("Full name is required"),
         serial_number: yup.string().required("Serial number is required"),
         quantity: yup.number().required("Quantity is required"),
-        condition: yup.string().required("Condition is required"),
+        condition: yup.number().required("Condition is required"),
         description: yup.string()
     });
 
-    const{ register, handleSubmit, formState: {errors}, reset} = useForm({
+const AddEquipment = (data) => {
+    const [createdEquipment, setCreatedEquipment] = useState(null);
+    const [cookies] = useCookies(['accessToken']);
+
+    const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
 
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    useEffect(() => {
+        if (createdEquipment) {
+            const timer = setTimeout(() => {
+                window.location.reload()
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [createdEquipment]);
 
-    const addEquipment = async (equipmentData) => {
+    const onSubmit = async (data) => {
         try {
-            const token = cookies.accessToken;
-            if (token) {
-                const decodedToken = jwtDecode(token);
-                const config = {
-                    headers: {
-                        'Authorization': 'Bearer ' + cookies.accessToken
-                    }
-                };
-                const response = await axios.post(process.env.NEXT_PUBLIC_BASE_URL + 'admin/addEquipment', equipmentData, config);
-                console.log("New equipment added:", response.data);
-                toast.success('New equipment added successfully!');
-                reset(); 
-            }
+            let token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('accessToken'))
+                .split('=')[1];
+                const condition = data.condition === "true";
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/addEquipment`, {
+                name: data.name,
+                full_name: data.full_name,
+                serial_number: data.serial_number,
+                quantity: data.quantity,
+                condition: condition,
+                description: data.description
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log(response.data);
+            toast.success('Equipment added successfully!');
+            setCreatedEquipment(response.data);
         } catch (error) {
-            console.error(error);
-            toast.error('Error adding new equipment!');
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message, { duration: 3000 });
+            } else {
+                toast.error('Failed to add equipment!', { duration: 3000 });
+            }
         }
     };
 
-
-    const onSubmit = (formData) => {
-        addEquipment(formData);
-        console.log(formData);
-    };
 
     return(
         <div className={styles.container}>
@@ -77,18 +91,20 @@ const AddEquipment = (data) => {
 
                     <label className={styles.quantity}>Količina:
                     <p>{errors.quantity?.message}</p>
-                    <input type="number" placeholder="Unesite količinu" {...register("quantity")} autoComplete='off' /></label>
+                    <input type="number" placeholder="Unesite količinu" {...register("quantity")} autoComplete='off' min="1" /></label>
                     
 
 
                     
-                    <label className={styles.condition}>Stanje opreme:
+                    <label className={styles.condition}>
+                        Stanje opreme:
                         <p>{errors.condition?.message}</p>
                         <select className={styles.select} {...register("condition")}>
-                            <option  className={styles.true} value="1">Ispravno</option>
-                            <option className={styles.false} value="2">Neispravno</option>
+                            <option value="true">Ispravno</option>
+                            <option value="false">Neispravno</option>
                         </select>
                     </label>
+
 
                     <label className={styles.detail}>Opis:
                         <textarea className={styles.description} placeholder="Dodajte opis.." {...register("description")} name=""></textarea>

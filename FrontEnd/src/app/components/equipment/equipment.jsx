@@ -210,16 +210,18 @@ const Equipment = () => {
                 {equipmentToDelete && (
                 <div className={styles.modalContent}>
                     <p className={styles.modalMessage}>
-                    Are you sure you want to delete <strong>{equipmentToDelete.first_name} {equipmentToDelete.last_name}</strong>?
+                    Are you sure you want to delete? <strong>{equipmentToDelete.first_name} {equipmentToDelete.last_name}</strong>
                     </p>
                 </div>
                 )}
                 <div className={styles.modalButtons}>
-                <button onClick={closeDeleteModal}>Cancel</button>
                 {equipmentToDelete && (
                     <button onClick={() => deleteEquipment(equipmentToDelete._id)}>Delete</button>
                 )}
+                <button onClick={closeDeleteModal}>Cancel</button>
+                
                 </div>
+                </Modal>
                 <Modal
             isOpen={readModalIsOpen}
             onRequestClose={closeReadModal}
@@ -274,10 +276,10 @@ const Equipment = () => {
                 </div>
             )}
             <div className={styles.modalButtons}>
+            <button onClick={updateEquipment}>Save</button>
                 <button onClick={closeEditModal}>Cancel</button>
-                <button onClick={updateEquipment}>Save</button>
+                
             </div>
-            </Modal>
             </Modal>
 
             

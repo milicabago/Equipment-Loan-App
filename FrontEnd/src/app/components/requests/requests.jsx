@@ -121,15 +121,15 @@ const Request = () => {
                             <tbody>
                                 {requests.map(request => (
                                     <tr key={request._id}>
-                                        <td>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
-                                        <td>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
-                                        <td>{request.quantity}</td>
-                                        <td>{formatDate(request.assign_date)}</td>
+                                        <td className={styles.name}>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
+                                        <td className={styles.equipment}>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
+                                        <td className={styles.quantity}>{request.quantity}</td>
+                                        <td className={styles.date}>{formatDate(request.assign_date)}</td>
                                         
                                         <td className={`${styles.status} ${request.request_status === 'pending' ? styles.active : ''}`}>
                                             {request.request_status === 'pending' ? 'Pending..' : request.request_status}
                                         </td>
-                                        <td>
+                                        <td className={styles.action}>
                                             <button className={styles.accept} onClick={() => openAcceptModal(request)}>Accept</button>
                                             <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
                                         </td>

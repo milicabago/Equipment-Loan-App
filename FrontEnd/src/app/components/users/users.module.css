@@ -203,4 +203,21 @@
   color: #000000;
   border-bottom: 1px solid var(--button);
   font-style: italic;
+
 }
+.input {
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #000000;
+  border-bottom: 1px solid var(--button);
+  font-style: italic;
+  width: max-content;
+  background-color: transparent;
+}
+.input select{
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+

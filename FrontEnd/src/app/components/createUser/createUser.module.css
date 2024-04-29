@@ -90,3 +90,33 @@
 .form p{
     color: #5f91f5;
 }
+
+.toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: white;
+    color: black;
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+}
+.passwordInputContainer {
+    position: relative;
+}
+
+.passwordToggle {
+position: absolute;
+top: 40%;
+right: 20px;
+transform: translateY(-50%);
+cursor: pointer;
+color: var(--textSoft);
+}
+
+.passwordToggle svg {
+font-size: 18px;
+}
+

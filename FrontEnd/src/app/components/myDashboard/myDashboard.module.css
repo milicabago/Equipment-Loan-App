@@ -12,6 +12,7 @@
   margin-bottom: 40px;
 }
 
+
 .loading {
   position: absolute;
   top: 50%;
@@ -34,12 +35,7 @@
   100% { transform: rotate(360deg); }
 }
 
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 40px;
-}
+
 
 .table {
   width: 100%;

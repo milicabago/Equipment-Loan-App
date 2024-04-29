@@ -28,7 +28,8 @@ const RegisterPage = () => {
         username: yup.string().required("Username is required!"),
         email: yup.string().email().required("Email is required!"),
         password: yup.string().min(8).required("Password is required"),
-        confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),        
+        confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),   
+        position: yup.string().required("Position is required!")     
     });
     
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -90,7 +91,7 @@ const RegisterPage = () => {
                     </label>
 
                     <label className={styles.password}>Lozinka:
-                    <p>{errors.Password?.message}</p>
+                    <p>{errors.password?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
                                 type={showPassword ? "text" : "password"} placeholder="Unesite lozinku" {...register("password")} autoComplete="off"/>
@@ -101,7 +102,7 @@ const RegisterPage = () => {
                     </label>
 
                     <label className={styles.confirmPassword}>Potvrdite lozinku:
-                    <p>{errors.Confirm_password?.message}</p>
+                    <p>{errors.confirm_password?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
                                 type={showConfirmPassword ? "text" : "password"} placeholder="Potvrdite lozinku" {...register("confirm_password")} autoComplete="off"/>
@@ -129,10 +130,12 @@ const RegisterPage = () => {
                     
 
 
-                    <div className={styles.btn}>
+                    
+
+                    </div><div className={styles.btn}>
                         <button type="submit">Register</button>
                     </div>
-                    </div>
+
                 </form> 
                 </div>
             </div>

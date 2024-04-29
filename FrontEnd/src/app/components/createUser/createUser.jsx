@@ -4,11 +4,9 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
-import { useCookies } from 'react-cookie';
-import { jwtDecode } from 'jwt-decode';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import { useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
-import { reset } from 'react-hook-form'; 
     
     const schema = yup.object().shape({
         first_name: yup.string().required("First name is required!"),
@@ -24,54 +22,60 @@ import { reset } from 'react-hook-form';
     });
 
 const Users = (data) => {
-
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
-    const [formData, setFormData] = useState(null);
-    const [isAdmin, setIsAdmin] = useState(false);
-
-    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [createdUser, setCreatedUser] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const togglePasswordVisibility = () => {
+      setShowPassword(!showPassword);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+    
     const{register, handleSubmit, formState: {errors}, reset} = useForm({
         resolver: yupResolver(schema)
     });
 
     useEffect(() => {
-        const token = cookies.accessToken;
-    
-        if (token) {
-          const decodedToken = jwtDecode(token);
-          setLoggedInUser(decodedToken);
-          console.log("Logged in user:", decodedToken)
-          console.log("Logged in admin:", decodedToken.user.role)
-          let config = {
-            headers: {
-              'Authorization': 'Bearer ' + cookies.accessToken
-            }
-          }
-          if (decodedToken.user.role.includes('admin') ) {
-            console.log("uspjeh", decodedToken.user.role)
-            setIsAdmin(true);
-            
-
-          } else (console.log("greskaa:"))
+        if (createdUser) {
+            const timer = setTimeout(() => {
+                window.location.reload()
+            }, 3000);
+            return () => clearTimeout(timer);
         }
-      }, [cookies.accessToken]);
-
+    }, [createdUser]);
 
     const onSubmit = async (data) => {
-        
-        try{
-            let config = {
-                headers: {
-                  'Authorization': 'Bearer ' + cookies.accessToken
-                }
+      try {
+          let token = document.cookie
+              .split('; ')
+              .find(row => row.startsWith('accessToken'))
+              .split('=')[1];
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, {
+              first_name: data.first_name,
+              last_name: data.last_name,
+              username: data.username,
+              contact: data.contact,
+              email: data.email,
+              password: data.password,
+              role: data.role,
+              position: data.position,
+          }, {
+              headers: {
+                  'Authorization': `Bearer ${token}`
               }
-            const response = await axios.post(process.env.NEXT_PUBLIC_BASE_URL + 'admin/createUser', data, config);
-            console.log('Novi korisnik je uspješno kreiran:', response.data);
-            reset();            
-        } catch (error) {
-            console.log('Greška prilikom kreiranja korisnika:', error);
-        }
-    };
+          });
+          toast.success('User has been successfully created.', { duration: 3000 });
+          setCreatedUser(data);
+      } catch (error) {
+          if (error.response && error.response.data) {
+            
+              toast.error(error.response.data.message, { duration: 3000 }); 
+          } else {
+              toast.error('Failed to create user!', { duration: 3000 });
+          }
+      }
+  };
 
 
     return (
@@ -106,11 +110,25 @@ const Users = (data) => {
 
                     <label className={styles.password}>Lozinka:
                     <p>{errors.password?.message}</p>
-                    <input type="password" placeholder="••••••••" {...register("password")} autoComplete='off'/></label>
+                        <div className={styles.passwordInputContainer}>
+                            <input 
+                                type={showPassword ? "text" : "password"} placeholder="Unesite lozinku" {...register("password")} autoComplete="off"/>
+                            <span className={styles.passwordToggle} onClick={togglePasswordVisibility}>
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+                        </div>
+                    </label>
 
-                    <label className={styles.confirmPassword}>Potvrda lozinke:
+                    <label className={styles.confirmPassword}>Potvrdite lozinku:
                     <p>{errors.confirm_password?.message}</p>
-                    <input type="password" placeholder="••••••••" {...register("confirm_password")} autoComplete='off'/></label>
+                        <div className={styles.passwordInputContainer}>
+                            <input 
+                                type={showConfirmPassword ? "text" : "password"} placeholder="Potvrdite lozinku" {...register("confirm_password")} autoComplete="off"/>
+                            <span className={styles.passwordToggle} onClick={toggleConfirmPasswordVisibility}>
+                                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+                        </div>
+                    </label>
                     
                     <label className={styles.role}>Uloga:
                     
@@ -124,12 +142,12 @@ const Users = (data) => {
                     
                     <select {...register("position")} className={styles.select}>
                         
-                        <option className={styles.employee} value="1">Project manager</option>
-                        <option className={styles.employee} value="2">Software developer</option>
-                        <option className={styles.employee} value="3">Graphic designer</option>
-                        <option  className={styles.employee} value="4">Financial accountant</option>
-                        <option className={styles.employee} value="5">DevOps Engineer</option>
-                        <option className={styles.employee} value="6">Junior Product Owner</option>
+                        <option className={styles.employee} value="Project manager">Project manager</option>
+                        <option className={styles.employee} value="Software developer">Software developer</option>
+                        <option className={styles.employee} value="Graphic designer">Graphic designer</option>
+                        <option  className={styles.employee} value="Financial accountant">Financial accountant</option>
+                        <option className={styles.employee} value="DevOps Engineer">DevOps Engineer</option>
+                        <option className={styles.employee} value="Junior Product Owner">Junior Product Owner</option>
 
                     </select>
                     </label> 

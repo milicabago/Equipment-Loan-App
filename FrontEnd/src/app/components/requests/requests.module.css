@@ -81,6 +81,38 @@ background-color: var(--button);
   
 }*/
 
+.name,
+.equipment,
+.quantity,
+.date,
+.status,
+.action{
+    font-style: italic;
+    white-space: nowrap;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+
+.actions button {
+  padding: 8px 12px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #007bff;
+}
+
+.delete:hover {
+  background-color: var(--button);
+}
+
+.edit:hover {
+  background-color: var(--button);
+}
+
 .modal {
 position: fixed;
 top: 50%;
