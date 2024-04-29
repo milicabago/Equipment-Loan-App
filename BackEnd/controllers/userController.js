@@ -297,7 +297,6 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     throw new Error("User doesn't have permission to UPDATE another user profile!");
   }
 
-  //****** PROVJERITI SA MENTOROM da li kada je UPDATE vrijednosti staviti na REQUIRED ili ostaviti OPTIONAL *******/
   // Definicija sheme za validaciju ažuriranja korisnika
   const adminUpdateProfileShema = Joi.object({
     first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
@@ -413,7 +412,6 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "User updated.", updatedUser });
 });
-
 
 //@desc Delete user
 //@route DELETE /api/admin/users/:id
