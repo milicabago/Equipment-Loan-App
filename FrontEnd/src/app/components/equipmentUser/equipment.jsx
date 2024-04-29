@@ -51,20 +51,24 @@ const Equipment = () => {
                     'Authorization': `Bearer ${token}`
                 }
             };
-            if (decodedToken.user.role.includes('user')) {
-            axios.delete(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/${itemId}`, config)
-                .then((response) => {
-                    setEquipment(equipment.filter(item => item._id !== itemId));
-                    setDeleteModalIsOpen(false);
-                    toast.success("Equipment deleted successfully!");
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    toast.error("Error deleting equipment!");
-                });
-            }
-        }
-    }
+            axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/${itemId}`, config)
+            .then((response) => {
+                const equipmentStatus = response.data.status;
+                if (equipmentStatus === 'active') {
+                  if (decodedToken.user.role.includes('user')) {
+                  axios.delete(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/${itemId}`, config)
+                      .then((response) => {
+                          setEquipment(equipment.filter(item => item._id !== itemId));
+                          setDeleteModalIsOpen(false);
+                          toast.success("Equipment deleted successfully!");
+                      })
+                      .catch((error) => {
+                          console.error("Error:", error);
+                          toast.error("Error deleting equipment!");
+                      });
+                  }
+              }
+          }
 
     const updateEquipment = async (itemId) => {
         try{

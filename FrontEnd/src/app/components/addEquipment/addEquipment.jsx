@@ -10,12 +10,13 @@ import { useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
 
      const schema = yup.object().shape({
-        name: yup.string().required("Name is required"),
-        full_name: yup.string().required("Full name is required"),
-        serial_number: yup.string().required("Serial number is required"),
-        quantity: yup.number().required("Quantity is required"),
-        condition: yup.number().required("Condition is required"),
-        description: yup.string()
+        name: yup.string().required('Name is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
+            full_name: yup.string().required('Full name is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
+            serial_number: yup.string().required('Serial number is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
+            quantity: yup.number().required().typeError('Quantity must be a number!').integer("Quantity must be an integer!").min(1, "Quantity must be at least '1'!"),
+            condition: yup.boolean().required(),
+            description: yup.string().optional(),
+    
     });
 
 const AddEquipment = (data) => {

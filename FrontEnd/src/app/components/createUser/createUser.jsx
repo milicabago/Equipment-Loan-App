@@ -8,18 +8,16 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
     
-    const schema = yup.object().shape({
-        first_name: yup.string().required("First name is required!"),
-        last_name: yup.string().required("Last name is required!"),
-        username: yup.string().required("Username is required!"),
-        contact: yup.string().required("Contact is required!"),
-        email: yup.string().email().required("Email is required!"),
-        password: yup.string().min(8).required("Password is required"),
-        confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),
-        position: yup.string().required("Position is required!"),
-        role: yup.string().required("Role is required!")
-        
-    });
+const schema = yup.object().shape({
+    first_name: yup.string().required("First name is required!").matches(/^(\S+\s)*\S+$/, '"First name" cannot contain multiple consecutive spaces!'),
+    last_name: yup.string().required("Last name is required!").matches(/^(\S+\s)*\S+$/, '"Last name" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+    email: yup.string().email().required("Email is required!").matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '"Email" is not valid!'),
+    username: yup.string().required("Username is required!").min(3).max(30).matches(/^[a-zA-Z0-9]+$/, '"Username" can only contain letters and numbers!'),
+    password: yup.string().min(8).required("Password is required!"),
+    role: yup.string().required("Role is required!").oneOf(["admin", "user"], 'Invalid "role" value!'),
+    contact: yup.string().matches(/^(\S+\s)*\S+$/, '"Contact" cannot start or end with spaces, or contain multiple consecutive spaces!').notRequired(),
+    position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/, '"Position" cannot start or end with spaces, or contain multiple consecutive spaces!')
+});
 
 const Users = (data) => {
     const [createdUser, setCreatedUser] = useState(null);
