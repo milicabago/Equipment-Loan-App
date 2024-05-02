@@ -12,9 +12,11 @@
     "@hookform/resolvers": "^3.3.4",
     "@nextui-org/react": "^2.2.10",
     "axios": "^1.6.8",
+    "chart.js": "^4.4.2",
     "jwt-decode": "^4.0.0",
     "next": "14.2.1",
     "react": "^18",
+    "react-chartjs-2": "^5.2.0",
     "react-cookie": "^7.1.4",
     "react-dom": "^18",
     "react-hook-form": "^7.51.3",
@@ -24,6 +26,9 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-react": "^7.24.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.1"
   }

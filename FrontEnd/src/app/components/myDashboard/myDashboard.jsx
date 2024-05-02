@@ -4,20 +4,22 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { useRouter } from "next/navigation";
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
 
 const MyDashboard = () => {
-
     const [requests, setRequests] = useState([]);
     const [isUser, setIsUser] = useState(false);
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const [loading, setLoading] = useState(true);
-
     const [requestToRead, setRequestToRead] = useState(null);
     const [readModalIsOpen, setReadModalIsOpen] = useState(false);
+    const [requestToReturn, setRequestsToReturn] = useState(null);
+    const [returnModalIsOpen, setReturnModalIsOpen] = useState(false);
+    const [returnQuantity, setReturnQuantity] = useState(1);
+    const [currentQuantity, setCurrentQuantity] = useState();
+
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -29,34 +31,37 @@ const MyDashboard = () => {
       }, []);
 
 
-    useEffect(() => {
+      useEffect(() => {
         const token = cookies.accessToken;
         if (token) {
             const decodedToken = jwtDecode(token);
-            let config = {
+            const userId = decodedToken.sub;
+            const config = {
                 headers: {
-                    'Authorization': 'Bearer ' + cookies.accessToken
+                    Authorization: `Bearer ${token}`
                 }
-            };
-            if (decodedToken.user.role.includes('user') ) {
-                console.log("uspjeh", decodedToken.user.role)
-                setIsUser(true);
-                axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user", config)
-                .then((response) => {
-                    setRequests(response.data);
-                  console.log("Requests:", response.data);
-                  setLoading(false);
-                })
-                .catch((error) => {
-                  console.error("Error:", error);
-                  setLoading(false);
-                });
-              }
             }
-          }, [cookies.accessToken]);
+            setIsUser({
+                firstName: decodedToken.firstName,
+                lastName: decodedToken.lastName
+            });
+            axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/", config)
+            .then((response) => {
+                setRequests(response.data);
+                console.log("Assignments:", response.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                setLoading(false);
+            }); 
+            
+        }
+        }, [cookies.accessToken]);
 
+        
     
-    const readRequests = async (itemId) => {
+    const readRequests = async (requestId) => {
     try{
         const token = cookies.accessToken;
         const decodedToken = jwtDecode(token);
@@ -65,71 +70,56 @@ const MyDashboard = () => {
                 'Authorization': 'Bearer ' + cookies.accessToken
             }
         };
-        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/${itemId}` , config);
+        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/${requestId}` , config);
         setRequestToRead(response.data);
         setReadModalIsOpen(true);
     } catch (error) {
         console.error("Error:", error);
-        toast.error('Error fetching item data!');
-    }
-
+        toast.error('Error fetching request data!');
+        }
     };
-
-
- 
-
-    const deactivateEquipment = async (itemId) => {
+    const returnRequests = async (requestId) => {
         try {
-            const token = cookies.accessToken;
-            const config = {
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
-            };
-            const equipmentDataToUpdate = {
-                status: 'inactive'
-            };console.log(`${process.env.NEXT_PUBLIC_BASE_URL} user/${itemId}`);
-
-            const response = await axios.patch(
-                `${process.env.NEXT_PUBLIC_BASE_URL} user/${itemId}`, 
-                equipmentDataToUpdate, 
-                config
-            );
-            console.log("Equipment successfully deactivated:", response.data);
-        toast.success('Equipment has been deactivated successfully!');
-        refreshRequests();
-    } catch (error) {
-        console.error("Error:", error);
-        toast.error('Error deactivating equipment!');
-    }
-};
-
-    const refreshRequests = async () => {
-        try {
-            const token = cookies.accessToken;
-            const decodedToken = jwtDecode(token);
-            let config = {
-                headers: {
-                    'Authorization': 'Bearer ' + cookies.accessToken
-                }
-            };
-            if (decodedToken.user.role.includes('user')) {
-                setIsUser(true);
-                const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user", config);
-                setRequests(response.data);
-                console.log("Requests:", response.data);
-                setLoading(false);
+            let token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('accessToken'))
+            .split('=')[1];
+            const requestToReturn = requests.find(request => request._id === requestId);
+            if (!Number.isInteger(returnQuantity) || returnQuantity <= 0 || returnQuantity > currentQuantity) {
+                toast.error('Invalid return quantity!');
+                return;
             }
+            
+
+            await axios.patch(
+                process.env.NEXT_PUBLIC_BASE_URL + `user/${requestId}`, 
+                 { unassigned_quantity: returnQuantity },{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                
+            );
+            setRequests(prevRequests => prevRequests.map(request => {
+            if (request._id === requestId) {
+                return { ...request, unassigned_quantity: returnQuantity };
+            }
+            return request;
+            }));
+    
+            closeReturnModal();
+            toast.success('Request returned successfully!');
+            window.location.reload();
         } catch (error) {
             console.error("Error:", error);
-            setLoading(false);
+            toast.error('Error returning request!');
         }
     };
 
 
 
-      const openReadModal = (item) => {
-        setRequestToRead(item);
+      const openReadModal = (request) => {
+        setRequestToRead(request);
         setReadModalIsOpen(true);
       };
     
@@ -137,6 +127,14 @@ const MyDashboard = () => {
         setRequestToRead(null);
         setReadModalIsOpen(false);
       };
+      const openReturnModal = (request) => {
+        setRequestsToReturn(request);
+        setReturnModalIsOpen(true);
+    };
+    const closeReturnModal = () => {
+        setRequestsToReturn(null);
+        setReturnModalIsOpen(false);
+    };
 
             
     
@@ -166,18 +164,19 @@ const MyDashboard = () => {
                         </tr>
                     </thead>
                     <tbody>
-                      {requests.map(item => (
+                      {requests.map(request => (
                         
-                                <tr key={item._id}>
-                                    <td className={styles.equipment_info}>{item.equipment_info ? item.equipment_info.name : 'Unkrnown'}</td>
-                                    <td className={styles.quantity}>{item.quantity}</td>
-                                    <td className={styles.assign_date}>{formatDate(item.assign_date)}</td>
-                                    <td className={`${styles.status} ${item.request_status === 'active' ? styles.active : ''}`}>
-                                        {item.request_status === 'active' ? 'Active' : item.request_status}
+                                <tr key={request._id}>
+                                    
+                                    <td className={styles.equipment_info}>{request.equipment_info ? request.equipment_info.name : user.name}</td>                                    
+                                    <td className={styles.quantity}>{request.quantity}</td>
+                                    <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
+                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>
+                                        {request.request_status === 'active' ? 'Active' : request.request_status}
                                     </td>
                                     <td>
-                                        <button className={styles.read} onClick={() => deactivateEquipment(item._id)}>Return</button>
-                                        <button className={styles.seeMore} onClick={() => openReadModal(item)}>See More</button>
+                                    <button className={styles.return} onClick={() => openReturnModal(request)}>Return</button>
+                                        <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
                                     </td>
                                 </tr>
                             ))}
@@ -198,20 +197,48 @@ const MyDashboard = () => {
                 contentLabel="Read Request Modal"
                 >
                 <h2 className={styles.modalTitle}>Request details</h2>
+                {console.log('requestToRead:', requestToRead)}
                 {requestToRead && (
                     <div className={styles.modalContent}>
-                        <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user_info ? `${requestToRead.user_info.first_name} ${requestToRead.user_info.last_name}` : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user_info ? requestToRead.user_info.username : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
-                        <p><span className={styles.label}>Assign Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
-                    </div>
+                    <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user ? requestToRead.user.name : 'Unknown'}</span></p>
+                    <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user ? requestToRead.user.username : 'Unknown'}</span></p>
+                    <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
+                    <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
+                    <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
+                    <p><span className={styles.label}>Assign Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
+                </div>
                 )}
                 <div className={styles.modalButtons}>
                     <button onClick={closeReadModal}>Close</button>
                 </div>
                 </Modal>
+                <Modal
+                isOpen={returnModalIsOpen}
+                onRequestClose={closeReturnModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Return Assigment Modal" >
+                <h2 className={styles.modalTitle}>Return Assigment</h2>
+                {requestToReturn && (
+                    <div>
+                    <p className={styles.question}>Current quantity: {requestToReturn.quantity}</p>
+                    <label className={styles.question} htmlFor="returnQuantity">Quantity to return:</label>
+                    <input className={styles.input}
+                        type="number"
+                        id="returnQuantity"
+                        min="1"
+                        max={requestToReturn.quantity}
+                        value={returnQuantity}
+                        onChange={(e) => setReturnQuantity(parseInt(e.target.value))}
+                    />
+                        <p className={styles.question}> Are you sure you want to return this equipment?</p>
+                        <div className={styles.modalButtons}>
+                            <button className={styles.accept} onClick={() => returnRequests(requestToReturn._id)}>Return</button>
+                            <button onClick={closeReturnModal}>Close</button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }

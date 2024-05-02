@@ -29,6 +29,7 @@
 }
 
 .userDetail {
+  position: relative;
   margin-top: 20px;
   display: flex;
   flex-direction: column;
@@ -38,18 +39,20 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
 }
+
 .label{
   font-size: 16px;
   color: #ffffff;
   margin-bottom: 5px;
   text-align: left;
   display: inline-block;
-  width: 100px;
+  width: 120px;
   margin: 10px;
   font-weight: bold;
 }
 .value{
   padding: 5px;
+  padding-right: 30px;
   border: none;
   font-size: 16px;
   background-color: black;
@@ -105,7 +108,10 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
+.merror{
+  color: #5f91f5;
+  margin-left: 10px;
+}
 .button{
   padding: 15px;
   margin-top: 20px;    
@@ -121,4 +127,19 @@
   background-color: black;
   border: 1px solid var(--button);
   cursor: not-allowed;
+}
+
+
+.detailItem {
+  position: relative;
+  display: flex;
+  align-items: center; 
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }

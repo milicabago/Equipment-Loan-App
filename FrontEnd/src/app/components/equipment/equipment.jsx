@@ -153,6 +153,10 @@ const Equipment = () => {
       };
 
       const openReadModal = (equipment) => {
+        const equipmentWithBooleanCondition = {
+            ...equipment,
+            condition: equipment.condition === "true" ? true : false
+        };
         setEquipmentToRead(equipment);
         setReadModalIsOpen(true);
       };
@@ -177,7 +181,7 @@ const Equipment = () => {
                         <tr>
                             <th>NAME</th> 
                             <th>MODEL</th>
-                            <th>SERIAL NUMBER</th>
+                            <th>QUANTITY</th>
                             <th>ACTIONS</th>
                         </tr>
                     </thead>
@@ -186,7 +190,8 @@ const Equipment = () => {
                         <tr key={item._id}>
                             <td className={styles.name}>{item.name}</td>
                             <td className={styles.model}>{item.full_name}</td>
-                            <td className={styles.serial_number}>{item.serial_number}</td>
+                            <td className={styles.quantity}>{item.quantity}</td>
+                            
                             <td>
                                 <button className={styles.edit} onClick={() => openEditModal(item)}>Edit</button>
                                 <button className={styles.delete} onClick={() => openDeleteModal(item._id)}>Delete</button>
@@ -234,7 +239,8 @@ const Equipment = () => {
                 <div className={styles.modalContent}>
                     <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
                     <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
-                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition}</span></p>
+                    <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
+                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition === true ? "Ispravno" : "Neispravno"}</span></p>
                     <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
                     <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description}</span></p>
                 </div>

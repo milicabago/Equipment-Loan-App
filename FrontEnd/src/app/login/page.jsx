@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
+import toast from 'react-hot-toast';
 
 
 const LoginPage = (data) => {
@@ -74,7 +75,7 @@ const LoginPage = (data) => {
             })
             .catch((error) => {
                 console.error("Login error:", error.response.data.message);
-                alert("Invalid email or password");
+                toast.error("Invalid email or password");
             });
         };
 

@@ -5,17 +5,43 @@ import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-import Modal from 'react-modal';
+import * as yup from 'yup';
 import toast from 'react-hot-toast';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+
+const schema = yup.object().shape({
+    first_name: yup.string().notRequired("First name is not required!").matches(/^(\S+\s)*\S+$/, '\"First name\" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+    last_name: yup.string().notRequired("Last name is not required!").matches(/^(\S+\s)*\S+$/, '\"Last name\" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+    email: yup.string().email().notRequired("Email is not required!"),
+    username: yup.string().notRequired("Username is not required!").matches(/^[a-zA-Z0-9]{3,30}$/, '\"Username\" must be alphanumeric and have a length between 3 and 30 characters!'),
+    role: yup.string().notRequired(), 
+    contact: yup.string().matches(/^(\S+\s)*\S+$/, '\"Contact\" cannot start or end with spaces, or contain multiple consecutive spaces!').notRequired(), 
+    position: yup.string().notRequired(), 
+    password: yup.string().min(8, "Password must be at least 8 characters long").notRequired(), 
+    confirm_password: yup.string().when('password', {
+        is: (val) => (val && val.length > 0),
+        then: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password"),
+        otherwise: yup.string().notRequired()
+    }), 
+});
 
 const Settings = () => {
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [cookies] = useCookies(['accessToken']);
     const [user, setUser] = useState(null);
     const [userId, setUserId] = useState(null);
-    const [loggedInUser, setLoggedInUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [editUser, setEditUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState("");
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
 
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
@@ -26,66 +52,70 @@ const Settings = () => {
 
     useEffect(() => {
         const token = cookies.accessToken;
-        let config = {
-          headers: {
-            'Authorization': 'Bearer ' + token
-          }
-        }
-        axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/settings", config)
-          .then((response) => {
+        axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/settings", {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then((response) => {
             setUser(response.data);
             setEditUser(response.data);
+            setUserId(response.data._id);
             setLoading(false);
-            console.log("Users:", response.data);
-          })
-          .catch((error) => {
+            console.log("User:", response.data);
+        })
+        .catch((error) => {
             console.error("Error:", error);
             setLoading(false);
-          });
-      }, [cookies.accessToken]);
+        });
+    }, [cookies.accessToken]);
 
-      
 
-    const handleEdit = (field, value) => {
+      const handleEdit = (field, value) => {
     
-        if (field === 'contact' && isNaN(value)) {
+        if (field === 'contact' && !/^\+?\d*$/.test(value)) {
             return; 
         }
         setEditUser({...editUser, [field]: value});
     };
 
-    const handleSave = async (data) => {
-        try{
-            const token = cookies.accessToken;
-            const userId = user.id;
-            
-            const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}admin/settings`, {
-                first_name: data.first_name,
-                last_name: data.last_name,
-                email: data.email,
-                username: data.username,
-                contact: data.contact,
-                
-            }, {
+
+    const handleSave = async () => {
+        try {
+            let token = document.cookie
+              .split('; ')
+              .find(row => row.startsWith('accessToken'))
+              .split('=')[1];
+            const { first_name, last_name, email, contact, username, password,position } = editUser;
+            const editedUserData = {
+                first_name,
+                last_name,
+                email,
+                contact,
+                username,
+                password,
+                position
+            };
+    
+            const response = await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `admin/settings/${userId}`, editedUserData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            toast.success('User has been successfully updated.', { duration: 3000 });
-        } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error(error.response.data.message, { duration: 3000 });
+            if (response.status === 200) {
+                toast.success("Profile updated successfully.");
+                setUser(response.data.updatedUser);
+                
             } else {
-                toast.error('Failed to update user!', { duration: 3000 });
+                toast.error("Failed to update profile.");
             }
-            
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast.error("Failed to update profile. Please try again later.");
         }
-    }
-    
+    };
+   
 
-   
-   
-    
 
     return (
         <div className={styles.container}>
@@ -98,7 +128,7 @@ const Settings = () => {
             ) : (
                 <div>
                 <div className={styles.title}>
-                        <h1>Svi zahtjevi</h1>
+                         <h1>Moje postavke</h1>
                         </div>
                 <div className={styles.user}>
                     <div className={styles.img}>
@@ -107,41 +137,59 @@ const Settings = () => {
                         <div className={styles.userDetail}>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>First name:</p>
-                                <p className={styles.value}>{user && user.first_name}</p>
+                                <input className={styles.value} value={editUser && editUser.first_name} onChange={(e) => handleEdit('first_name', e.target.value)} />
                             </div>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Last name:</p>
-                                <p className={styles.value}>{user && user.last_name}</p>
+                                <input className={styles.value} value={editUser && editUser.last_name} onChange={(e) => handleEdit('last_name', e.target.value)} />
                             </div>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Email:</p>
                                 <input className={styles.value} value={editUser && editUser.email} onChange={(e) => handleEdit('email', e.target.value)} />
                             </div>
+
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Contact:</p>
-                                <p className={styles.value}>{user && user.contact}</p>
+                                <input className={styles.value} value={editUser && editUser.contact} onChange={(e) => handleEdit('contact', e.target.value)} />
                             </div>
-
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Username:</p>
                                 <input className={styles.value} value={editUser && editUser.username} onChange={(e) => handleEdit('username', e.target.value)} />
                             </div>
                             <div className={styles.detailItem}>
-                            <p>
-                                <span className={styles.label}>Role: </span>
-                                <span>
-                                <select
-                                    name="role"
-                                    value={editUser.role || editUser.role}
-                                    onChange={(e) => handleEdit('role', e.target.value)}
+                                <p className={styles.label}>Password:</p>
+                                <input
                                     className={styles.value}
-                                >
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                </select>
+                                    type={showPassword ? "text" : "password"}
+                                    value={editUser && editUser.password}
+                                    onChange={(e) => handleEdit('password', e.target.value)}
+                                />
+                                <span className={`${styles.passwordToggle} ${showPassword ? styles.show : ''}`} onClick={togglePasswordVisibility}>
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
                                 </span>
-                            </p>
                             </div>
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Confirm:</p>
+                                
+                                <input
+                                    className={styles.value}
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    value={editUser && editUser.confirm_password}
+                                    onChange={(e) => handleEdit('confirm_password', e.target.value)}
+                                />
+                                <span className={`${styles.passwordToggle} ${showConfirmPassword ? styles.show : ''}`} onClick={toggleConfirmPasswordVisibility}>
+                                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                </span>
+                            </div>
+
+
+                            
+
+                          
+
+
+                            
+
                             <div className={styles.detailItem}>
                             <p>
                                 <span className={styles.label}>Position: </span>
@@ -162,7 +210,10 @@ const Settings = () => {
                                 </span>
                             </p>
                             </div>
-    
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Role:</p>
+                                <p className={styles.value}>{user && user.role}</p>
+                            </div>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Created:</p>
                                 <p className={styles.value}>{user && formatDate(user.createdAt)}</p>
@@ -171,7 +222,9 @@ const Settings = () => {
                                 <p className={styles.label}>Ažurirano:</p>
                                 <p className={styles.value}>{user && formatDate(user.updatedAt)}</p>
                             </div>
-<button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>                        </div>
+                            <button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>
+                        
+                        </div>
                 </div>
                 </div>
             )}

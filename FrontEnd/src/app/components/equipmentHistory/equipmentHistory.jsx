@@ -8,13 +8,9 @@ import axios from 'axios';
 import Modal from 'react-modal';
 
 const EquipmentHistory = () => {
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
-    const [user, setUser] = useState(null);
+    const [cookies] = useCookies(['accessToken']);
     const [history, setHistory] = useState([]);
-    const [loggedInUser, setLoggedInUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [userToEdit, setUserToEdit] = useState(null)
-    const [editModalIsOpen, setEditModalIsOpen] = useState(false);
 
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
@@ -33,8 +29,9 @@ const EquipmentHistory = () => {
                 'Authorization': 'Bearer ' + token
             },
         };
-        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'admin/equipmentHistory', config)
+        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'user/equipmentHistory', config)
             .then(response => {
+                console.log('History data:', response.data);
                 setHistory(response.data);
                 setLoading(false);
             })
@@ -74,11 +71,13 @@ const EquipmentHistory = () => {
                       {history.map(item => (
                         
                                 <tr key={item._id}>
-                                    <td>{item.user_info ? `${item.user_info.first_name} ${item.user_info.last_name}` : 'Unknown'}</td>
+                                    <td>{item.user_id}</td>
                                     <td>{item.equipment_info ? item.equipment_info.name : 'Unknown'}</td>
-                                    <td>{item.quantity}</td>
+                                    <td>{item.equipment_id}</td>
+                                    <td>{item.unassigned_quantity}</td>
+                                    <td>{formatDate(item.createdAt)}</td>
                                     <td>{formatDate(item.assign_date)}</td>
-                                    <td>{item.request_status}</td>
+                                    <td>{item.return_status_request}</td>
                                 </tr>
                             ))}
                         

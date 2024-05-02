@@ -5,16 +5,47 @@ import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import * as yup from 'yup';
 import toast from 'react-hot-toast';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { useRouter } from 'next/navigation'; 
+
+const schema = yup.object().shape({
+    first_name: yup.string().notRequired("First name is not required!").matches(/^(\S+\s)*\S+$/, '\"First name\" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+    last_name: yup.string().notRequired("Last name is not required!").matches(/^(\S+\s)*\S+$/, '\"Last name\" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+    email: yup.string().email().notRequired("Email is not required!"),
+    username: yup.string().notRequired("Username is not required!").matches(/^[a-zA-Z0-9]{3,30}$/, '\"Username\" must be alphanumeric and have a length between 3 and 30 characters!'),
+    role: yup.string().notRequired(), 
+    contact: yup.string().matches(/^(\S+\s)*\S+$/, '\"Contact\" cannot start or end with spaces, or contain multiple consecutive spaces!').notRequired(), 
+    position: yup.string().notRequired(), 
+    password: yup.string().min(8, "Password must be at least 8 characters long").notRequired(), 
+    confirm_password: yup.string().when('password', {
+        is: (val) => (val && val.length > 0),
+        then: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password"),
+        otherwise: yup.string().notRequired()
+    }), 
+});
 
 const Settings = () => {
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [cookies] = useCookies(['accessToken']);
+    const router = useRouter();
     const [user, setUser] = useState(null);
     const [userId, setUserId] = useState(null);
-    const [loggedInUser, setLoggedInUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [editUser, setEditUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [passwordChanged, setPasswordChanged] = useState(false);
+
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
 
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
@@ -33,6 +64,7 @@ const Settings = () => {
         .then((response) => {
             setUser(response.data);
             setEditUser(response.data);
+            setUserId(response.data._id);
             setLoading(false);
             console.log("User:", response.data);
         })
@@ -42,51 +74,89 @@ const Settings = () => {
         });
     }, [cookies.accessToken]);
 
+
       const handleEdit = (field, value) => {
     
-        if (field === 'contact' && isNaN(value)) {
+        if (field === 'contact' && !/^\+?\d*$/.test(value)) {
             return; 
         }
+        if (field === 'password') {
+            setPasswordChanged(true);
+        }
+        
         setEditUser({...editUser, [field]: value});
     };
 
 
     const handleSave = async () => {
-        try{
-            const token = cookies.accessToken;
-            const userId = localStorage.getItem('userId');
-            console.log("UserId:", userId);
-            if(!userId) {
-                console.log("userId not found in localStorage");
-                return;
-            }
-            const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}user/settings/${userId}`, {
-                first_name: editUser.first_name,
-                last_name: editUser.last_name,
-                email: editUser.email,
-                username: editUser.username,
-                contact: editUser.contact,
-                
-            }, {
+        try {
+            let token = document.cookie
+              .split('; ')
+              .find(row => row.startsWith('accessToken'))
+              .split('=')[1];
+             
+            const { first_name, last_name, email, contact, username, password, confirm_password  } = editUser;
+           
+            if (editUser.password && !editUser.confirm_password) {
+            toast.error("Please confirm your password.");
+            return;
+        } else if (editUser.password !== editUser.confirm_password) {
+            toast.error("Passwords do not match.");
+            return;
+        }
+           
+            const editedUserData = {
+                first_name,
+                last_name,
+                email,
+                contact,
+                username,
+                password
+            };
+    
+            const response = await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `user/settings/${userId}`, editedUserData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            });
-            toast.success('User has been successfully updated.', { duration: 3000 });
-        } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error(error.response.data.message, { duration: 3000 });
+            }); 
+                
+            if (response.status === 200) {
+                if (passwordChanged) {
+                    toast.success("Profile updated successfully.", { duration: 5000 });
+                    setTimeout(() => {
+                        toast.success("Password has been changed. Please log in again.", { duration: 3000 });
+                    }, 1000);
+                } else {
+                    toast.success("Profile updated successfully." , { duration: 3000 });
+                }
+                setUser(response.data.updatedUser);
+                
+               
             } else {
-                toast.error('Failed to update user!', { duration: 3000 });
+                toast.error("Failed to update profile.");
+               
             }
-            
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast.error("Failed to update profile. Please try again later.");
         }
-    }
-    
+    };
 
-   
-   
-    
+
+    const handleLogout = () => {
+        setFirstName(null);
+        setLastName(null);
+        setRole(null);
+        removeCookie('accessToken');
+        localStorage.removeItem('user._id');
+        clearHistoryAndRedirect();
+        
+      };
+      
+      const clearHistoryAndRedirect = () => {
+        router.replace('/login');
+      };
+
 
     return (
         <div className={styles.container}>
@@ -99,7 +169,7 @@ const Settings = () => {
             ) : (
                 <div>
                 <div className={styles.title}>
-                        <h1>Svi zahtjevi</h1>
+                         <h1>Moje postavke</h1>
                         </div>
                 <div className={styles.user}>
                     <div className={styles.img}>
@@ -118,15 +188,48 @@ const Settings = () => {
                                 <p className={styles.label}>Email:</p>
                                 <input className={styles.value} value={editUser && editUser.email} onChange={(e) => handleEdit('email', e.target.value)} />
                             </div>
+
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Contact:</p>
                                 <input className={styles.value} value={editUser && editUser.contact} onChange={(e) => handleEdit('contact', e.target.value)} />
                             </div>
-
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Username:</p>
                                 <input className={styles.value} value={editUser && editUser.username} onChange={(e) => handleEdit('username', e.target.value)} />
                             </div>
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Password:</p>
+                                <input
+                                    className={styles.value}
+                                    type={showPassword ? "text" : "password"}
+                                    value={editUser && editUser.new_password}
+                                    onChange={(e) => handleEdit('password', e.target.value)}
+                                />
+                                <span className={`${styles.passwordToggle} ${showPassword ? styles.show : ''}`} onClick={togglePasswordVisibility}>
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </span>
+                            </div>
+                            <div className={styles.detailItem}>
+                                <p className={styles.label}>Confirm:</p>
+                                
+                                <input
+                                    className={styles.value}
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    value={editUser && editUser.confirm_password}
+                                    onChange={(e) => handleEdit('confirm_password', e.target.value)}
+                                />
+                                <span className={`${styles.passwordToggle} ${showConfirmPassword ? styles.show : ''}`} onClick={toggleConfirmPasswordVisibility}>
+                                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                </span>
+                            </div>
+
+
+                            
+
+                          
+
+
+                            <br /><br />
 
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Position:</p>

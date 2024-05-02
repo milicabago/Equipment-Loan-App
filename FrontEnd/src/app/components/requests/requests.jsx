@@ -9,13 +9,14 @@ import Modal from 'react-modal';
 
 const Request = () => {
     const [requests, setRequests] = useState([]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [cookies] = useCookies(['accessToken']);
     const [loading, setLoading] = useState(true);
     const [requestToRead, setRequestToRead] = useState(null);
     const [readModalIsOpen, setReadModalIsOpen] = useState(false);
     const [requestToAccept, setRequestToAccept] = useState(null);
     const [acceptModalIsOpen, setAcceptModalIsOpen] = useState(false);
+    const [requestToDeny, setRequestToDeny] = useState(null);
+    const [denyModalIsOpen, setDenyModalIsOpen] = useState(false);
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -62,23 +63,75 @@ const Request = () => {
     };
 
     const acceptRequests = async (requestId) => {
-        try{
-            const token = cookies.accessToken;
-            const config = {
-                headers: {
-                    'Authorization': 'Bearer ' + token
+        try {
+            let token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('accessToken'))
+            .split('=')[1];
+    
+            await axios.patch(
+                process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/${requestId}`, 
+                { request_status: 'active' },{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 }
-            };
-            const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/active/${requestId}`, config);
-            setRequests(response.data);
-            console.log("Requests:", response.data);
-            setLoading(false);
-            console.log("Accepting request with ID:", requestId);
+                
+            );
+    
+            setRequests(prevRequests => prevRequests.map(request => {
+                if (request._id === requestId) {
+                    return { ...request, request_status: 'active' };
+                }
+                return request;
+            }));
+    
+            closeAcceptModal();
+            toast.success('Request accepted successfully!');
+            window.location.reload();
         } catch (error) {
             console.error("Error:", error);
-            setLoading(false);
+            toast.error('Error accepting request!');
         }
     };
+
+    const denyRequests = async (requestId) => {
+        try {
+            let token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('accessToken'))
+            .split('=')[1];
+    
+            await axios.patch(
+                process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/${requestId}`, 
+                { request_status: 'denied' },{
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                
+            );
+    
+            setRequests(prevRequests => prevRequests.map(request => {
+                if (request._id === requestId) {
+                    return { ...request, request_status: 'denied' };
+                }
+                return request;
+            }));
+    
+            closeDenyModal();
+            toast.success('Request denied successfully!');
+            window.location.reload();
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error('Error denying request!');
+        }
+    };
+    
+;
+            
+
+
     const openReadModal = (request) => {
         setRequestToRead(request);
         setReadModalIsOpen(true);
@@ -94,6 +147,14 @@ const Request = () => {
     const closeAcceptModal = () => {
         setRequestToAccept(null);
         setAcceptModalIsOpen(false);
+    };
+    const openDenyModal = (request) => {
+        setRequestToDeny(request);
+        setDenyModalIsOpen(true);
+    };
+    const closeDenyModal = () => {
+        setRequestToDeny(null);
+        setDenyModalIsOpen(false);
     };
     return (
         <div className={styles.container}>
@@ -131,6 +192,7 @@ const Request = () => {
                                         </td>
                                         <td className={styles.action}>
                                             <button className={styles.accept} onClick={() => openAcceptModal(request)}>Accept</button>
+                                            <button className={styles.read} onClick={() => openDenyModal(request)}>Deny</button>
                                             <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
                                         </td>
                                     </tr>
@@ -153,7 +215,6 @@ const Request = () => {
                         <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user_info.first_name} {requestToRead.user_info.last_name}</span></p>
                         <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user_info.username}</span> </p>
                         <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'N/A'}</span></p>
-                        <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info.serial_number}</span></p>
                         <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
                         <p><span className={styles.label}>Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
                     </div>
@@ -175,6 +236,24 @@ const Request = () => {
                         <div className={styles.modalButtons}>
                             <button className={styles.accept} onClick={() => acceptRequests(requestToAccept._id)}>Accept</button>
                             <button onClick={closeAcceptModal}>Close</button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            <Modal
+                isOpen={denyModalIsOpen}
+                onRequestClose={closeDenyModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Deny Request Modal" >
+                <h2 className={styles.modalTitle}>Deny Request</h2>
+                {requestToDeny && (
+                    <div>
+                        <p> Are you sure you want to deny this request?</p>
+                        <div className={styles.modalButtons}>
+                            <button className={styles.deny} onClick={() => denyRequests(requestToDeny._id)}>Deny</button>
+                            <button onClick={closeDenyModal}>Close</button>
                         </div>
                     </div>
                 )}

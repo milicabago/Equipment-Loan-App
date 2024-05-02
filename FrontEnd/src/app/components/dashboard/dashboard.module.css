@@ -54,6 +54,7 @@
   text-align: left;
   vertical-align: middle;
   border: none;
+  white-space: nowrap;
 }
 
 .table th:first-child {
@@ -198,4 +199,29 @@
   color: #000000;
   border-bottom: 1px solid var(--button);
   font-style: italic;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+
+.question{
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 20px;
+}
+.input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px; 
+  box-sizing: border-box; 
 }
