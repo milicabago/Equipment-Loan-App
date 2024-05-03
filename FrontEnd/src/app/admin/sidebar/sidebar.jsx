@@ -131,7 +131,7 @@ const Sidebar = () => {
   };
 
   const clearHistoryAndRedirect = () => {
-    router.replace('/login');
+    router.replace('/auth/login');
   };
 
 

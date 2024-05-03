@@ -12,14 +12,11 @@ import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 
-
 const LoginPage = (data) => {
     const [role, setRole] = useState(null);
     const router = useRouter();
     const [cookies, setCookies] = useCookies(['accessToken']);
-
     const [showPassword, setShowPassword] = useState(false);
-
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
@@ -28,7 +25,7 @@ const LoginPage = (data) => {
         email: yup.string().required("Email is required"),
         password: yup.string().min(8).required("Password is required"),
     });
-    
+
     const{ register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
@@ -53,6 +50,12 @@ const LoginPage = (data) => {
         }
       }, [cookies.accessToken]);
     
+    const handleForgotPassword = () => {
+        router.push("/auth/forgotPassword");
+    };
+    const handleSignUp = () => {
+        router.push("/auth/register");
+    };
     
     const onSubmit = (data) => {
         axios
@@ -75,9 +78,10 @@ const LoginPage = (data) => {
             })
             .catch((error) => {
                 console.error("Login error:", error.response.data.message);
-                toast.error("Invalid email or password");
+                toast.error(error.response.data.message, { duration: 3000 });
             });
         };
+
 
     return(
         <div className={styles.container}>
@@ -91,17 +95,17 @@ const LoginPage = (data) => {
             <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                 <div className={styles.start}>
                     <span className={styles.title}>Equipment Loan</span>
-                    <span className={styles.desc} >Prijavi se!</span> 
+                    <span className={styles.desc} >Please login to your account.</span> 
                 </div>
                 
 
                 <label className={styles.email}>Email:
-                <input type="text" className={styles.autofill} placeholder="Unesite email" {...register("email")} autoComplete="off" /></label>  
+                <input type="text" className={styles.autofill} placeholder="Enter your email" {...register("email")} autoComplete="off" /></label>  
 
-                <label className={styles.password}>Lozinka:
+                <label className={styles.password}>Password:
                     <div className={styles.passwordInputContainer}>
                         <input 
-                            type={showPassword ? "text" : "password"} placeholder="Unesite lozinku" {...register("password")} autoComplete="off"/>
+                            type={showPassword ? "text" : "password"} placeholder="Enter your password" {...register("password")} autoComplete="off"/>
                         <span className={styles.passwordToggle} onClick={togglePasswordVisibility}>
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
@@ -111,12 +115,11 @@ const LoginPage = (data) => {
                 <div className={styles.btn}>
                       
                     <div className={styles.box}>
-                        <label className={styles.checkbox}> 
-                        <input type="checkbox" name=""/>Zapamti me</label>
-                        <a href="/mail.jsx" className={styles.forgot}>Zaboravili ste lozinku?</a>
+                    <a onClick={handleForgotPassword} className={styles.forgot}>Forgot Password?</a>
                     </div>
                     
-                    <button type="submit">Prijava</button>
+                    <button type="submit">Login</button>
+                    <p className={styles.p}>Don't have an account? {""} <a onClick={handleSignUp} className={styles.signUp}>Register here</a></p>
                 </div>   
             </form> 
             </div>

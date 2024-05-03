@@ -47,7 +47,7 @@ const RegisterPage = () => {
                 position: data.position
             })
             .then(() =>{
-                router.push('/login');
+                router.push('/auth/login');
             })
             .catch((error) => {
                 console.error("Registration error:", error.response ? error.response.data.message : error.message);

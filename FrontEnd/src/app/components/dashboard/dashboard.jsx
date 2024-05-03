@@ -59,7 +59,7 @@ const Dashboard = () => {
         setReadModalIsOpen(true);
     } catch (error) {
         console.error("Error:", error);
-        toast.error('Error fetching request data!');
+        toast.error('Error fetching request data!', { duration: 3000 });
     }
     };
 
@@ -71,7 +71,7 @@ const Dashboard = () => {
             .split('=')[1];
             const requestToReturn = requests.find(request => request._id === requestId);
             if (!Number.isInteger(returnQuantity) || returnQuantity <= 0 || returnQuantity > currentQuantity) {
-                toast.error('Invalid return quantity!');
+                toast.error('Invalid return quantity!', { duration: 3000 });
                 return;
             }
             
@@ -100,7 +100,7 @@ const Dashboard = () => {
            
         } catch (error) {
             console.error("Error:", error);
-            toast.error('Error returning request!');
+            toast.error('Error returning request!', { duration: 3000 });
         }
     };
     

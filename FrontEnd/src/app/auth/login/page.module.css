@@ -22,7 +22,7 @@
   margin-top: 50px;
 }
 .desc{
-  color: var(--text);
+  color: var(--textSoft);
   font-size: 15px;}
 
 
@@ -36,7 +36,7 @@
   
 .form{
   position: relative;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(4px);
   padding: 50px;
   border-radius: 15px;
@@ -47,7 +47,7 @@
   justify-content: center;
   gap: 30px;
   align-items: center;
-  color: beige;
+  color: white;
 }
 
 .form input{
@@ -69,7 +69,7 @@
   border: none;
   cursor: pointer;
   border-radius: 25px;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 }
 .background{
   position: absolute;
@@ -87,46 +87,43 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+
+}
+.p{
+  text-align: center;
+  color: white;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 16x;
+  margin-bottom: 20px;
+  
+
 }
 
-
-.checkbox{
-  display: flex;
+.signUp{
   align-items: center;
-  margin-right: 10px;
-  gap: 10px;
-  padding: 10px;
-  margin-top: 0px;
-  font-size: 15px;
-  white-space: nowrap;
+  font-size: 17px;
+  color: #769eee;
+  font-style: italic;
+  cursor: pointer;
 }
-
-.checkbox input[type="checkbox"] {
-  margin: 0; 
-}
-
 
 .forgot{
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 20px;
-  margin-top: 0px;
   font-size: 15px;
   white-space: nowrap;
   color: #769eee;
   font-style: italic;
-
+  margin-left: auto;
+  cursor: pointer;
 }
 
 .btn{
   width: 100%;
 }
-
-.form p{
-  color:rgb(185, 185, 2);
-}
-
 
 .passwordInputContainer {
   position: relative;
