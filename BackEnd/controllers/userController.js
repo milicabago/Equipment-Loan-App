@@ -9,10 +9,10 @@ const UserEquipment = require("../models/userEquipmentModel");
 const { UserEquipmentStatus } = require("../constants");
 
 //@desc1 Register user
-//@desc2 Create New user
 //@route1 POST /api/register
-//@route2 POST /api/admin/createUser
 //@access1 public
+//@desc2 Create New user
+//@route2 POST /api/admin/createUser
 //@access2 private (only admin)
 const registerOrCreateUser = asyncHandler(async (req, res) => {
 

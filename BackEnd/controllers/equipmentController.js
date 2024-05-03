@@ -37,6 +37,9 @@ const getEquipment = asyncHandler(async (req, res) => {
 //@route POST /api/admin/addEquipment
 //@access private
 const addEquipment = asyncHandler(async (req, res) => {
+
+  const { name, full_name, serial_number, condition, quantity, description } = req.body;
+
   // Equipment validation
   const addEquipmentSchema = Joi.object({
     name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
@@ -50,9 +53,7 @@ const addEquipment = asyncHandler(async (req, res) => {
     }),
     condition: Joi.boolean().required(),
     quantity: Joi.number().integer().min(1).required(),
-    description: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
-      'string.pattern.base': '\"description\" cannot start or end with spaces, or contain multiple consecutive spaces!',
-    }),
+    description: Joi.string().allow("").optional(),
   });
 
   // Validacija podataka za dodavanje opreme
@@ -67,11 +68,9 @@ const addEquipment = asyncHandler(async (req, res) => {
   const existingEquipment = await Equipment.findOne({ serial_number: req.body.serial_number });
   if (existingEquipment) {
     res.status(400);
-    throw new Error("Equipment with serial number already added!");
+    throw new Error("Equipment with serial number already exists!");
   }
 
-  const { name, full_name, serial_number, condition, quantity, description } = req.body;
-  const equipmentDescription = description ? description : "";
 
   const equipment = await Equipment.create({
     name,
@@ -79,8 +78,9 @@ const addEquipment = asyncHandler(async (req, res) => {
     serial_number,
     quantity,
     condition,
-    description: equipmentDescription,
+    description: description,
   });
+
   res.status(201).json({ message: "Added equipment.", equipment });
 });
 

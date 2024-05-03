@@ -60,14 +60,14 @@ const getAllActiveRequests = asyncHandler(async (req, res) => {
 // @desc Get all Pending requests (Users + Equipment)
 // @route GET /api/admin/requests
 // @access private
-const getPendingRequests = asyncHandler(async (req, res) => {
+const getAllPendingRequests = asyncHandler(async (req, res) => {
   // Pronađi sve zahtjeve koji su u statusu "pending"
   const requests = await Request.find({ request_status: UserEquipmentStatus.PENDING }).sort({ assign_date: 1 });
 
   // Provjeri jesu li pronađeni zahtjevi
   if (!requests || requests.length === 0) {
     res.status(404);
-    throw new Error("There are no pending requests.");
+    throw new Error("There are no pending requests!");
   }
 
   // Iteriraj kroz sve zahtjeve i dohvati informacije o korisnicima
@@ -102,26 +102,6 @@ const getPendingRequests = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json(response);
-});
-
-/** AKo admin briše dodjeljenu opremu, obavijestiti usera da je obrisan, napraviti da idu u povijest i tamo briše povijest ?!? **/
-// @desc Delete request
-// @route DELETE /api/admin/:id
-// @access private
-const deleteRequest = asyncHandler(async (req, res) => {
-  const request = await Request.findById(req.params.id)
-  try {
-    if (!request) {
-      res.status(404);
-      throw new Error("Request not found!");
-    }
-    // Obriši zahtjev iz baze
-    const deleteRequest = await Request.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({ message: "Request deleted successfully", deleteRequest });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 });
 
 // @desc Deactivate request for assigned equipment
@@ -275,7 +255,48 @@ const getActiveRequests = asyncHandler(async (req, res) => {
   res.status(200).json(response);
 });
 
-// DODATI DA PROMIJENI KOLICINU OPREME ZA ZADUZENJE, ako se korisnik predomisli, ili poništi zahtjev  ///
+// @desc Get all Pending requests for user
+// @route GET /api/user/equipment/pendingRequests
+// @access private
+const getPendingRequests = asyncHandler(async (req, res) => {
+  // Dohvati ID trenutnog korisnika
+  const userId = req.user.user._id;
+
+  console.log("ID: ", userId);
+  // Pronađi sve zahtjeve koji su u statusu "pending"
+  const requests = await Request.find({ user_id: userId, request_status: UserEquipmentStatus.PENDING }).sort({ assign_date: 1 });
+
+  // Provjeri jesu li pronađeni zahtjevi
+  if (!requests || requests.length === 0) {
+    res.status(404);
+    throw new Error("There are no pending requests!");
+  }
+
+  // Iteriraj kroz sve zahtjeve i dohvati informacije o korisnicima
+  for (const request of requests) {
+
+    // Pronađi informacije o opremi na temelju equipment_id
+    const equipment = await Equipment.findById(request.equipment_id);
+    // Ako je oprema pronađena, dodaj informacije o opremi u zahtjev
+    if (equipment) {
+      request.equipment_info = {
+        name: equipment.name,
+        serial_number: equipment.serial_number
+      };
+    }
+  }
+
+  // Dodaj user_info na kraj svakog zahtjeva
+  const response = requests.map(request => {
+    return {
+      ...request._doc,
+      equipment_info: request.equipment_info,
+    };
+  });
+
+  res.status(200).json(response);
+});
+
 // @desc Request equipment assignment
 // @route POST /api/user/equipment/request
 // @access private
@@ -463,21 +484,70 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
 // @access private
 const getEquipmentHistory = asyncHandler(async (req, res) => {
   // Izvrši upit u bazu podataka za dohvat razdužene opreme
-  const history = await Request.find({
+  const historyData = await Request.find({
     user_id: req.user.user._id,
     $or: [
       { return_status_request: UserEquipmentStatus.RETURNED },
       { return_status_request: UserEquipmentStatus.CANCELED }
     ]
   }).sort({ unassign_date: -1 });
+
   // Provjeri je li pronađena povijest opreme za trenutnog korisnika
-  if (!history || history.length === 0) {
+  if (!historyData || historyData.length === 0) {
     res.status(404);
     throw new Error("Equipment history not found for the current user!");
   }
 
-  // Vrati podatke o povijesti opreme
-  res.status(200).json(history);
+  // Iteriraj kroz sve zahtjeve i dohvati informacije o opremi
+  for (const history of historyData) {
+    // Pronađi informacije o opremi na temelju equipment_id
+    const equipment = await Equipment.findById(history.equipment_id);
+    // Ako je oprema pronađena, dodaj informacije o opremi u povijest
+    if (equipment) {
+      history.equipment_info = {
+        name: equipment.name,
+        serial_number: equipment.serial_number,
+        quantity: equipment.quantity
+      };
+    }
+  }
+
+  // Stvori odgovor s dodanim informacijama o korisnicima i opremi
+  const response = historyData.map(history => {
+    return {
+      ...history._doc,
+      equipment_info: history.equipment_info
+    };
+  });
+
+  // Vrati odgovor s povijesti opreme
+  res.status(200).json(response);
+});
+
+// @desc Delete request from History
+// @route DELETE /api/admin/:id
+// @access private
+const deleteRequest = asyncHandler(async (req, res) => {
+  const request = await Request.findById(req.params.id);
+  try {
+    if (!request) {
+      res.status(404);
+      throw new Error("Request not found!");
+    }
+
+    // Provjeri je li status zahtjeva "canceled" ili "returned"
+    if (request.return_status_request === UserEquipmentStatus.CANCELED || request.return_status_request === UserEquipmentStatus.RETURNED) {
+      // Obriši zahtjev iz baze
+      const deletedRequest = await Request.findByIdAndDelete(req.params.id);
+      res.status(200).json({ message: "Request deleted successfully", deletedRequest });
+    } else {
+      res.status(400);
+      throw new Error("Request status is not 'canceled' or 'returned'!");
+    }
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 /** END: <-- USER **/
@@ -485,6 +555,7 @@ const getEquipmentHistory = asyncHandler(async (req, res) => {
 module.exports = {
   getAllActiveRequests,
   getActiveRequests,
+  getAllPendingRequests,
   getPendingRequests,
   acceptOrDeniedRequest,
   deactivateRequest,
