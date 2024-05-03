@@ -161,7 +161,7 @@ const Settings = () => {
                                 <input
                                     className={styles.value}
                                     type={showPassword ? "text" : "password"}
-                                    value={editUser && editUser.password}
+                                    value={editUser && editUser.new_password}
                                     onChange={(e) => handleEdit('password', e.target.value)}
                                 />
                                 <span className={`${styles.passwordToggle} ${showPassword ? styles.show : ''}`} onClick={togglePasswordVisibility}>
