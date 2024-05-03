@@ -16,12 +16,13 @@ const ForgotPasswordPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+       
         try {
             await axios.post(process.env.NEXT_PUBLIC_BASE_URL + "forgotPassword", { email });
             toast.success("Reset password link sent to your email.");
         } catch (error) {
-            console.error("Forgot password error:", error.response.data.message);
-            toast.error(error.response.data.message);
+            console.error("Forgot password error:", error);
+            toast.error("Please enter a valid email.");
         }
     };
 
@@ -40,12 +41,11 @@ const ForgotPasswordPage = () => {
                     </div>
                     <label className={styles.email}>Email:
                         <input 
-                            type="email" 
+                            type="text" 
                             placeholder="Enter your email" 
                             value={email} 
                             onChange={handleEmailChange} 
-                            autoComplete="off" 
-                        />
+                            autoComplete="off"                         />
                     </label>
                     <div className={styles.btn}>
                         <button type="submit">Submit</button>

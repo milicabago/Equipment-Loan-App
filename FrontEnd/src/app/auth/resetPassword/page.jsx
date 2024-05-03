@@ -57,6 +57,8 @@ const ResetPasswordPage = () => {
                         <span className={styles.desc}></span> 
                     </div>
                     <label className={styles.password}>Password:
+                    <p>{errors.password?.message}</p>
+
                         <div className={styles.passwordInputContainer}>
                             <input 
                                 type={showPassword ? "text" : "password"} 
@@ -68,9 +70,10 @@ const ResetPasswordPage = () => {
                                 {showPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
-                        <p className={styles.error}>{errors.password?.message}</p>
+                        
                     </label>
                     <label className={styles.password}>Confirm Password:
+                    <p>{errors.confirmPassword?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
                                 type={showConfirmPassword ? "text" : "password"} 
@@ -82,7 +85,7 @@ const ResetPasswordPage = () => {
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
-                        <p className={styles.error}>{errors.confirmPassword?.message}</p>
+                        
                     </label>
                     <div className={styles.btn}>
                         <button type="submit">Reset Password</button>

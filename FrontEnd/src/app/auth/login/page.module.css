@@ -69,7 +69,7 @@
   border: none;
   cursor: pointer;
   border-radius: 25px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 .background{
   position: absolute;
@@ -89,15 +89,26 @@
   width: 100%;
 
 }
+.forgot{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  font-size: 15px;
+  white-space: nowrap;
+  color: var(--textSoft);
+  text-decoration: underline;
+  font-style: italic;
+  margin-left: auto;
+  cursor: pointer;
+}
 .p{
   text-align: center;
   color: white;
   font-style: italic;
-  cursor: pointer;
   font-size: 16x;
   margin-bottom: 20px;
-  
-
+  cursor: auto;
 }
 
 .signUp{
@@ -108,18 +119,7 @@
   cursor: pointer;
 }
 
-.forgot{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 20px;
-  font-size: 15px;
-  white-space: nowrap;
-  color: #769eee;
-  font-style: italic;
-  margin-left: auto;
-  cursor: pointer;
-}
+
 
 .btn{
   width: 100%;
