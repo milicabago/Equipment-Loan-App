@@ -14,7 +14,7 @@ const { UserEquipmentStatus } = require("../constants");
 //@route2 POST /api/admin/createUser
 //@access1 public
 //@access2 private (only admin)
-const createUser = asyncHandler(async (req, res) => {
+const registerOrCreateUser = asyncHandler(async (req, res) => {
 
   const { first_name, last_name, email, username, password, role, contact, position } = req.body;
 
@@ -31,7 +31,7 @@ const createUser = asyncHandler(async (req, res) => {
     }),
     username: Joi.string().alphanum().min(3).max(30).required(),
     password: Joi.string().min(8).required(),
-    role: Joi.string().valid("admin", "user").required(),
+    role: Joi.string().valid("admin", "user").optional(),
     contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"contact\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
@@ -124,8 +124,8 @@ const loginUser = asyncHandler(async (req, res) => {
       role: user.role,
       first_name: user.first_name,
       last_name: user.last_name,
-      email: user.email,
-      username: user.username,
+      email: user.email, // obrisati ako ne treba
+      username: user.username, // obrisati ako ne treba
     }
   };
 
@@ -427,12 +427,12 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   // Provjera zaduženja korisnika za opremu
   if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.ACTIVE)) {
-    res.status(400);
+    res.status(403);
     throw new Error("User has equipment assigned. Please unassign equipment before deleting the user!");
   }
 
   if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.PENDING)) {
-    res.status(400);
+    res.status(403);
     throw new Error("User has pending request. Please resolve request before deleting the user!");
   }
 
@@ -440,8 +440,9 @@ const deleteUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "User has been deleted!", deleteUser });
 });
 
+
 module.exports = {
-  createUser,
+  registerOrCreateUser,
   loginUser,
   currentUser,
   getAllUsers,
