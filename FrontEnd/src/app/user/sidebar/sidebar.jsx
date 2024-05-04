@@ -20,20 +20,20 @@ import {
 
 const menuItems = [
     {
-      title: "Prikaz",
+      title: "Dispay",
       list: [
         {
-          title: "Nadzorna ploča",
+          title: "Dashboard",
           path: "/user",
           icon: <MdDashboard />,
         },
         {
-          title: "Oprema",
+          title: "Equipment",
           path: "/user/equipment",
           icon: <MdShoppingBag />,
         },
         {
-          title: "Povijest",
+          title: "History",
           path: "/user/equipmentHistory",
           icon: <MdEditDocument />,
         },
@@ -43,10 +43,10 @@ const menuItems = [
     },
     
     {
-      title: "Račun",
+      title: "Account",
       list: [
         {
-          title: "Postavke",
+          title: "Settings ",
           path: "/user/settings",
           icon: <MdOutlineSettings />,
         },
@@ -147,7 +147,7 @@ useEffect(() => {
             </ul>
             <button className={styles.logout} onClick={handleLogout}>
               <MdLogout/>
-              Odjava</button>
+              Logout</button>
 
         </div>
     )

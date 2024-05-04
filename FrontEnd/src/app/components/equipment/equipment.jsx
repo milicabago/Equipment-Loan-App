@@ -195,7 +195,7 @@ const Equipment = () => {
              
              <div>
              <div className={styles.title}>
-                 <h1>Oprema</h1>
+                 <h1>Equipment</h1>
              </div>
                 <table className={styles.table}>
                     <thead>
@@ -261,7 +261,7 @@ const Equipment = () => {
                     <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
                     <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
                     <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
-                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition === true ? "Ispravno" : "Neispravno"}</span></p>
+                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition === true ? "Functional" : "Non-functional"}</span></p>
                     <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
                     <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>) }</span></p>
                 </div>
@@ -325,7 +325,7 @@ const Equipment = () => {
                 <span className={styles.label}>Quantity: </span>
                 <span>
                 <input
-                    type="text"
+                    type="number"
                     name="quantity"
                     value={editedEquipmentData.quantity}
                     onChange={(e) => handleEdit('quantity', e.target.value)}
@@ -337,14 +337,15 @@ const Equipment = () => {
             <p>
                 <span className={styles.label}>Condition: </span>
                 <span>
-                <input
-                    type="text"
+                <select
                     name="condition"
                     value={editedEquipmentData.condition}
                     onChange={(e) => handleEdit('condition', e.target.value)}
                     className={styles.input}
-                    autoComplete='off'
-                />
+                >
+                    <option value="true">Functional</option>
+                    <option value="false">Non-functional</option>
+                </select>
                 </span>
             </p>
             <p>
@@ -360,7 +361,7 @@ const Equipment = () => {
                     autoComplete='off'
                 />
                 </span>
-            </p>
+        </p>
 
 
             

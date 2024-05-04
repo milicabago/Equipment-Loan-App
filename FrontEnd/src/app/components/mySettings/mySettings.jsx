@@ -182,7 +182,7 @@ const Settings = () => {
             ) : (
                 <div>
                 <div className={styles.title}>
-                         <h1>Moje postavke</h1>
+                         <h1>Settings</h1>
                         </div>
                 <div className={styles.user}>
                     <div className={styles.img}>
@@ -254,7 +254,7 @@ const Settings = () => {
                                 <p className={styles.value}>{user && formatDate(user.createdAt)}</p>
                             </div>
                             <div className={styles.detailItem}>
-                                <p className={styles.label}>Ažurirano:</p>
+                                <p className={styles.label}>Updated:</p>
                                 <p className={styles.value}>{user && formatDate(user.updatedAt)}</p>
                             </div>
                             <button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>                        

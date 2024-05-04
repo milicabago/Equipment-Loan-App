@@ -74,45 +74,45 @@ const AddEquipment = (data) => {
             <div className={styles.form}> 
                 <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
-                        <span className={styles.title}>Podaci o opremi</span>
+                        <span className={styles.title}>Equipment Data</span>
                         <span className={styles.desc}> </span> 
                     </div>
 
-                    <label className={styles.name}>Oprema:
+                    <label className={styles.name}>Equipment:
                     <p>{errors.name?.message}</p>
-                    <input type="text" placeholder="Unesite naziv opreme" {...register ("name")} autoComplete='off'/></label>
+                    <input type="text" placeholder="Enter equipment name" {...register ("name")} autoComplete='off'/></label>
 
-                    <label className={styles.full_name}>Naziv modela pripadajuće opreme:
+                    <label className={styles.full_name}>Equipment Model Full Name:
                     <p>{errors.full_name?.message}</p>
-                    <input type="text" placeholder="Unesite naziv modela" {...register("full_name")} autoComplete='off' /></label>
+                    <input type="text" placeholder="Enter model name" {...register("full_name")} autoComplete='off' /></label>
 
-                    <label className={styles.serial_number}>Serijski broj:
+                    <label className={styles.serial_number}>Serial Number:
                     <p>{errors.serial_number?.message}</p>
-                    <input type="text" placeholder="Unesite serijski broj" {...register("serial_number")} autoComplete='off' /></label>
+                    <input type="text" placeholder="Enter serial number" {...register("serial_number")} autoComplete='off' /></label>
 
-                    <label className={styles.quantity}>Količina:
+                    <label className={styles.quantity}>Quantity:
                     <p>{errors.quantity?.message}</p>
-                    <input type="number" placeholder="Unesite količinu" {...register("quantity")} autoComplete='off' min="1" /></label>
+                    <input type="number" placeholder="Enter quantity" {...register("quantity")} autoComplete='off' min="1" /></label>
                     
 
 
                     
                     <label className={styles.condition}>
-                        Stanje opreme:
+                    Equipment Condition:
                         <p>{errors.condition?.message}</p>
                         <select className={styles.select} {...register("condition")}>
-                            <option value="true">Ispravno</option>
-                            <option value="false">Neispravno</option>
+                            <option value="true">Functional</option>
+                            <option value="false">Non-functional</option>
                         </select>
                     </label>
 
 
-                    <label className={styles.detail}>Opis:
-                    <textarea className={styles.description} placeholder="Dodajte opis.." {...register("description")} value={data.description}></textarea>
+                    <label className={styles.detail}>Description:
+                    <textarea className={styles.description} placeholder="Add description.." {...register("description")} value={data.description}></textarea>
                     </label>
 
                     <div >
-                    <button className={styles.button} type="submit">Dodaj</button>
+                    <button className={styles.button} type="submit">Add Equipment</button>
                     </div>
                 </form>
 

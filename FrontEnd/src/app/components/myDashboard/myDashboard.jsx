@@ -150,7 +150,7 @@ const MyDashboard = () => {
             
             <div>
                 <div className={styles.title}>
-                  <h1>Zadužena oprema</h1>
+                  <h1>Assigned Equipment</h1>
                  </div>
 
                 <table className={styles.table}>

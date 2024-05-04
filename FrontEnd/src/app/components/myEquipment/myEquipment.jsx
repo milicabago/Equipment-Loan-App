@@ -123,13 +123,11 @@ const MyEquipment = () => {
                 return equipment.find(item => item._id === id);
             };
             
-            // Izračunaj broj opreme prema quantity
             const equipmentQuantities = equipment.map(item => ({
                 name: item.name,
                 quantity: item.quantity
             }));
             
-            // Pripremi podatke za graf
             const chartData = {
                 labels: equipmentQuantities.map(item => item.name),
                 datasets: [{
@@ -144,6 +142,10 @@ const MyEquipment = () => {
      
 
       const openReadModal = (equipment) => {
+        const equipmentWithBooleanCondition = {
+            ...equipment,
+            condition: equipment.condition === "true" ? true : false
+        };
         setEquipmentToRead(equipment);
         setReadModalIsOpen(true);
       };
@@ -177,7 +179,7 @@ const MyEquipment = () => {
             
              <div>
              <div className={styles.title}>
-                 <h1>Oprema</h1>
+                 <h1>Equipment</h1>
              </div>
                 <table className={styles.table}>
                     <thead>
@@ -222,9 +224,9 @@ const MyEquipment = () => {
                     <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
                     <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
                     <p><span className={styles.label}>Serial Number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
-                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition}</span></p>
+                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition === true ? "Functional" : "Non-functional"}</span></p>
                     <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
-                    <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description}</span></p>
+                    <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>) }</span></p>
 
                 </div>
             

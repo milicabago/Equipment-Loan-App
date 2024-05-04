@@ -22,25 +22,25 @@ import {
 const menuItems = [
   
     {
-      title: "Prikaz",
+      title: "Display",
       list: [
         {
-          title: "Nadzorna ploča",
+          title: "Dashboard",
           path: "/admin",
           icon: <MdDashboard />,
         },
         {
-          title: "Zahtjevi",
+          title: "Requests",
           path: "/admin/requests",
           icon: <MdShoppingBag />,
         },
         {
-          title: "Korisnici",
+          title: "Users",
           path: "/admin/users",
           icon: <MdSupervisedUserCircle />,
         },
         {
-          title: "Oprema",
+          title: "Equipment",
           path: "/admin/equipment",
           icon: <MdShoppingBag />,
         },
@@ -50,15 +50,15 @@ const menuItems = [
     },
     
     {
-      title: "Upravljanje",
+      title: "Management",
       list: [
         {
-          title: "Kreiraj korisnika",
+          title: "Create User",
           path: "/admin/createUser",
           icon: <MdSupervisedUserCircle />,
         },
         {
-          title: "Dodaj opremu",
+          title: "Add Equipment",
           path: "/admin/addEquipment",
           icon: <MdEditDocument />,
         },
@@ -69,10 +69,10 @@ const menuItems = [
 
 
     {
-      title: "Račun",
+      title: "Account",
       list: [
         {
-          title: "Postavke",
+          title: "Settings",
           path: "/admin/settings",
           icon: <MdOutlineSettings />,
         },
@@ -175,7 +175,7 @@ const Sidebar = () => {
             </ul>
             <button className={styles.logout} onClick={handleLogout}>
               <MdLogout/>
-              Odjava</button>
+              Logout</button>
 
         </div>
     )

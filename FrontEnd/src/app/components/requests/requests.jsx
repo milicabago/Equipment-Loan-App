@@ -165,7 +165,7 @@ const Request = () => {
             ) : (
                 <div>
                     <div className={styles.title}>
-                        <h1>Svi zahtjevi</h1>
+                        <h1>Requests</h1>
                         </div>
                         <table className={styles.table}>
                             <thead>

@@ -51,7 +51,7 @@ const EquipmentHistory = () => {
             ) : (
                 <div>
                 <div className={styles.title}>
-                    <h1>Moja razdužena oprema</h1>
+                    <h1>Equipment History</h1>
                 </div>
                 {history.length === 0 ? (
                         <p>No equipment history available</p>

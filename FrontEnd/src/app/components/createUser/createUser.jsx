@@ -82,61 +82,61 @@ const Users = (data) => {
             <div className={styles.form}> 
             <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
-                        <span className={styles.title}>Osobni podaci korisnika</span>
+                        <span className={styles.title}>User Personal Information</span>
                         <span className={styles.desc}> </span> 
                     </div>
 
-                    <label className={styles.firstname}>Ime:
+                    <label className={styles.firstname}>First Name:
                     <p>{errors.first_name?.message}</p>
-                    <input type="text" placeholder="Unesite ime" {...register("first_name")}  autoComplete='off'/></label>
+                    <input type="text" placeholder="Enter first name" {...register("first_name")}  autoComplete='off'/></label>
                     
-                    <label className={styles.lastname}>Prezime:
+                    <label className={styles.lastname}>Last Name:
                     <p>{errors.last_name?.message}</p>
-                    <input type="text" placeholder="Unesite prezime" {...register("last_name")} autoComplete='off'/></label>
+                    <input type="text" placeholder="Enter last name" {...register("last_name")} autoComplete='off'/></label>
                     
-                    <label className={styles.username}>Korisničko ime:
+                    <label className={styles.username}>Username:
                     <p>{errors.username?.message}</p>
-                    <input type="text" placeholder="Unesite korisničko ime" {...register("username")} autoComplete='off'/></label>
+                    <input type="text" placeholder="Enter username" {...register("username")} autoComplete='off'/></label>
                     
-                    <label className={styles.contact}>Kontakt:
+                    <label className={styles.contact}>Contact:
                     <p>{errors.contact?.message}</p>
-                    <input type="string" placeholder="Unesite kontakt broj" {...register("contact")} autoComplete='off'/></label> 
+                    <input type="string" placeholder="Enter contact number" {...register("contact")} autoComplete='off'/></label> 
                     
-                    <label className={styles.email}>Email adresa:
+                    <label className={styles.email}>Email Address:
                     <p>{errors.email?.message}</p>
-                    <input type="email" placeholder="Unesite email" {...register("email")} autoComplete='off'/></label>
+                    <input type="email" placeholder="Enter email" {...register("email")} autoComplete='off'/></label>
 
-                    <label className={styles.password}>Lozinka:
+                    <label className={styles.password}>Password:
                     <p>{errors.password?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
-                                type={showPassword ? "text" : "password"} placeholder="Unesite lozinku" {...register("password")} autoComplete="off"/>
+                                type={showPassword ? "text" : "password"} placeholder="Enter password" {...register("password")} autoComplete="off"/>
                             <span className={styles.passwordToggle} onClick={togglePasswordVisibility}>
                                 {showPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
                     </label>
 
-                    <label className={styles.confirmPassword}>Potvrdite lozinku:
+                    <label className={styles.confirmPassword}>Confirm Password:
                     <p>{errors.confirm_password?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
-                                type={showConfirmPassword ? "text" : "password"} placeholder="Potvrdite lozinku" {...register("confirm_password")} autoComplete="off"/>
+                                type={showConfirmPassword ? "text" : "password"} placeholder="Confirm password" {...register("confirm_password")} autoComplete="off"/>
                             <span className={styles.passwordToggle} onClick={toggleConfirmPasswordVisibility}>
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
                     </label>
                     
-                    <label className={styles.role}>Uloga:
+                    <label className={styles.role}>Role:
                     
                     <select {...register("role")} className={styles.select} defaultValue="user">
                             <option  className={styles.admin} value="admin">Administrator</option>
-                            <option className={styles.user} value="user">Uposlenik</option>
+                            <option className={styles.user} value="user">User</option>
                         </select>
                     </label> 
 
-                    <label className={styles.position}>Pozicija:
+                    <label className={styles.position}>Position:
                     
                     <select {...register("position")} className={styles.select}>
                         
@@ -151,7 +151,7 @@ const Users = (data) => {
                     </label> 
 
                     <div>
-                    <button className={styles.button} type="submit">Kreiraj</button>
+                    <button className={styles.button} type="submit">Create</button>
                     </div>
                 </form>
 
