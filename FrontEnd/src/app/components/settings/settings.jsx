@@ -8,6 +8,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import toast from 'react-hot-toast';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { useRouter } from 'next/navigation';
 
 const schema = yup.object().shape({
     first_name: yup.string().notRequired("First name is not required!").matches(/^(\S+\s)*\S+$/, '\"First name\" cannot start or end with spaces, or contain multiple consecutive spaces!'),
@@ -19,14 +20,17 @@ const schema = yup.object().shape({
     position: yup.string().notRequired(), 
     password: yup.string().min(8, "Password must be at least 8 characters long").notRequired(), 
     confirm_password: yup.string().when('password', {
-        is: (val) => (val && val.length > 0),
+        is: (val) => (val && val.length > 0), 
         then: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password"),
         otherwise: yup.string().notRequired()
     }), 
 });
 
 const Settings = () => {
-    const [cookies] = useCookies(['accessToken']);
+    const [cookies, removeCookie] = useCookies(['accessToken']);
+    const [firstName, setFirstName] = useState(null);
+    const [lastName, setLastName] = useState(null);
+    const [role, setRole] = useState(null);
     const [user, setUser] = useState(null);
     const [userId, setUserId] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
@@ -35,6 +39,9 @@ const Settings = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState("");
+    const [passwordChanged, setPasswordChanged] = useState(false);
+    const [passwordEntered, setPasswordEntered] = useState(false);
+    const router = useRouter();
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -76,17 +83,38 @@ const Settings = () => {
         if (field === 'contact' && !/^\+?\d*$/.test(value)) {
             return; 
         }
+        if (field === 'password') {
+            setPasswordEntered(value !== "" && value !== editUser.password); 
+        }
+    
         setEditUser({...editUser, [field]: value});
+        
     };
-
+    useEffect(() => {
+        setPasswordChanged(passwordEntered && editUser?.password !== user?.password);
+    }, [passwordEntered, editUser?.password, user?.password]);
 
     const handleSave = async () => {
+        
         try {
+            
             let token = document.cookie
               .split('; ')
               .find(row => row.startsWith('accessToken'))
               .split('=')[1];
-            const { first_name, last_name, email, contact, username, password,position } = editUser;
+            const { first_name, last_name, email, contact, username, password, position, confirm_password } = editUser;
+            const isPasswordChanged = passwordEntered && (password !== user.password);
+            setPasswordChanged(isPasswordChanged); 
+
+            if (isPasswordChanged && (!password || !confirm_password)) {
+                toast.error("Please confirm password.");
+                return;
+            }
+            if (isPasswordChanged && password !== confirm_password) {
+                toast.error("Passwords do not match. Please make sure both passwords match.");
+                return;
+            }
+
             const editedUserData = {
                 first_name,
                 last_name,
@@ -103,7 +131,21 @@ const Settings = () => {
                 }
             });
             if (response.status === 200) {
-                toast.success("Profile updated successfully.");
+                if (passwordChanged) {
+                    toast.success("Profile updated successfully.", { duration: 3000 });
+                    setTimeout(() => {
+                        toast.success("Password has been changed. Please log in again.", { duration: 3000 });
+                    }, 2000);
+                    setTimeout(() => {
+                        handleLogout();
+                    }, 5000);
+                    
+                } else {
+                    toast.success("Profile updated successfully." , { duration: 2000 });
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                }
                 setUser(response.data.updatedUser);
                 
             } else {
@@ -115,6 +157,19 @@ const Settings = () => {
         }
     };
    
+    const handleLogout = () => {
+        setFirstName(null);
+        setLastName(null);
+        setRole(null);
+        removeCookie('accessToken');
+        localStorage.removeItem('user._id');
+        clearHistoryAndRedirect();
+        
+      };
+      
+      const clearHistoryAndRedirect = () => {
+        router.replace('/auth/login');
+      };
 
 
     return (
@@ -176,6 +231,7 @@ const Settings = () => {
                                     type={showConfirmPassword ? "text" : "password"}
                                     value={editUser && editUser.confirm_password}
                                     onChange={(e) => handleEdit('confirm_password', e.target.value)}
+                                    disabled={!passwordEntered}
                                 />
                                 <span className={`${styles.passwordToggle} ${showConfirmPassword ? styles.show : ''}`} onClick={toggleConfirmPasswordVisibility}>
                                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
@@ -196,7 +252,7 @@ const Settings = () => {
                                 <span>
                                 <select
                                     name="position"
-                                    value={editUser.position || editUser.position}
+                                    value={editUser && editUser.position}
                                     onChange={(e) => handleEdit('position', e.target.value)}
                                     className={styles.value}
                                 >
@@ -222,8 +278,7 @@ const Settings = () => {
                                 <p className={styles.label}>Ažurirano:</p>
                                 <p className={styles.value}>{user && formatDate(user.updatedAt)}</p>
                             </div>
-                            <button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>
-                        
+                            <button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>                        
                         </div>
                 </div>
                 </div>
@@ -235,3 +290,4 @@ const Settings = () => {
     
 };
 export default Settings;
+

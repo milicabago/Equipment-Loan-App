@@ -17,6 +17,7 @@ const Users = () => {
   const [userToRead, setUserToRead] = useState(null);
   const [readModalIsOpen, setReadModalIsOpen] = useState(false);
   const [editedUserData, setEditedUserData] = useState({});
+  
   const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -42,6 +43,47 @@ const Users = () => {
   }, [cookies.accessToken]);
 
 
+  const handleEdit = (field, value) => {
+    setEditedUserData({...editedUserData, [field]: value});
+  };
+
+  const handleSave = async () => {
+    try {
+      if (JSON.stringify(editedUserData) === JSON.stringify(userToEdit)) {
+        toast.error("No changes have been made.", { duration: 3000 });
+        return;
+      }
+      let token = document.cookie.split('; ').find(row => row.startsWith('accessToken=')).split('=')[1];
+      const { username, email, role, position } = editedUserData;
+      const dataToUpdate = { username, email, role, position };
+      const response = await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${userToEdit._id}`, dataToUpdate, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.status === 200) {
+        toast.success("User updated successfully.", { duration: 2000 });
+        setTimeout(() => {
+          window.location.reload();
+      }, 2000);
+        const updatedUsers = users.map(user => {
+          if (user._id === userToEdit._id) {
+            return { ...user, ...editedUserData };
+          }
+          return user;
+        });
+        setUsers(updatedUsers);
+      } else {
+        toast.error("Failed to update user.");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user. Please try again later.");
+    }
+  };
+
+  
+
   const deleteUser = (userId) => {
     const token = cookies.accessToken;
     let config = {
@@ -62,40 +104,6 @@ const Users = () => {
   }
 
   
-
-  const updateUser = async (id) => {
-    try{
-      let token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('accessToken'))
-      .split('=')[1];
-      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}admin/users/${id}`, {
-          username: editedUserData.username,
-          email: editedUserData.email,
-          role: editedUserData.role,
-          position: editedUserData.position,
-      }, {
-          headers: {
-              'Authorization': `Bearer ${token}`
-          }
-      });
-      toast.success('User has been successfully updated.', { duration: 3000 });
-      setEditedUserData({});
-      setEditModalIsOpen(false);
-      } catch (error) {
-      if (error.response && error.response.data) {
-          toast.error(error.response.data.message, { duration: 3000 });
-      } else {
-          toast.error('Failed to update user!', { duration: 3000 });
-      }
-
-    }  
-    }
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedUserData({ ...editedUserData, [name]: value });
-  };
 
   const readUser = async (id) => {
     try{
@@ -245,7 +253,7 @@ const Users = () => {
                 <p><span className={styles.label}>Email: </span><span className={styles.value}>{userToRead.email}</span></p>
                 <p><span className={styles.label}>Role: </span><span className={styles.value}>{userToRead.role}</span></p>
                 <p><span className={styles.label}>Username: </span><span className={styles.value}>{userToRead.username}</span></p>
-                <p><span className={styles.label}>Contact: </span><span className={styles.value}>{userToRead.contact}</span></p>
+                <p><span className={styles.label}>Contact: </span><span className={styles.value}>{userToRead.contact ? (userToRead.contact) : (<span className={styles.italic}>none</span>)}</span></p>
                 <p><span className={styles.label}>Created at: </span><span className={styles.value}>{formatDate(userToRead.createdAt)}</span></p>
                 <p><span className={styles.label}>Updated at: </span><span className={styles.value}>{formatDate(userToRead.updatedAt)}</span></p>
             </div>
@@ -272,8 +280,8 @@ const Users = () => {
               <input
                 type="text"
                 name="username"
-                value={editedUserData.username || userToEdit.username}
-                onChange={handleInputChange}
+                value={editedUserData.username}
+                onChange={(e) => handleEdit('username', e.target.value)}
                 className={styles.input}
               />
             </span>
@@ -284,8 +292,8 @@ const Users = () => {
               <input
                 type="text"
                 name="email"
-                value={editedUserData.email || userToEdit.email}
-                onChange={handleInputChange}
+                value={editedUserData.email}
+                onChange={(e) => handleEdit('email', e.target.value)}
                 className={styles.input}
               />
             </span>
@@ -295,8 +303,8 @@ const Users = () => {
             <span>
               <select
                 name="role"
-                value={editedUserData.role || userToEdit.role}
-                onChange={handleInputChange}
+                value={editedUserData.role}
+                onChange={(e) => handleEdit('role', e.target.value)}
                 className={styles.input}
               >
                 <option value="admin">Admin</option>
@@ -309,8 +317,8 @@ const Users = () => {
             <span>
               <select
                 name="position"
-                value={editedUserData.position || userToEdit.position}
-                onChange={handleInputChange}
+                value={editedUserData.position}
+                onChange={(e) => handleEdit('position', e.target.value)}
                 className={styles.input}
               >
                 <option value="Project manager">Project manager</option>
@@ -325,7 +333,9 @@ const Users = () => {
         </div>
       )}
       <div className={styles.modalButtons}>
-      <button onClick={() => updateUser(userToEdit._id)} disabled={Object.keys(editedUserData).length === 0}>Save</button>        <button onClick={closeEditModal}>Cancel</button>
+      <button onClick={handleSave} disabled={Object.keys(editedUserData).length === 0}>Save</button>
+
+      <button onClick={closeEditModal}>Cancel</button>
       </div>
     </Modal>
     </div>

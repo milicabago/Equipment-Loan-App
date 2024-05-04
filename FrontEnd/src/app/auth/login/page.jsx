@@ -77,8 +77,7 @@ const LoginPage = (data) => {
                 clearHistory();
             })
             .catch((error) => {
-                console.error("Login error:", error.response.data.message);
-                toast.error(error.response.data.message, { duration: 3000 });
+                toast.error("Invalid email or password.", {duration: 3000});
             });
         };
 

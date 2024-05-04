@@ -206,3 +206,7 @@
   outline: none;
 }
 
+.italic{
+  font-style: italic;
+  color: var(--textSoft);
+}

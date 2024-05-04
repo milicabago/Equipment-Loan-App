@@ -108,7 +108,7 @@ const AddEquipment = (data) => {
 
 
                     <label className={styles.detail}>Opis:
-                        <textarea className={styles.description} placeholder="Dodajte opis.." {...register("description")} name=""></textarea>
+                    <textarea className={styles.description} placeholder="Dodajte opis.." {...register("description")} value={data.description}></textarea>
                     </label>
 
                     <div >
