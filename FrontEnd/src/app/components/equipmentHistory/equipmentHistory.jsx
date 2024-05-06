@@ -1,26 +1,20 @@
 "use client"
 import styles from './equipmentHistory.module.css';
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-import Modal from 'react-modal';
 
 const EquipmentHistory = () => {
     const [cookies] = useCookies(['accessToken']);
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
         const formattedTime = date.toLocaleTimeString();
         return `${formattedDate} ${formattedTime}`;
     };
-
-   
-
 
     useEffect(() => {
         const token = cookies.accessToken;
@@ -38,12 +32,11 @@ const EquipmentHistory = () => {
             .catch(error => {
                 console.error('Error fetching equipment history:', error);
                 setLoading(false);
-            });
+        });
     }, [ cookies.accessToken ]);
 
     return (
         <div className={styles.container}>
-            
             {loading ? (
                 <div className={styles.loading}>
                     <div className={styles.spinner}></div>
@@ -54,41 +47,38 @@ const EquipmentHistory = () => {
                     <h1>Equipment History</h1>
                 </div>
                 {history.length === 0 ? (
-                        <p>No equipment history available</p>
+                    <p>No equipment history available</p>
                     ) : (
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th>USER</th>
-                            <th>EQUIPMENT</th>
-                            <th>QUANTITY</th>
-                            <th>ASSIGN DATE</th>
-                            <th>RETURN DATE</th>
-                            <th>STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                      {history.map(item => (
-                        
-                                <tr key={item._id}>
-                                    <td>{item.user_id}</td>
-                                    <td>{item.equipment_info ? item.equipment_info.name : 'Unknown'}</td>
-                                    <td>{item.equipment_id}</td>
-                                    <td>{item.unassigned_quantity}</td>
-                                    <td>{formatDate(item.createdAt)}</td>
-                                    <td>{formatDate(item.assign_date)}</td>
-                                    <td>{item.return_status_request}</td>
-                                </tr>
-                            ))}
-                        
-                    </tbody>
-                
-                </table>
-            )}
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th>USER</th>
+                                <th>EQUIPMENT</th>
+                                <th>QUANTITY</th>
+                                <th>ASSIGN DATE</th>
+                                <th>RETURN DATE</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {history.map(item => (
+                                    <tr key={item._id}>
+                                        <td>{item.user_id}</td>
+                                        <td>{item.equipment_info ? item.equipment_info.name : 'Unknown'}</td>
+                                        <td>{item.equipment_id}</td>
+                                        <td>{item.unassigned_quantity}</td>
+                                        <td>{formatDate(item.createdAt)}</td>
+                                        <td>{formatDate(item.assign_date)}</td>
+                                        <td>{item.return_status_request}</td>
+                                    </tr>
+                                ))}
+                        </tbody>
+                    </table>
+                 )}
                 </div>
             )}
         </div>
-      
+
     );
     
 };

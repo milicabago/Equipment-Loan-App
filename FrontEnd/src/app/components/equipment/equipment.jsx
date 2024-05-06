@@ -8,7 +8,6 @@ import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
-
 const Equipment = () => {
     const [equipment, setEquipment] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -23,7 +22,6 @@ const Equipment = () => {
     const [equipmentToRead, setEquipmentToRead] = useState(null);
     const [readModalIsOpen, setReadModalIsOpen] = useState(false);
     const [editedEquipmentData, setEditedEquipmentData] = useState({});
-
 
     useEffect(() => {
         const token = cookies.accessToken;
@@ -44,36 +42,31 @@ const Equipment = () => {
                     .catch((error) => {
                         console.error("Error:", error);
                     });
-                }else {
-                    console.log("greskaa:")
-                }
+            }else {
+                console.error("Error: User is not an admin");
             }
-        }, [cookies.accessToken]);
+        }
+    }, [cookies.accessToken]);
 
-        const readEquipment = async (equipmentId) => {
-            try{
-                const token = cookies.accessToken;
-                const decodedToken = jwtDecode(token);
-                const config = {
-                headers: {
-                    'Authorization': 'Bearer ' + cookies.accessToken
-                }
-                };
-                const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment${equipmentId}` , config);
-                setEquipmentToRead(response.data);
-                setReadModalIsOpen(true);
-            } catch (error) {
-                console.error("Error:", error);
-                toast.error('Error fetching item data!');
+    const readEquipment = async (equipmentId) => {
+        try{
+            const token = cookies.accessToken;
+            const config = {
+            headers: {
+                'Authorization': 'Bearer ' + cookies.accessToken
             }
-        
             };
+            const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment${equipmentId}` , config);
+            setEquipmentToRead(response.data);
+            setReadModalIsOpen(true);
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error('Error fetching item data!');
+        }
+    };
             
-
-
     const deleteEquipment = (itemId) => {
         const token = cookies.accessToken;
-
         if (token) {
             const decodedToken = jwtDecode(token);
             setLoggedInUser(decodedToken);
@@ -91,7 +84,13 @@ const Equipment = () => {
                 })
                 .catch((error) => {
                     console.error("Error:", error);
-                    toast.error("Error deleting equipment!");
+                    toast.error(error.response.data.message , { duration: 3000 });
+                    setTimeout(() => {
+                    setDeleteModalIsOpen(false);
+                    }, 2000);
+                    setTimeout(() => {
+                    router.push('/');
+                    }, 2000);
                 });
             }
         }
@@ -136,11 +135,9 @@ const Equipment = () => {
         }
       };
 
-    
     const openDeleteModal = async (itemId) => {
         try{
           const token = cookies.accessToken;
-          const decodedToken = jwtDecode(token);
           const config = {
             headers: {
               'Authorization': 'Bearer ' + cookies.accessToken
@@ -155,7 +152,6 @@ const Equipment = () => {
           toast.error('Error fetching item data!');
         }
       };
-    
       const closeDeleteModal = () => {
         setDeleteModalIsOpen(false);
         setEquipmentToDelete(null);
@@ -167,7 +163,6 @@ const Equipment = () => {
         setEditedEquipmentData(item);
         setEditModalIsOpen(true);
       };
-    
       const closeEditModal = () => {
         setEquipmentToEdit(null);
         setEditModalIsOpen(false);
@@ -181,22 +176,17 @@ const Equipment = () => {
         setEquipmentToRead(equipment);
         setReadModalIsOpen(true);
       };
-    
       const closeReadModal = () => {
         setEquipmentToRead(null);
         setReadModalIsOpen(false);
       };
 
-
     return (
         <div className={styles.container}>
-            
-
-             
              <div>
-             <div className={styles.title}>
-                 <h1>Equipment</h1>
-             </div>
+                <div className={styles.title}>
+                    <h1>Equipment</h1>
+                </div>
                 <table className={styles.table}>
                     <thead>
                         <tr>
@@ -212,12 +202,10 @@ const Equipment = () => {
                             <td className={styles.name}>{item.name}</td>
                             <td className={styles.model}>{item.full_name}</td>
                             <td className={styles.quantity}>{item.quantity}</td>
-                            
                             <td>
                                 <button className={styles.edit} onClick={() => openEditModal(item)}>Edit</button>
                                 <button className={styles.delete} onClick={() => openDeleteModal(item._id)}>Delete</button>
                                 <button className={styles.seeMore} onClick={() => openReadModal(item)}>See More</button>
-                                
                             </td>                            
                         </tr>
                         ))}
@@ -241,143 +229,139 @@ const Equipment = () => {
                 </div>
                 )}
                 <div className={styles.modalButtons}>
-                {equipmentToDelete && (
-                    <button onClick={() => deleteEquipment(equipmentToDelete._id)}>Delete</button>
-                )}
-                <button onClick={closeDeleteModal}>Cancel</button>
-                
+                    {equipmentToDelete && (
+                        <button onClick={() => deleteEquipment(equipmentToDelete._id)}>Delete</button>
+                    )}
+                    <button onClick={closeDeleteModal}>Cancel</button>
                 </div>
-                </Modal>
-                <Modal
-            isOpen={readModalIsOpen}
-            onRequestClose={closeReadModal}
-            className={styles.modal}
-            overlayClassName={styles.overlay}
-            contentLabel="Read Equipment Modal"
-            >
-            <h2 className={styles.modalTitle}>Equipment details</h2>
-            {equipmentToRead && (
-                <div className={styles.modalContent}>
-                    <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
-                    <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
-                    <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
-                    <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition === true ? "Functional" : "Non-functional"}</span></p>
-                    <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
-                    <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>) }</span></p>
-                </div>
-            
-            )}
-            <div className={styles.modalButtons}>
-                <button onClick={closeReadModal}>Close</button>
-            </div>
             </Modal>
 
             <Modal
-            isOpen={editModalIsOpen}
-            onRequestClose={closeEditModal}
-            className={styles.modal}
-            overlayClassName={styles.overlay}
-            contentLabel="Edit Equipment Modal"
-          >
-            <h2 className={styles.modalTitle}>Edit equipment</h2>
-            {equipmentToEdit && (
-              <div className={styles.modalContent}>
-                <p>
-                <span className={styles.label}>Name: </span>
-                <span>
-                <input
-                    type="text"
-                    name="name"
-                    value={editedEquipmentData.name}
-                    onChange={(e) => handleEdit('name', e.target.value)}
-                    className={styles.input}
-                    autoComplete='off'
-                />
-                </span>
-            </p>
-            <p>
-                <span className={styles.label}>Model: </span>
-                <span>
-                <input
-                    type="text"
-                    name="model"
-                    value={editedEquipmentData.full_name}
-                    onChange={(e) => handleEdit('full_name', e.target.value)}
-                    className={styles.input}
-                    autoComplete='off'
-                />
-                </span>
-            </p>
-            <p>
-                <span className={styles.label}>Serial number: </span>
-                <span>
-                <input
-                    type="text"
-                    name="serial_number"
-                    value={editedEquipmentData.serial_number}
-                    onChange={(e) => handleEdit('serial_number', e.target.value)}
-                    className={styles.input}
-                    autoComplete='off'
-                />
-                </span>
-            </p>
-            <p>
-                <span className={styles.label}>Quantity: </span>
-                <span>
-                <input
-                    type="number"
-                    name="quantity"
-                    value={editedEquipmentData.quantity}
-                    onChange={(e) => handleEdit('quantity', e.target.value)}
-                    className={styles.input}
-                    autoComplete='off'
-                />
-                </span>
-            </p>
-            <p>
-                <span className={styles.label}>Condition: </span>
-                <span>
-                <select
-                    name="condition"
-                    value={editedEquipmentData.condition}
-                    onChange={(e) => handleEdit('condition', e.target.value)}
-                    className={styles.input}
+                isOpen={readModalIsOpen}
+                onRequestClose={closeReadModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Read Equipment Modal"
                 >
-                    <option value="true">Functional</option>
-                    <option value="false">Non-functional</option>
-                </select>
-                </span>
-            </p>
-            <p>
-                <span className={styles.label}>Description: </span>
-                <span>
-                <input
-                    type="text"
-                    name="description"
-                    placeholder="none"
-                    value={editedEquipmentData.description || ""}
-                    onChange={(e) => handleEdit('description', e.target.value)}
-                    className={styles.input}
-                    autoComplete='off'
-                />
-                </span>
-        </p>
-
-
-            
-
-
-            </div>
-            )}
-            <div className={styles.modalButtons}>
-            <button onClick={handleSave} disabled={Object.keys(editedEquipmentData).length === 0}>Save</button>
-
-            <button onClick={closeEditModal}>Cancel</button>
-            </div>
+                <h2 className={styles.modalTitle}>Equipment details</h2>
+                {equipmentToRead && (
+                    <div className={styles.modalContent}>
+                        <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
+                        <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
+                        <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
+                        <p><span className={styles.label}>Condition: </span><span className={styles.value}>{equipmentToRead.condition === true ? "Functional" : "Non-functional"}</span></p>
+                        <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>) }</span></p>
+                    </div>
+                )}
+                <div className={styles.modalButtons}>
+                    <button onClick={closeReadModal}>Close</button>
+                </div>
             </Modal>
+
+            <Modal
+                isOpen={editModalIsOpen}
+                onRequestClose={closeEditModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Edit Equipment Modal"
+            >
+                <h2 className={styles.modalTitle}>Edit equipment</h2>
+                {equipmentToEdit && (
+                <div className={styles.modalContent}>
+                    <p>
+                    <span className={styles.label}>Name: </span>
+                    <span>
+                    <input
+                        type="text"
+                        name="name"
+                        value={editedEquipmentData.name}
+                        onChange={(e) => handleEdit('name', e.target.value)}
+                        className={styles.input}
+                        autoComplete='off'
+                    />
+                    </span>
+                    </p>
+                    <p>
+                        <span className={styles.label}>Model: </span>
+                        <span>
+                        <input
+                            type="text"
+                            name="model"
+                            value={editedEquipmentData.full_name}
+                            onChange={(e) => handleEdit('full_name', e.target.value)}
+                            className={styles.input}
+                            autoComplete='off'
+                        />
+                        </span>
+                    </p>
+                    <p>
+                    <span className={styles.label}>Serial number: </span>
+                    <span>
+                    <input
+                        type="text"
+                        name="serial_number"
+                        value={editedEquipmentData.serial_number}
+                        onChange={(e) => handleEdit('serial_number', e.target.value)}
+                        className={styles.input}
+                        autoComplete='off'
+                    />
+                    </span>
+                    </p>
+                    <p>
+                    <span className={styles.label}>Quantity: </span>
+                    <span>
+                    <input
+                        type="number"
+                        name="quantity"
+                        value={editedEquipmentData.quantity}
+                        onChange={(e) => handleEdit('quantity', e.target.value)}
+                        className={styles.input}
+                        autoComplete='off'
+                    />
+                    </span>
+                    </p>
+                    <p>
+                        <span className={styles.label}>Condition: </span>
+                        <span>
+                        <select
+                            name="condition"
+                            value={editedEquipmentData.condition}
+                            onChange={(e) => handleEdit('condition', e.target.value)}
+                            className={styles.input}
+                        >
+                            <option value="true">Functional</option>
+                            <option value="false">Non-functional</option>
+                        </select>
+                        </span>
+                    </p>
+                    <p>
+                        <span className={styles.label}>Description: </span>
+                        <span>
+                    <input
+                        type="text"
+                        name="description"
+                        placeholder="none"
+                        value={editedEquipmentData.description || ""}
+                        onChange={(e) => handleEdit('description', e.target.value)}
+                        className={styles.input}
+                        autoComplete='off'
+                    />
+                    </span>
+                    </p>
+
+
             
 
 
+                </div>
+                    )}
+                    <div className={styles.modalButtons}>
+                    <button onClick={handleSave} disabled={Object.keys(editedEquipmentData).length === 0}>Save</button>
+
+                    <button onClick={closeEditModal}>Cancel</button>
+                </div>
+            </Modal>
         </div>
     )
 }

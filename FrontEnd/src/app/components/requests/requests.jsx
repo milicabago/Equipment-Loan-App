@@ -3,7 +3,6 @@ import styles from './requests.module.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
@@ -43,7 +42,7 @@ const Request = () => {
                 setLoading(false);
             }); 
         }
-        }, [cookies.accessToken]);
+    }, [cookies.accessToken]);
 
     const readRequests = async (requestId) => {
         try{
@@ -58,7 +57,6 @@ const Request = () => {
             setReadModalIsOpen(true);
         } catch (error) {
             console.error("Error:", error);
-            toast.error('Error fetching item data!');
         }
     };
 
@@ -68,30 +66,27 @@ const Request = () => {
             .split('; ')
             .find(row => row.startsWith('accessToken'))
             .split('=')[1];
-    
-            await axios.patch(
-                process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/${requestId}`, 
+            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/${requestId}`, 
                 { request_status: 'active' },{
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 }
-                
             );
-    
             setRequests(prevRequests => prevRequests.map(request => {
                 if (request._id === requestId) {
                     return { ...request, request_status: 'active' };
                 }
                 return request;
             }));
-    
             closeAcceptModal();
-            toast.success('Request accepted successfully!');
-            window.location.reload();
+            toast.success('Request accepted successfully!', { duration: 3000 }  );
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             console.error("Error:", error);
-            toast.error('Error accepting request!');
+            toast.error(error.response.data.message , { duration: 3000 });
         }
     };
 
@@ -101,37 +96,30 @@ const Request = () => {
             .split('; ')
             .find(row => row.startsWith('accessToken'))
             .split('=')[1];
-    
-            await axios.patch(
-                process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/${requestId}`, 
+            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/requests/${requestId}`, 
                 { request_status: 'denied' },{
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 }
-                
             );
-    
             setRequests(prevRequests => prevRequests.map(request => {
                 if (request._id === requestId) {
                     return { ...request, request_status: 'denied' };
                 }
                 return request;
             }));
-    
             closeDenyModal();
-            toast.success('Request denied successfully!');
-            window.location.reload();
+            toast.success('Request denied successfully!',  { duration: 3000 }  );
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             console.error("Error:", error);
-            toast.error('Error denying request!');
+            toast.error(error.response.data.message , { duration: 3000 });
         }
     };
-    
-;
-            
-
-
+                
     const openReadModal = (request) => {
         setRequestToRead(request);
         setReadModalIsOpen(true);
@@ -140,6 +128,7 @@ const Request = () => {
         setRequestToRead(null);
         setReadModalIsOpen(false);
     };
+
     const openAcceptModal = (request) => {
         setRequestToAccept(request);
         setAcceptModalIsOpen(true);
@@ -152,10 +141,12 @@ const Request = () => {
         setRequestToDeny(request);
         setDenyModalIsOpen(true);
     };
+
     const closeDenyModal = () => {
         setRequestToDeny(null);
         setDenyModalIsOpen(false);
     };
+
     return (
         <div className={styles.container}>
             {loading ? (
@@ -166,7 +157,7 @@ const Request = () => {
                 <div>
                     <div className={styles.title}>
                         <h1>Requests</h1>
-                        </div>
+                    </div>
                         <table className={styles.table}>
                             <thead>
                                 <tr>
@@ -186,7 +177,6 @@ const Request = () => {
                                         <td className={styles.equipment}>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
                                         <td className={styles.quantity}>{request.quantity}</td>
                                         <td className={styles.date}>{formatDate(request.assign_date)}</td>
-                                        
                                         <td className={`${styles.status} ${request.request_status === 'pending' ? styles.active : ''}`}>
                                             {request.request_status === 'pending' ? 'Pending..' : request.request_status}
                                         </td>
@@ -198,10 +188,10 @@ const Request = () => {
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
-                    
+                        </table>                    
                 </div>
             )}
+
             <Modal
                 isOpen={readModalIsOpen}
                 onRequestClose={closeReadModal}
@@ -223,6 +213,7 @@ const Request = () => {
                     <button onClick={closeReadModal}>Close</button>
                 </div>
             </Modal>
+            
             <Modal
                 isOpen={acceptModalIsOpen}
                 onRequestClose={closeAcceptModal}

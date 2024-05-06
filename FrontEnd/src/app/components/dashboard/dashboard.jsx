@@ -3,7 +3,6 @@ import styles from './dashboard.module.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
@@ -16,7 +15,7 @@ const Dashboard = () => {
     const [requestToReturn, setRequestsToReturn] = useState(null);
     const [returnModalIsOpen, setReturnModalIsOpen] = useState(false);
     const [returnQuantity, setReturnQuantity] = useState(1);
-    const [currentQuantity, setCurrentQuantity] = useState();
+    const [currentQuantity] = useState();
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -26,41 +25,37 @@ const Dashboard = () => {
     
     useEffect(() => {
         const token = cookies.accessToken;
-        if (token) {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-            axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/", config)
-            .then((response) => {
-                setRequests(response.data);
-                console.log("Requests:", response.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-                setLoading(false);
-            }); 
         }
-        }, [cookies.accessToken]);
+        axios.get(process.env.NEXT_PUBLIC_BASE_URL + "admin/", config)
+        .then((response) => {
+            setRequests(response.data);
+            console.log("Requests:", response.data);
+            setLoading(false);
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            setLoading(false);
+        }); 
+    }, [cookies.accessToken]);
 
     const readRequests = async (requestId) => {
-    try{
-        const token = cookies.accessToken;
-        const decodedToken = jwtDecode(token);  
-        let config = {
-            headers: {
-                'Authorization': 'Bearer ' + cookies.accessToken
-            }
-        };
-        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/${requestId}` , config);
-        setRequestToRead(response.data);
-        setReadModalIsOpen(true);
-    } catch (error) {
-        console.error("Error:", error);
-        toast.error('Error fetching request data!', { duration: 3000 });
-    }
+        try{
+            const token = cookies.accessToken;
+            let config = {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            };
+            const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/${requestId}` , config);
+            setRequestToRead(response.data);
+            setReadModalIsOpen(true);
+        } catch (error) {
+            console.error("Error:", error);
+        }
     };
 
     const returnRequests = async (requestId) => {
@@ -71,19 +66,14 @@ const Dashboard = () => {
             .split('=')[1];
             const requestToReturn = requests.find(request => request._id === requestId);
             if (!Number.isInteger(returnQuantity) || returnQuantity <= 0 || returnQuantity > currentQuantity) {
-                toast.error('Invalid return quantity!', { duration: 3000 });
                 return;
             }
-            
-
-            await axios.patch(
-                process.env.NEXT_PUBLIC_BASE_URL + `admin/${requestId}`, 
-                 { unassigned_quantity: returnQuantity },{
+            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/${requestId}`, 
+                { unassigned_quantity: returnQuantity },{
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 }
-                
             );
             setRequests(prevRequests => prevRequests.map(request => {
             if (request._id === requestId) {
@@ -91,20 +81,17 @@ const Dashboard = () => {
             }
             return request;
             }));
-    
             closeReturnModal();
-            toast.success('Request returned successfully!', { duration: 3000 } );
+            toast.success('Equipment returned successfully!', { duration: 3000 } );
             setTimeout(() => {
                 window.location.reload();
-            }, 3000);
-           
+            }, 2000);
         } catch (error) {
             console.error("Error:", error);
-            toast.error('Error returning request!', { duration: 3000 });
+            toast.error(error.response.data.message , { duration: 3000 });
         }
     };
     
-        
     const openReadModal = (request) => {
         setRequestToRead(request);
         setReadModalIsOpen(true);
@@ -113,6 +100,7 @@ const Dashboard = () => {
         setRequestToRead(null);
         setReadModalIsOpen(false);
     };
+
     const openReturnModal = (request) => {
         setRequestsToReturn(request);
         setReturnModalIsOpen(true);
@@ -151,8 +139,7 @@ const Dashboard = () => {
                                     <td className={styles.equipment_info}>{request.equipment_info ? request.equipment_info.name : 'Unkrnown'}</td>
                                     <td className={styles.quantity}>{request.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
-                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>
-                                        {request.request_status === 'active' ? 'Active' : request.request_status}
+                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>{request.request_status === 'active' ? 'Active' : request.request_status}
                                     </td>
                                     <td>
                                         <button className={styles.return} onClick={() => openReturnModal(request)}>Return</button>
@@ -170,7 +157,8 @@ const Dashboard = () => {
                 onRequestClose={closeReadModal}
                 className={styles.modal}
                 overlayClassName={styles.overlay}
-                contentLabel="Read Request Modal">
+                contentLabel="Read Request Modal"
+                >
                 <h2 className={styles.modalTitle}>Active assignment details</h2>
                 {requestToRead && (
                     <div className={styles.modalContent}>
@@ -185,27 +173,28 @@ const Dashboard = () => {
                 <div className={styles.modalButtons}>
                     <button onClick={closeReadModal}>Close</button>
                 </div>
-                </Modal>
+            </Modal>
 
-                <Modal
+            <Modal
                 isOpen={returnModalIsOpen}
                 onRequestClose={closeReturnModal}
                 className={styles.modal}
                 overlayClassName={styles.overlay}
-                contentLabel="Return Assigment Modal" >
+                contentLabel="Return Assigment Modal" 
+                >
                 <h2 className={styles.modalTitle}>Return Assigment</h2>
                 {requestToReturn && (
                     <div>
-                    <p className={styles.question}>Current quantity: {requestToReturn.quantity}</p>
-                    <label className={styles.question} htmlFor="returnQuantity">Quantity to return:</label>
-                    <input className={styles.input}
-                        type="number"
-                        id="returnQuantity"
-                        min="1"
-                        max={requestToReturn.quantity}
-                        value={returnQuantity}
-                        onChange={(e) => setReturnQuantity(parseInt(e.target.value))}
-                    />
+                        <p className={styles.question}>Current quantity: {requestToReturn.quantity}</p>
+                        <label className={styles.question} htmlFor="returnQuantity">Quantity to return:</label>
+                        <input className={styles.input}
+                            type="number"
+                            id="returnQuantity"
+                            min="1"
+                            max={requestToReturn.quantity}
+                            value={returnQuantity}
+                            onChange={(e) => setReturnQuantity(parseInt(e.target.value))}
+                        />
                         <p className={styles.question}> Are you sure you want to return this equipment?</p>
                         <div className={styles.modalButtons}>
                             <button className={styles.accept} onClick={() => returnRequests(requestToReturn._id)}>Return</button>

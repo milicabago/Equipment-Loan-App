@@ -40,7 +40,7 @@ const RegisterPage = () => {
     const onSubmit = (data) => {
         axios.post(process.env.NEXT_PUBLIC_BASE_URL + "register", {
                 first_name: data.first_name,
-                last_Name: data.last_name,
+                last_name: data.last_name,
                 username: data.username,
                 email: data.email,
                 password: data.password,
@@ -115,14 +115,13 @@ const RegisterPage = () => {
                     <label className={styles.position}>Pozicija:
                                 <p>{errors.position?.message}</p>
                                 <select {...register("position")} className={styles.select}>
-                                    <option value="">Odaberi poziciju</option>
-                                    <option className={styles.employee} value="1">Project manager</option>
-                                    <option className={styles.employee} value="2">Software developer</option>
-                                    <option className={styles.employee} value="3">Graphic designer</option>
-                                    <option className={styles.employee} value="4">Financial accountant</option>
-                                    <option className={styles.employee} value="5">DevOps Engineer</option>
-                                    <option className={styles.employee} value="6">Junior Product Owner</option>
-                                </select>
+                                <option className={styles.employee} value="Project manager">Project manager</option>
+                                <option className={styles.employee} value="Software developer">Software developer</option>
+                                <option className={styles.employee} value="Graphic designer">Graphic designer</option>
+                                <option className={styles.employee} value="Financial accountant">Financial accountant</option>
+                                <option className={styles.employee} value="DevOps Engineer">DevOps Engineer</option>
+                                <option className={styles.employee} value="Junior Product Owner">Junior Product Owner</option>
+                            </select>
                             </label>
 
                    

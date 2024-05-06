@@ -60,8 +60,6 @@
   gap: 8px;
 }
   
-
-
 .actions button {
   padding: 8px 12px;
   border: none;
@@ -132,8 +130,6 @@
   background-color: #e74c3c;
 }
 
-
-
 .modalContent{
   display: flex;
   flex-direction: column;
@@ -163,12 +159,12 @@
   z-index: 1000;
 }
 
-
 .question{
   font-size: 16px;
   color: #000000;
   margin-bottom: 20px;
 }
+
 .input {
   width: 100%;
   padding: 12px;
@@ -178,6 +174,7 @@
   font-size: 16px; 
   box-sizing: border-box; 
 }
+
 .loading {
   position: absolute;
   top: 50%;

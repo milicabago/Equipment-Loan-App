@@ -5,24 +5,21 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
 
-     const schema = yup.object().shape({
-        name: yup.string().required('Name is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
-            full_name: yup.string().required('Full name is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
-            serial_number: yup.string().required('Serial number is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
-            quantity: yup.number().required().typeError('Quantity must be a number!').integer("Quantity must be an integer!").min(1, "Quantity must be at least '1'!"),
-            condition: yup.boolean().required(),
-            description: yup.string().optional(),
-    
-    });
+const schema = yup.object().shape({
+    name: yup.string().required('Name is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
+    full_name: yup.string().required('Full name is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
+    serial_number: yup.string().required('Serial number is required!').matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
+    quantity: yup.number().required().typeError('Quantity must be a number!').integer("Quantity must be an integer!").min(1, "Quantity must be at least '1'!"),
+    condition: yup.boolean().required(),
+    description: yup.string().optional(),
+});
 
 const AddEquipment = (data) => {
     const [createdEquipment, setCreatedEquipment] = useState(null);
     const [cookies] = useCookies(['accessToken']);
-
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
@@ -59,18 +56,13 @@ const AddEquipment = (data) => {
             toast.success('Equipment added successfully!');
             setCreatedEquipment(response.data);
         } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error(error.response.data.message, { duration: 3000 });
-            } else {
-                toast.error('Failed to add equipment!', { duration: 3000 });
-            }
+            toast.error(error.response.data.message , { duration: 3000 });
         }
+        reset();
     };
-
 
     return(
         <div className={styles.container}>
-
             <div className={styles.form}> 
                 <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
@@ -94,11 +86,7 @@ const AddEquipment = (data) => {
                     <p>{errors.quantity?.message}</p>
                     <input type="number" placeholder="Enter quantity" {...register("quantity")} autoComplete='off' min="1" /></label>
                     
-
-
-                    
-                    <label className={styles.condition}>
-                    Equipment Condition:
+                    <label className={styles.condition}> Equipment Condition:
                         <p>{errors.condition?.message}</p>
                         <select className={styles.select} {...register("condition")}>
                             <option value="true">Functional</option>
@@ -106,19 +94,17 @@ const AddEquipment = (data) => {
                         </select>
                     </label>
 
-
                     <label className={styles.detail}>Description:
                     <textarea className={styles.description} placeholder="Add description.." {...register("description")} value={data.description}></textarea>
                     </label>
 
                     <div >
-                    <button className={styles.button} type="submit">Add Equipment</button>
+                        <button className={styles.button} type="submit">Add Equipment</button>
                     </div>
                 </form>
-
             </div>            
         </div>
     )
-}
+};
 
 export default AddEquipment;

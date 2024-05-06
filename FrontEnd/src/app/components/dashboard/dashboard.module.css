@@ -12,7 +12,6 @@
   margin-bottom: 40px;
 }
 
-
 .loading {
   position: absolute;
   top: 50%;
@@ -34,8 +33,6 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-
 
 .table {
   width: 100%;
@@ -75,25 +72,15 @@
 .equipment_info,
 .quantity,
 .assign_date{
-    font-style: italic;
+  font-style: italic;
 }
-/*.status{
-  position: relative;
-  display: inline-block;
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: var(--button);
-  color: #ffffff;
-  border-radius: 5px;
-  
-}*/
+
 
 .actions {
   display: flex;
   gap: 8px;
 }
   
-
 
 .actions button {
   padding: 8px 12px;
@@ -194,7 +181,6 @@
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
-
 
 .question{
   font-size: 16px;

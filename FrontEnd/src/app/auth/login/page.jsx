@@ -37,18 +37,23 @@ const LoginPage = (data) => {
 
     useEffect(() => {
         const token = cookies.accessToken; 
-        if (token) {
-          const decodedToken = jwtDecode(token); 
-          const id = decodedToken.user._id;
-          const userRole = decodedToken.user.role; 
+        let userRole = null;
 
-          if (userRole === 'admin') {
-                router.push('/admin');
+        if (token) {
+            try {
+            const decodedToken = jwtDecode(token); 
+            userRole = decodedToken.user.role; 
+            } catch (error) {
+            console.log(error);
+            }
+
+            if (userRole === 'admin') {
+            router.push('/admin');
             } else if (userRole === 'user') {
-                router.push('/user');
+            router.push('/user');
             }
         }
-      }, [cookies.accessToken]);
+    }, [cookies.accessToken, router]);
     
     const handleForgotPassword = () => {
         router.push("/auth/forgotPassword");

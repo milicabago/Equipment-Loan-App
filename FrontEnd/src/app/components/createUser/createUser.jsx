@@ -15,7 +15,7 @@ const schema = yup.object().shape({
     username: yup.string().required("Username is required!").min(3).max(30).matches(/^[a-zA-Z0-9]+$/, '"Username" can only contain letters and numbers!'),
     password: yup.string().min(8).required("Password is required!"),
     role: yup.string().required("Role is required!").oneOf(["admin", "user"], 'Invalid "role" value!'),
-    contact: yup.string().matches(/^(\S+\s)*\S+$/, '"Contact" cannot start or end with spaces, or contain multiple consecutive spaces!').notRequired(),
+    contact: yup.string().optional(),
     position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/, '"Position" cannot start or end with spaces, or contain multiple consecutive spaces!')
 });
 
@@ -44,48 +44,41 @@ const Users = (data) => {
     }, [createdUser]);
 
     const onSubmit = async (data) => {
-      try {
-          let token = document.cookie
-              .split('; ')
-              .find(row => row.startsWith('accessToken'))
-              .split('=')[1];
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, {
-              first_name: data.first_name,
-              last_name: data.last_name,
-              username: data.username,
-              contact: data.contact,
-              email: data.email,
-              password: data.password,
-              role: data.role,
-              position: data.position,
-          }, {
-              headers: {
-                  'Authorization': `Bearer ${token}`
-              }
-          });
-          toast.success('User has been successfully created.', { duration: 3000 });
-          setCreatedUser(data);
-      } catch (error) {
-          if (error.response && error.response.data) {
-            
-              toast.error(error.response.data.message, { duration: 3000 }); 
-          } else {
-              toast.error('Failed to create user!', { duration: 3000 });
-          }
-      }
-  };
-
+        try {
+            let token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('accessToken'))
+                .split('=')[1];
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, {
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    username: data.username,
+                    contact: data.contact,
+                    email: data.email,
+                    password: data.password,
+                    role: data.role,
+                    position: data.position,
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                toast.success('User has been successfully created.', { duration: 3000 });
+                setCreatedUser(data);
+        } catch (error) {
+            toast.error(error.response.data.message , { duration: 3000 });
+        }
+        reset();
+    };
 
     return (
         <div className={styles.container}>
-
             <div className={styles.form}> 
             <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>User Personal Information</span>
                         <span className={styles.desc}> </span> 
                     </div>
-
                     <label className={styles.firstname}>First Name:
                     <p>{errors.first_name?.message}</p>
                     <input type="text" placeholder="Enter first name" {...register("first_name")}  autoComplete='off'/></label>
@@ -129,7 +122,6 @@ const Users = (data) => {
                     </label>
                     
                     <label className={styles.role}>Role:
-                    
                     <select {...register("role")} className={styles.select} defaultValue="user">
                             <option  className={styles.admin} value="admin">Administrator</option>
                             <option className={styles.user} value="user">User</option>
@@ -137,24 +129,19 @@ const Users = (data) => {
                     </label> 
 
                     <label className={styles.position}>Position:
-                    
                     <select {...register("position")} className={styles.select}>
-                        
                         <option className={styles.employee} value="Project manager">Project manager</option>
                         <option className={styles.employee} value="Software developer">Software developer</option>
                         <option className={styles.employee} value="Graphic designer">Graphic designer</option>
-                        <option  className={styles.employee} value="Financial accountant">Financial accountant</option>
+                        <option className={styles.employee} value="Financial accountant">Financial accountant</option>
                         <option className={styles.employee} value="DevOps Engineer">DevOps Engineer</option>
                         <option className={styles.employee} value="Junior Product Owner">Junior Product Owner</option>
-
                     </select>
                     </label> 
-
                     <div>
-                    <button className={styles.button} type="submit">Create</button>
+                        <button className={styles.button} type="submit">Create</button>
                     </div>
                 </form>
-
             </div>            
         </div>
     );

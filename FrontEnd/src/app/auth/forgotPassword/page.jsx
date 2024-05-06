@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 import styles from './page.module.css'; 
 
 const ForgotPasswordPage = () => {
-    const router = useRouter();
     const [email, setEmail] = useState('');
 
     const handleEmailChange = (e) => {
@@ -16,13 +15,20 @@ const ForgotPasswordPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-       
+        if (!email) {
+            toast.error("Please enter your email address!");
+            return;
+        }
         try {
             await axios.post(process.env.NEXT_PUBLIC_BASE_URL + "forgotPassword", { email });
-            toast.success("Reset password link sent to your email.");
+            toast.success("Reset password link sent to your email address. Please check your inbox!", {duration: 3000});
         } catch (error) {
-            console.error("Forgot password error:", error);
-            toast.error("Please enter a valid email.");
+            console.error("Forgot password error:", error.response ? error.response.data.message : error.message);
+            if (error.response) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Network error. Please check your Internet connection and try again!");
+            }
         }
     };
 

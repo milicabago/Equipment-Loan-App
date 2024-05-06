@@ -19,7 +19,6 @@ const MyDashboard = () => {
     const [returnModalIsOpen, setReturnModalIsOpen] = useState(false);
     const [returnQuantity, setReturnQuantity] = useState(1);
     const [currentQuantity, setCurrentQuantity] = useState();
-
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -30,8 +29,7 @@ const MyDashboard = () => {
         Modal.setAppElement('body');
       }, []);
 
-
-      useEffect(() => {
+    useEffect(() => {
         const token = cookies.accessToken;
         if (token) {
             const decodedToken = jwtDecode(token);
@@ -57,27 +55,26 @@ const MyDashboard = () => {
             }); 
             
         }
-        }, [cookies.accessToken]);
+    }, [cookies.accessToken]);
 
-        
-    
     const readRequests = async (requestId) => {
-    try{
-        const token = cookies.accessToken;
-        const decodedToken = jwtDecode(token);
-        let config = {
-            headers: {
-                'Authorization': 'Bearer ' + cookies.accessToken
-            }
-        };
-        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/${requestId}` , config);
-        setRequestToRead(response.data);
-        setReadModalIsOpen(true);
-    } catch (error) {
+        try{
+            const token = cookies.accessToken;
+            const decodedToken = jwtDecode(token);
+            let config = {
+                headers: {
+                    'Authorization': 'Bearer ' + cookies.accessToken
+                }
+            };
+            const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `user/${requestId}` , config);
+            setRequestToRead(response.data);
+            setReadModalIsOpen(true);
+        } catch (error) {
         console.error("Error:", error);
         toast.error('Error fetching request data!');
         }
     };
+
     const returnRequests = async (requestId) => {
         try {
             let token = document.cookie
@@ -89,8 +86,6 @@ const MyDashboard = () => {
                 toast.error('Invalid return quantity!');
                 return;
             }
-            
-
             await axios.patch(
                 process.env.NEXT_PUBLIC_BASE_URL + `user/${requestId}`, 
                  { unassigned_quantity: returnQuantity },{
@@ -98,7 +93,6 @@ const MyDashboard = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 }
-                
             );
             setRequests(prevRequests => prevRequests.map(request => {
             if (request._id === requestId) {
@@ -106,28 +100,27 @@ const MyDashboard = () => {
             }
             return request;
             }));
-    
             closeReturnModal();
-            toast.success('Request returned successfully!');
-            window.location.reload();
+            toast.success('Equipment returned successfully!', { duration: 3000 } );
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             console.error("Error:", error);
-            toast.error('Error returning request!');
+            toast.error(error.response.data.message , { duration: 3000 });
         }
     };
 
-
-
-      const openReadModal = (request) => {
+    const openReadModal = (request) => {
         setRequestToRead(request);
         setReadModalIsOpen(true);
-      };
-    
-      const closeReadModal = () => {
+    };
+    const closeReadModal = () => {
         setRequestToRead(null);
         setReadModalIsOpen(false);
-      };
-      const openReturnModal = (request) => {
+    };
+
+    const openReturnModal = (request) => {
         setRequestsToReturn(request);
         setReturnModalIsOpen(true);
     };
@@ -135,19 +128,14 @@ const MyDashboard = () => {
         setRequestsToReturn(null);
         setReturnModalIsOpen(false);
     };
-
-            
     
     return (
         <div className={styles.container}>
-            
-            
         {loading ? (
             <div className={styles.loading}>
                 <div className={styles.spinner}></div>
             </div>
         ) : (
-            
             <div>
                 <div className={styles.title}>
                   <h1>Assigned Equipment</h1>
@@ -190,54 +178,55 @@ const MyDashboard = () => {
 
         )}
         <Modal
-                isOpen={readModalIsOpen}
-                onRequestClose={closeReadModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Read Request Modal"
-                >
-                <h2 className={styles.modalTitle}>Request details</h2>
-                {console.log('requestToRead:', requestToRead)}
-                {requestToRead && (
-                    <div className={styles.modalContent}>
-                    <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user ? requestToRead.user.name : 'Unknown'}</span></p>
-                    <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user ? requestToRead.user.username : 'Unknown'}</span></p>
-                    <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
-                    <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
-                    <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
-                    <p><span className={styles.label}>Assign Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
-                </div>
-                )}
-                <div className={styles.modalButtons}>
-                    <button onClick={closeReadModal}>Close</button>
-                </div>
-                </Modal>
-                <Modal
-                isOpen={returnModalIsOpen}
-                onRequestClose={closeReturnModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Return Assigment Modal" >
-                <h2 className={styles.modalTitle}>Return Assigment</h2>
-                {requestToReturn && (
-                    <div>
-                    <p className={styles.question}>Current quantity: {requestToReturn.quantity}</p>
-                    <label className={styles.question} htmlFor="returnQuantity">Quantity to return:</label>
-                    <input className={styles.input}
-                        type="number"
-                        id="returnQuantity"
-                        min="1"
-                        max={requestToReturn.quantity}
-                        value={returnQuantity}
-                        onChange={(e) => setReturnQuantity(parseInt(e.target.value))}
-                    />
-                        <p className={styles.question}> Are you sure you want to return this equipment?</p>
-                        <div className={styles.modalButtons}>
-                            <button className={styles.accept} onClick={() => returnRequests(requestToReturn._id)}>Return</button>
-                            <button onClick={closeReturnModal}>Close</button>
-                        </div>
+            isOpen={readModalIsOpen}
+            onRequestClose={closeReadModal}
+            className={styles.modal}
+            overlayClassName={styles.overlay}
+            contentLabel="Read Request Modal"
+            >
+            <h2 className={styles.modalTitle}>Request details</h2>
+            {console.log('requestToRead:', requestToRead)}
+            {requestToRead && (
+                <div className={styles.modalContent}>
+                <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user ? requestToRead.user.name : 'Unknown'}</span></p>
+                <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user ? requestToRead.user.username : 'Unknown'}</span></p>
+                <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
+                <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
+                <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
+                <p><span className={styles.label}>Assign Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
+            </div>
+            )}
+            <div className={styles.modalButtons}>
+                <button onClick={closeReadModal}>Close</button>
+            </div>
+        </Modal>
+
+        <Modal
+            isOpen={returnModalIsOpen}
+            onRequestClose={closeReturnModal}
+            className={styles.modal}
+            overlayClassName={styles.overlay}
+            contentLabel="Return Assigment Modal" >
+            <h2 className={styles.modalTitle}>Return Assigment</h2>
+            {requestToReturn && (
+                <div>
+                <p className={styles.question}>Current quantity: {requestToReturn.quantity}</p>
+                <label className={styles.question} htmlFor="returnQuantity">Quantity to return:</label>
+                <input className={styles.input}
+                    type="number"
+                    id="returnQuantity"
+                    min="1"
+                    max={requestToReturn.quantity}
+                    value={returnQuantity}
+                    onChange={(e) => setReturnQuantity(parseInt(e.target.value))}
+                />
+                    <p className={styles.question}> Are you sure you want to return this equipment?</p>
+                    <div className={styles.modalButtons}>
+                        <button className={styles.accept} onClick={() => returnRequests(requestToReturn._id)}>Return</button>
+                        <button onClick={closeReturnModal}>Close</button>
                     </div>
-                )}
+                </div>
+            )}
             </Modal>
         </div>
     );

@@ -79,23 +79,20 @@ const Settings = () => {
 
 
       const handleEdit = (field, value) => {
-    
         if (field === 'contact' && !/^\+?\d*$/.test(value)) {
             return; 
         }
         if (field === 'password') {
             setPasswordEntered(value !== "" && value !== editUser.password); 
         }
-    
         setEditUser({...editUser, [field]: value});
-        
     };
+
     useEffect(() => {
         setPasswordChanged(passwordEntered && editUser?.password !== user?.password);
     }, [passwordEntered, editUser?.password, user?.password]);
 
     const handleSave = async () => {
-        
         try {
             
             let token = document.cookie
@@ -105,7 +102,6 @@ const Settings = () => {
             const { first_name, last_name, email, contact, username, password, position, confirm_password } = editUser;
             const isPasswordChanged = passwordEntered && (password !== user.password);
             setPasswordChanged(isPasswordChanged); 
-
             if (isPasswordChanged && (!password || !confirm_password)) {
                 toast.error("Please confirm password.");
                 return;
@@ -114,7 +110,6 @@ const Settings = () => {
                 toast.error("Passwords do not match. Please make sure both passwords match.");
                 return;
             }
-
             const editedUserData = {
                 first_name,
                 last_name,
@@ -124,7 +119,6 @@ const Settings = () => {
                 password,
                 position
             };
-    
             const response = await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `admin/settings/${userId}`, editedUserData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -138,8 +132,7 @@ const Settings = () => {
                     }, 2000);
                     setTimeout(() => {
                         handleLogout();
-                    }, 5000);
-                    
+                    }, 5000);   
                 } else {
                     toast.success("Profile updated successfully." , { duration: 2000 });
                     setTimeout(() => {
@@ -147,13 +140,12 @@ const Settings = () => {
                     }, 2000);
                 }
                 setUser(response.data.updatedUser);
-                
             } else {
                 toast.error("Failed to update profile.");
             }
         } catch (error) {
             console.error("Error updating profile:", error);
-            toast.error("Failed to update profile. Please try again later.");
+            toast.error(error.response.data.message , { duration: 3000 });
         }
     };
    
@@ -164,31 +156,27 @@ const Settings = () => {
         removeCookie('accessToken');
         localStorage.removeItem('user._id');
         clearHistoryAndRedirect();
-        
-      };
+    };
       
-      const clearHistoryAndRedirect = () => {
+    const clearHistoryAndRedirect = () => {
         router.replace('/auth/login');
-      };
-
+    };
 
     return (
         <div className={styles.container}>
-             
-            
             {loading ? (
                 <div className={styles.loading}>
                     <div className={styles.spinner}></div>
                 </div>
             ) : (
                 <div>
-                <div className={styles.title}>
-                         <h1>Settings</h1>
+                    <div className={styles.title}>
+                            <h1>Settings</h1>
+                            </div>
+                    <div className={styles.user}>
+                        <div className={styles.img}>
+                            <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50" />
                         </div>
-                <div className={styles.user}>
-                    <div className={styles.img}>
-                        <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50" />
-                    </div>
                         <div className={styles.userDetail}>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>First name:</p>
@@ -225,7 +213,6 @@ const Settings = () => {
                             </div>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Confirm:</p>
-                                
                                 <input
                                     className={styles.value}
                                     type={showConfirmPassword ? "text" : "password"}
@@ -237,34 +224,25 @@ const Settings = () => {
                                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                                 </span>
                             </div>
-
-
-                            
-
-                          
-
-
-                            
-
                             <div className={styles.detailItem}>
-                            <p>
-                                <span className={styles.label}>Position: </span>
-                                <span>
-                                <select
-                                    name="position"
-                                    value={editUser && editUser.position}
-                                    onChange={(e) => handleEdit('position', e.target.value)}
-                                    className={styles.value}
-                                >
-                                    <option value="Project manager">Project manager</option>
-                                    <option value="Software developer">Software developer</option>
-                                    <option value="Graphic designer">Graphic designer</option>
-                                    <option value="Financial accountant">Financial accountant</option>
-                                    <option value="DevOps Engineer">DevOps Engineer</option>
-                                    <option value="Junior Product Owner">Junior Product Owner</option>
-                                </select>
-                                </span>
-                            </p>
+                                <p>
+                                    <span className={styles.label}>Position: </span>
+                                    <span>
+                                    <select
+                                        name="position"
+                                        value={editUser && editUser.position}
+                                        onChange={(e) => handleEdit('position', e.target.value)}
+                                        className={styles.value}
+                                    >
+                                        <option value="Project manager">Project manager</option>
+                                        <option value="Software developer">Software developer</option>
+                                        <option value="Graphic designer">Graphic designer</option>
+                                        <option value="Financial accountant">Financial accountant</option>
+                                        <option value="DevOps Engineer">DevOps Engineer</option>
+                                        <option value="Junior Product Owner">Junior Product Owner</option>
+                                    </select>
+                                    </span>
+                                </p>
                             </div>
                             <div className={styles.detailItem}>
                                 <p className={styles.label}>Role:</p>
@@ -280,14 +258,11 @@ const Settings = () => {
                             </div>
                             <button className={styles.button} onClick={handleSave} disabled={JSON.stringify(user) === JSON.stringify(editUser)}>Save</button>                        
                         </div>
-                </div>
+                    </div>
                 </div>
             )}
-            
         </div>
-      
     );
-    
 };
 export default Settings;
 
