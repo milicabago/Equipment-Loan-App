@@ -271,6 +271,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
 
   if (req.body.password) {
+    // Check New Password is the same as the Current Password
+    const isSamePassword = await bcrypt.compare(req.body.password, user.password);
+    if (isSamePassword) {
+      res.status(400);
+      throw new Error("Enter a new password!");
+    }
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(req.body.password, salt);
   }
@@ -354,6 +360,12 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
   user.position = req.body.position || user.position;
 
   if (req.body.password) {
+    // Check New Password is the same as the Current Password
+    const isSamePassword = await bcrypt.compare(req.body.password, user.password);
+    if (isSamePassword) {
+      res.status(400);
+      throw new Error("Enter a new password!");
+    }
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(req.body.password, salt);
   }
