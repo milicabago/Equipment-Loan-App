@@ -265,7 +265,6 @@ const getPendingRequests = asyncHandler(async (req, res) => {
   // Dohvati ID trenutnog korisnika
   const userId = req.user.user._id;
 
-  console.log("ID: ", userId);
   // Pronađi sve zahtjeve koji su u statusu "pending"
   const requests = await Request.find({ user_id: userId, request_status: UserEquipmentStatus.PENDING }).sort({ assign_date: 1 });
 
