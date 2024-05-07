@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import { useRouter } from "next/navigation";
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 
 const RegisterPage = () => {
@@ -50,8 +51,11 @@ const RegisterPage = () => {
                 router.push('/auth/login');
             })
             .catch((error) => {
-                console.error("Registration error:", error.response ? error.response.data.message : error.message);
+                toast.error(error.response.data.message);
         });
+    };
+    const handleLogin = () => {
+        router.push("/auth/login");
     };
 
 
@@ -123,18 +127,11 @@ const RegisterPage = () => {
                                 <option className={styles.employee} value="Junior Product Owner">Junior Product Owner</option>
                             </select>
                             </label>
-
-                   
-
-                    
-
-
-                    
-
-                    </div><div className={styles.btn}>
-                        <button type="submit">Register</button>
                     </div>
-
+                    <div className={styles.btn}>
+                        <button type="submit">Register</button>
+                        <p className={styles.par}>Already have an account? {""} <a onClick={handleLogin} className={styles.login}>Login here</a></p>                   
+                    </div>
                 </form> 
                 </div>
             </div>

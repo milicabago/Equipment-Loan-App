@@ -24,27 +24,44 @@ const ResetPasswordPage = () => {
 
     const schema = yup.object().shape({
         password: yup.string().min(8).required("Password is required"),
-        confirmPassword: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Confirm password is required"),
-    });
+    confirmPassword: yup.string()
+        .oneOf([yup.ref("password"), null], "Passwords must match") 
+        .required("Confirm password is required"),
+});
     
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
-
-    const onSubmit = (data) => {
-        const token = router.query.token; 
-        axios
-            .post(process.env.NEXT_PUBLIC_BASE_URL + "resetPassword", { password: data.password, token })
-            .then(() => {
-                console.log("Password reset successful!");
-                toast.success("Password reset successful!");
-                router.push("/login");
-            })
-            .catch((error) => {
-                console.error("Password reset error:", error.response.data.message);
-                toast.error(error.response.data.message);
-            });
+    
+    const onSubmit = async (data) => {
+        try {
+            const pathSegments = window.location.pathname.split("/");
+            const userId = pathSegments[pathSegments.length - 2];
+            const token = pathSegments.pop();
+            const config = {
+                headers: { Authorization: `Bearer ${token}` }
+            };
+    
+            const response = await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `resetPassword/${userId}/${token}`, { newPassword: data.password }, config);
+            
+            if (response.status === 200) {
+                toast.success("Password reset successful!", { duration: 3000 });
+                setTimeout(() => {
+                    router.push("/auth/login");
+                }, 3000);
+            } else {
+                toast.error("Password reset failed. Please try again later.");
+            }
+        } catch (error) {
+            console.error("Password reset error:", error);
+            if (error.response) {
+                toast.error('token' +error.response.data.message);
+            } else {
+                toast.error("Password reset failed. Please try again later.");
+            }
+        }
     };
+
 
     return (
         <div className={styles.container}>
@@ -54,7 +71,7 @@ const ResetPasswordPage = () => {
                 <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>Reset Password</span>
-                        <span className={styles.desc}></span> 
+                        <span className={styles.desc}>Now you can reset your password by entering your new password.</span> 
                     </div>
                     <label className={styles.password}>Password:
                     <p>{errors.password?.message}</p>

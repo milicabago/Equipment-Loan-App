@@ -72,8 +72,6 @@ const LoginPage = (data) => {
                 const userRole = decodedToken.user.role; 
 
                 setCookies('accessToken', token);
-                window.localStorage.setItem('user._id', decodedToken.user._id);
-
                 if (userRole === "admin") {
                     router.push("/admin");
                 } else if (userRole === "user") {
@@ -119,11 +117,11 @@ const LoginPage = (data) => {
                 <div className={styles.btn}>
                       
                     <div className={styles.box}>
-                    <a onClick={handleForgotPassword} className={styles.forgot}>Forgot Password?</a>
+                        <a onClick={handleForgotPassword} className={styles.forgot}>Forgot Password?</a>
                     </div>
                     
                     <button type="submit">Login</button>
-                    <p className={styles.p}>Don't have an account? {""} <a onClick={handleSignUp} className={styles.signUp}>Register here</a></p>
+                    <p className={styles.p}>Don`t have an account? {""} <a onClick={handleSignUp} className={styles.signUp}>Register here</a></p>
                 </div>   
             </form> 
             </div>

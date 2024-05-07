@@ -7,8 +7,6 @@ import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
-
-
 import {
     MdDashboard,
     MdShoppingBag,
@@ -96,7 +94,7 @@ const handleLogout = () => {
   setFirstName(null);
   setLastName(null);
   setRole(null);
-  removeCookie('accessToken');
+  removeCookie('accessToken'); 
   localStorage.removeItem('user._id');
   clearHistoryAndRedirect();
   

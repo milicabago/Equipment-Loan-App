@@ -18,10 +18,12 @@
     color: var(--text);
     font-weight: bold;
     text-transform: capitalize;
+    font-size: 20px;
+    text-align: center;
 }
 
 .menu{
-    flex: 3;
+    flex: 1;
     display: flex;  
     align-items: center;
     justify-content: space-between;

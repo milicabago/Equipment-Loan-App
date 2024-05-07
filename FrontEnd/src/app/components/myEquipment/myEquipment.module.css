@@ -4,14 +4,38 @@
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
-
 .title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
+  display: flex;
   color: #ffffff;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
   
+.search{
+  display: flex;
+  justify-content: right;
+  margin-right: auto;
+  margin: 0 20px;
+  background-color: transparent;
+  backdrop-filter: blur(0px);
+  border:none;
+  width: auto;
+}
+
+.input{
+  background-color: transparent;
+  border: none !important;
+  border-bottom: 1px solid #4b5dac!important;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+  text-align: right;  
+}
 .table {
   width: 100%;
   background-color: none;
@@ -21,6 +45,7 @@
   border-spacing: 0;
 }
   
+
 .table th,
 .table td {
   border: 1px solid #000000;

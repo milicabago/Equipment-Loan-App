@@ -71,6 +71,7 @@
   cursor: pointer;
   border-radius: 25px;
   margin-bottom: 50px;
+  margin-top: 10px;
 }
 
 .background {
@@ -86,3 +87,21 @@
 .btn{
   width: 100%;
 }
+
+.p{
+  text-align: center;
+  color: white;
+  font-style: italic;
+  font-size: 16x;
+  margin-bottom: 40px;
+  cursor: auto;
+}
+
+.login{
+  align-items: center;
+  font-size: 17px;
+  color: #769eee;
+  font-style: italic;
+  cursor: pointer;
+}
+

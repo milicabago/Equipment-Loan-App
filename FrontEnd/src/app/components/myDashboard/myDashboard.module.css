@@ -6,7 +6,7 @@
 }
 
 .title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 40px;
@@ -76,22 +76,19 @@
 .assign_date{
     font-style: italic;
 }
-/*.status{
-  position: relative;
-  display: inline-block;
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: var(--button);
-  color: #ffffff;
-  border-radius: 5px;
-  
-}*/
+
 
 .actions {
   display: flex;
   gap: 8px;
 }
-  
+.empty {
+  padding: 50px;
+  font-size: 20px;
+  text-align: center;
+  margin-top: 20px;
+  font-style: italic;
+}
 
 
 .actions button {

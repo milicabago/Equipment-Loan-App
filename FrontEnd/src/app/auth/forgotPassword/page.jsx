@@ -8,11 +8,12 @@ import styles from './page.module.css';
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
+    const router = useRouter();
+
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email) {
@@ -21,7 +22,7 @@ const ForgotPasswordPage = () => {
         }
         try {
             await axios.post(process.env.NEXT_PUBLIC_BASE_URL + "forgotPassword", { email });
-            toast.success("Reset password link sent to your email address. Please check your inbox!", {duration: 3000});
+            toast.success("Reset password link sent to your email.");
         } catch (error) {
             console.error("Forgot password error:", error.response ? error.response.data.message : error.message);
             if (error.response) {
@@ -30,6 +31,10 @@ const ForgotPasswordPage = () => {
                 toast.error("Network error. Please check your Internet connection and try again!");
             }
         }
+    };
+
+    const handleLogin = () => {
+        router.push("/auth/login");
     };
 
     return (
@@ -43,7 +48,7 @@ const ForgotPasswordPage = () => {
                 <form onSubmit={handleSubmit} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>Forgot Password</span>
-                        <span className={styles.desc}>Enter your email and we'll send you a link to reset your password.</span>
+                        <span className={styles.desc}>Enter your email and we`ll send you a link to reset your password.</span>
                     </div>
                     <label className={styles.email}>Email:
                         <input 
@@ -54,7 +59,9 @@ const ForgotPasswordPage = () => {
                             autoComplete="off"                         />
                     </label>
                     <div className={styles.btn}>
+                        
                         <button type="submit">Submit</button>
+                        <p className={styles.p}>Cancel and go back to {""} <a onClick={handleLogin} className={styles.login}>Login</a></p>
                     </div>
                 </form>
             </div>

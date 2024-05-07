@@ -7,7 +7,6 @@ import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
-
 const MyDashboard = () => {
     const [requests, setRequests] = useState([]);
     const [isUser, setIsUser] = useState(false);
@@ -135,11 +134,11 @@ const MyDashboard = () => {
             <div className={styles.loading}>
                 <div className={styles.spinner}></div>
             </div>
-        ) : (
+        ) : requests.length > 0 ? (
             <div>
                 <div className={styles.title}>
                   <h1>Assigned Equipment</h1>
-                 </div>
+                </div>
 
                 <table className={styles.table}>
                     <thead>
@@ -159,8 +158,7 @@ const MyDashboard = () => {
                                     <td className={styles.equipment_info}>{request.equipment_info ? request.equipment_info.name : user.name}</td>                                    
                                     <td className={styles.quantity}>{request.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
-                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>
-                                        {request.request_status === 'active' ? 'Active' : request.request_status}
+                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>{request.request_status === 'active' ? 'Active' : request.request_status}
                                     </td>
                                     <td>
                                     <button className={styles.return} onClick={() => openReturnModal(request)}>Return</button>
@@ -172,6 +170,10 @@ const MyDashboard = () => {
                     </tbody>
                 
                 </table>
+            </div>
+        ):(
+            <div>
+                <h1 className={styles.empty}>No assigned equipment at the moment.</h1>
             </div>
             
 

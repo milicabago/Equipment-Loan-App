@@ -41,14 +41,11 @@ const EquipmentHistory = () => {
                 <div className={styles.loading}>
                     <div className={styles.spinner}></div>
                 </div>
-            ) : (
+            ) : history.length > 0 ? (
                 <div>
                 <div className={styles.title}>
                     <h1>Equipment History</h1>
                 </div>
-                {history.length === 0 ? (
-                    <p>No equipment history available</p>
-                    ) : (
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -74,8 +71,11 @@ const EquipmentHistory = () => {
                                 ))}
                         </tbody>
                     </table>
-                 )}
                 </div>
+                ):(
+                    <div>
+                        <h1 className={styles.empty}>The equipment loan history is empty.</h1>
+                    </div>
             )}
         </div>
 
