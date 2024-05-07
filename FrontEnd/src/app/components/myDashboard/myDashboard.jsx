@@ -18,6 +18,10 @@ const MyDashboard = () => {
     const [returnModalIsOpen, setReturnModalIsOpen] = useState(false);
     const [returnQuantity, setReturnQuantity] = useState(1);
     const [currentQuantity, setCurrentQuantity] = useState();
+    const [equipmentToCancel, setEquipmentToCancel] = useState(null);
+    const [cancelModalIsOpen, setCancelModalIsOpen] = useState(false);
+    const [equipmentQuantity, setEquipmentQuantity] = useState(1);
+    const [pendingRequests, setPendingRequests] = useState([]);
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -52,6 +56,14 @@ const MyDashboard = () => {
                 console.error("Error:", error);
                 setLoading(false);
             }); 
+            axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/equipment/pendingRequests" , config)
+            .then((response) => {
+                setPendingRequests(response.data);
+                console.log("Pending Requests:", response.data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
             
         }
     }, [cookies.accessToken]);
@@ -110,6 +122,39 @@ const MyDashboard = () => {
         }
     };
 
+    const cancelRequest = async (equipmentId) => {
+        try {
+            let token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('accessToken'))
+            .split('=')[1];
+            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/request/${equipmentId}`, 
+                {   
+                    equipment_id: equipmentId
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+            setEquipment(prevEquipment => prevEquipment.map(equipment => {
+                if (equipment._id === equipmentId) {    
+                    return { ...equipment, input_quantity: equipmentQuantity };
+                }
+                return equipment;
+            }));
+            closeCancelModal();
+            toast.success('Request cancelled successfully!', { duration: 3000 } );
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
+
+
     const openReadModal = (request) => {
         setRequestToRead(request);
         setReadModalIsOpen(true);
@@ -126,6 +171,15 @@ const MyDashboard = () => {
     const closeReturnModal = () => {
         setRequestsToReturn(null);
         setReturnModalIsOpen(false);
+    };
+
+    const openCancelModal = (equipment) => {
+        setEquipmentToCancel(equipment);
+        setCancelModalIsOpen(true);
+    };
+        const closeCancelModal = () => {
+        setEquipmentToCancel(null);
+        setCancelModalIsOpen(false);
     };
     
     return (
@@ -158,8 +212,7 @@ const MyDashboard = () => {
                                     <td className={styles.equipment_info}>{request.equipment_info ? request.equipment_info.name : user.name}</td>                                    
                                     <td className={styles.quantity}>{request.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
-                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>{request.request_status === 'active' ? 'Active' : request.request_status}
-                                    </td>
+                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>{request.request_status === 'active' ? 'Active' : request.request_status}</td>
                                     <td>
                                     <button className={styles.return} onClick={() => openReturnModal(request)}>Return</button>
                                         <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
@@ -169,6 +222,31 @@ const MyDashboard = () => {
                         
                     </tbody>
                 
+                </table>
+                <table className={styles.table}>
+                <thead>
+                        <tr className={styles.pending}>
+                            <th>EQUIPMENT</th>
+                            <th>QUANTITY</th>
+                            <th>ASSIGN DATE</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pendingRequests.map(request => (
+                            
+                            <tr key={request._id}>
+                                <td className={styles.name}>{request.equipment_info.name}</td>
+                                <td className={styles.quantity}>{request.quantity}</td>
+                                <td className={styles.assign_date}>{formatDate(request.createdAt)}</td>
+                                <td className={`${styles.status} ${request.request_status === 'pending' ? styles.active : ''}`}>{request.request_status === 'pending' ? 'Pending..' : request.request_status}</td>
+                                <td className={styles.button}>
+                                <button className={styles.seeMore} onClick={() => openCancelModal(request)}>Cancel</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
             </div>
         ):(
@@ -229,6 +307,23 @@ const MyDashboard = () => {
                     </div>
                 </div>
             )}
+            </Modal>
+            <Modal
+                isOpen={cancelModalIsOpen}
+                onRequestClose={closeCancelModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Cancel Assigment Modal" >
+                <h2 className={styles.modalTitle}>Cancel Assigment</h2>
+                {equipmentToCancel && (
+                    <div>
+                        <p className={styles.question}> Are you sure you want to cancel this request?</p>
+                        <div className={styles.modalButtons}>
+                            <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Cancel</button>
+                            <button onClick={closeCancelModal}>Close</button>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </div>
     );

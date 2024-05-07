@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 const LoginPage = (data) => {
     const [role, setRole] = useState(null);
     const router = useRouter();
-    const [cookies, setCookies] = useCookies(['accessToken']);
+    const [cookies, setCookie]  = useCookies(['accessToken']);
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -71,7 +71,7 @@ const LoginPage = (data) => {
                 const decodedToken = jwtDecode(token); 
                 const userRole = decodedToken.user.role; 
 
-                setCookies('accessToken', token);
+                setCookie ('accessToken', token);
                 if (userRole === "admin") {
                     router.push("/admin");
                 } else if (userRole === "user") {

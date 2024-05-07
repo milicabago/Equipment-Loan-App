@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
+import { MdSearch } from "react-icons/md";
 
 const Equipment = () => {
     const [equipment, setEquipment] = useState([]);
@@ -22,6 +23,8 @@ const Equipment = () => {
     const [equipmentToRead, setEquipmentToRead] = useState(null);
     const [readModalIsOpen, setReadModalIsOpen] = useState(false);
     const [editedEquipmentData, setEditedEquipmentData] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredEquipment, setFilteredEquipment] = useState([]);
 
     useEffect(() => {
         const token = cookies.accessToken;
@@ -142,50 +145,70 @@ const Equipment = () => {
             headers: {
               'Authorization': 'Bearer ' + cookies.accessToken
             }
-          };
-          const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment/${itemId}` , config);
-          setEquipmentToDelete(response.data);
-          setDeleteModalIsOpen(true);
-          
-        } catch (error) {
-          console.error("Error:", error);
-          toast.error('Error fetching item data!');
-        }
-      };
-      const closeDeleteModal = () => {
+        };
+        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment/${itemId}` , config);
+        setEquipmentToDelete(response.data);
+        setDeleteModalIsOpen(true);
+        
+    } catch (error) {
+        console.error("Error:", error);
+        toast.error('Error fetching item data!');
+    }
+    };
+    const closeDeleteModal = () => {
         setDeleteModalIsOpen(false);
         setEquipmentToDelete(null);
-      };
+    };
 
 
-      const openEditModal = (item) => {
+    const openEditModal = (item) => {
         setEquipmentToEdit(item);
         setEditedEquipmentData(item);
         setEditModalIsOpen(true);
-      };
-      const closeEditModal = () => {
+    };
+    const closeEditModal = () => {
         setEquipmentToEdit(null);
         setEditModalIsOpen(false);
-      };
+    };
 
-      const openReadModal = (equipment) => {
-        const equipmentWithBooleanCondition = {
-            ...equipment,
-            condition: equipment.condition === "true" ? true : false
-        };
+    const openReadModal = (equipment) => {
+    const equipmentWithBooleanCondition = {
+        ...equipment,
+        condition: equipment.condition === "true" ? true : false
+    };
         setEquipmentToRead(equipment);
         setReadModalIsOpen(true);
-      };
-      const closeReadModal = () => {
+    };
+    const closeReadModal = () => {
         setEquipmentToRead(null);
         setReadModalIsOpen(false);
-      };
+    };
+    
+    useEffect(() => {
+        const filtered = equipment.filter(item =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredEquipment(filtered);
+    }, [searchTerm, equipment]);
 
     return (
         <div className={styles.container}>
              <div>
                 <div className={styles.title}>
                     <h1>Equipment</h1>
+                </div>
+                <div>
+                    <div className={styles.search}>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className={styles.inputs}
+                        />
+                        <MdSearch className={styles.searchIcon}/>
+                    </div>
                 </div>
                 <table className={styles.table}>
                     <thead>
@@ -197,7 +220,7 @@ const Equipment = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {equipment.map(item => (
+                        {filteredEquipment.map(item => (
                         <tr key={item._id}>
                             <td className={styles.name}>{item.name}</td>
                             <td className={styles.model}>{item.full_name}</td>

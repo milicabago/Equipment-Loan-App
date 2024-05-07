@@ -5,13 +5,53 @@
   cursor: pointer;
 }
 
+  
 .title {
   font-size: 20px;
   font-weight: bold;
+  display: flex;
   color: #ffffff;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
   
+.search{
+  display: flex;
+  position: relative;
+  justify-content: right;
+  margin-right: auto;
+  margin: 0 20px;
+  background-color: transparent;
+  backdrop-filter: blur(0px);
+  border:none;
+  width: auto;
+}
+
+.inputs{
+  background-color: transparent;
+  border: none !important;
+  border-bottom: 1px solid #4b5dac!important;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+  text-align: right;  
+  padding-right: 30px;
+}
+.searchIcon {
+  position: absolute;
+  right: 5px; 
+  top: 40%; 
+  transform: translateY(-50%);
+  cursor: pointer; 
+  font-size: 20px; 
+}
+.inputs::placeholder {
+  color: var(--textSoft);
+}
+
 .table {
   width: 100%;
   background-color: none;
@@ -20,7 +60,7 @@
   border-collapse: separate;
   border-spacing: 0;
 }
-  
+
 .table th,
 .table td {
   border: 1px solid #000000;
@@ -30,37 +70,74 @@
   vertical-align: middle;
   border: none;
 }
-  
+
 .table th:first-child {
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
 }
-  
+
 .table th:last-child {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
 }
-  
+
 .table th {
   background-color: var(--button);
 }
-  
-.name{
-  font-size: 16px;
+
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.photo {
+  margin-right: 10px;
+}
+
+.photoImg {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.details {
+  overflow: hidden;
+}
+
+.name {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.email {
+  color: #ffffff;
+}
+
+.userRole {
+  font-style: italic;
+
+}
+
+.role {
+  font-style: italic;
+  color: #ffffff;
   font-weight: bold;
 }
 
-.model
-{
+.position {
   font-style: italic;
+}
+
+.status {
+  font-weight: bold;
+  color: #44516d;
 }
 
 .actions {
   display: flex;
   gap: 8px;
 }
-  
-
 
 .actions button {
   padding: 8px 12px;
@@ -151,6 +228,7 @@
   color: #000000;
   border-bottom: 1px solid var(--button);
   font-style: italic;
+
 }
 .input {
   border: none;

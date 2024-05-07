@@ -30,30 +30,3 @@
     gap: 20px;
 }
 
-.search{
-    flex: 3;
-    display: flex;
-    width: 70%;
-    gap: 10px;
-    background-color: transparent;
-    backdrop-filter: blur(0px);
-    border: 1px inset #4b5dac;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.input{
-    background-color: transparent;
-    border: none;
-    color: var(--text);
-    width: 100%;
-    outline: none;
-    font-size: 14px;
-}
-
-.icons{
-    flex: 1;
-    display: flex;  
-    justify-content: space-around;    
-    gap: 5px;
-}

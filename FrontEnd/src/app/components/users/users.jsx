@@ -6,6 +6,7 @@ import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Modal from 'react-modal';
+import { MdSearch } from "react-icons/md";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -18,6 +19,8 @@ const Users = () => {
   const [readModalIsOpen, setReadModalIsOpen] = useState(false);
   const [editedUserData, setEditedUserData] = useState({});
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const formattedDate = date.toLocaleDateString();
@@ -167,13 +170,33 @@ const Users = () => {
     setUserToEdit(null);
     setEditModalIsOpen(false);
   };
+
+  useEffect(() => {
+    const filtered = users.filter(item =>
+        item.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+}, [searchTerm, users]);
         
   return (
     <div className={styles.container}>
       <div className={styles.title}>
-        <h1>Korisnici</h1>
+        <h1>All users</h1>
       </div>
       <div>
+      <div>
+            <div className={styles.search}>
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={styles.inputs}
+                />
+                <MdSearch className={styles.searchIcon}/>
+            </div>
+        </div>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -184,7 +207,7 @@ const Users = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {filteredUsers.map(user => (
               <tr key={user._id}>
                 <td className={styles.profile}>
                   <div className={styles.photo}>

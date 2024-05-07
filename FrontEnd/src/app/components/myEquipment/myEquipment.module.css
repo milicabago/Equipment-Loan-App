@@ -17,6 +17,7 @@
   
 .search{
   display: flex;
+  position: relative;
   justify-content: right;
   margin-right: auto;
   margin: 0 20px;
@@ -26,7 +27,7 @@
   width: auto;
 }
 
-.input{
+.inputs{
   background-color: transparent;
   border: none !important;
   border-bottom: 1px solid #4b5dac!important;
@@ -35,6 +36,18 @@
   outline: none;
   font-size: 16px;
   text-align: right;  
+  padding-right: 30px;
+}
+.searchIcon {
+  position: absolute;
+  right: 5px; 
+  top: 40%; 
+  transform: translateY(-50%);
+  cursor: pointer; 
+  font-size: 20px; 
+}
+.inputs::placeholder {
+  color: var(--textSoft);
 }
 .table {
   width: 100%;

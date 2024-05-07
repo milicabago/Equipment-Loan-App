@@ -49,7 +49,6 @@ const EquipmentHistory = () => {
                     <table className={styles.table}>
                         <thead>
                             <tr>
-                                <th>USER</th>
                                 <th>EQUIPMENT</th>
                                 <th>QUANTITY</th>
                                 <th>ASSIGN DATE</th>
@@ -60,10 +59,8 @@ const EquipmentHistory = () => {
                         <tbody>
                         {history.map(item => (
                                     <tr key={item._id}>
-                                        <td>{item.user_id}</td>
                                         <td>{item.equipment_info ? item.equipment_info.name : 'Unknown'}</td>
-                                        <td>{item.equipment_id}</td>
-                                        <td>{item.unassigned_quantity}</td>
+                                        <td>{item.equipment_info.quantity}</td>
                                         <td>{formatDate(item.createdAt)}</td>
                                         <td>{formatDate(item.assign_date)}</td>
                                         <td>{item.return_status_request}</td>

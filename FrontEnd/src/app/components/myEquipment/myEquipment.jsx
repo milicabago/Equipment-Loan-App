@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
+import { MdSearch } from "react-icons/md";
 
 const MyEquipment = () => {
     const [equipment, setEquipment] = useState([]);
@@ -15,11 +16,7 @@ const MyEquipment = () => {
     const [equipmentToAssign, setEquipmentToAssign] = useState(null);
     const [assignModalIsOpen, setAssignModalIsOpen] = useState(false);
     const [assignQuantity, setAssignQuantity] = useState(1);
-    const [equipmentToCancel, setEquipmentToCancel] = useState(null);
-    const [cancelModalIsOpen, setCancelModalIsOpen] = useState(false);
-    const [equipmentQuantity, setEquipmentQuantity] = useState(1);
     const [currentQuantity] = useState(); 
-    const [pendingRequests, setPendingRequests] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredEquipment, setFilteredEquipment] = useState([]);
 
@@ -41,15 +38,6 @@ const MyEquipment = () => {
             console.error("Error:", error);
             setLoading(false);
           });
-
-          axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/equipment/pendingRequests" , config)
-            .then((response) => {
-                setPendingRequests(response.data);
-                console.log("Pending Requests:", response.data);
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
     }, [cookies.accessToken]);
 
       
@@ -105,38 +93,6 @@ const MyEquipment = () => {
         }
     };
 
-    const cancelRequest = async (equipmentId) => {
-        try {
-            let token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('accessToken'))
-            .split('=')[1];
-            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/request/${equipmentId}`, 
-                {   
-                    equipment_id: equipmentId
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
-            setEquipment(prevEquipment => prevEquipment.map(equipment => {
-                if (equipment._id === equipmentId) {    
-                    return { ...equipment, input_quantity: equipmentQuantity };
-                }
-                return equipment;
-            }));
-            closeCancelModal();
-            toast.success('Request cancelled successfully!', { duration: 3000 } );
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-
-        } catch (error) {
-            toast.error(error.response.data.message);
-        }
-    };
-
     const openReadModal = (equipment) => {
     const equipmentWithBooleanCondition = {
         ...equipment,
@@ -157,15 +113,6 @@ const MyEquipment = () => {
     const closeAssignModal = () => {
     setEquipmentToAssign(null);
     setAssignModalIsOpen(false);
-    };
-
-    const openCancelModal = (equipment) => {
-        setEquipmentToCancel(equipment);
-        setCancelModalIsOpen(true);
-    };
-        const closeCancelModal = () => {
-        setEquipmentToCancel(null);
-        setCancelModalIsOpen(false);
     };
 
 
@@ -195,8 +142,9 @@ const MyEquipment = () => {
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className={styles.input}
+                        className={styles.inputs}
                     />
+                    <MdSearch className={styles.searchIcon}/>
                 </div>
             </div>
                 <table className={styles.table}>
@@ -222,34 +170,6 @@ const MyEquipment = () => {
                         ))}
                     </tbody>
                 </table>
-                <table className={styles.table}>
-                <thead>
-                        <tr className={styles.pending}>
-                            <th>NAME</th> 
-                            <th>MODEL</th>
-                            <th>QUANTITY</th>
-                            <th>STATUS</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {pendingRequests.map(request => (
-                            
-                            <tr key={request._id}>
-                                <td className={styles.name}>{request.equipment_info.name}</td>
-                                <td className={styles.model}>{request.equipment_info.full_name}</td>
-                                <td className={styles.quantity}>{request.equipment_info.quantity}</td>
-                                <td className={styles.status}>{request.equipment_info.request_status}</td>
-                                <td className={styles.button}>
-                                <button className={styles.seeMore} onClick={() => openCancelModal(request)}>Cancel</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                
-
             </div>
         )}
         <Modal
@@ -301,24 +221,6 @@ const MyEquipment = () => {
                     </div>
                 </div>
             )}
-        </Modal>
-
-        <Modal
-        isOpen={cancelModalIsOpen}
-        onRequestClose={closeCancelModal}
-        className={styles.modal}
-        overlayClassName={styles.overlay}
-        contentLabel="Cancel Assigment Modal" >
-        <h2 className={styles.modalTitle}>Cancel Assigment</h2>
-        {equipmentToCancel && (
-            <div>
-                <p className={styles.question}> Are you sure you want to cancel this request?</p>
-                <div className={styles.modalButtons}>
-                    <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Cancel</button>
-                    <button onClick={closeCancelModal}>Close</button>
-                </div>
-            </div>
-        )}
         </Modal>
         </div>
     )

@@ -5,13 +5,52 @@
   cursor: pointer;
 }
 
+  
 .title {
   font-size: 20px;
   font-weight: bold;
+  display: flex;
   color: #ffffff;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+  
+.search{
+  display: flex;
+  position: relative;
+  justify-content: right;
+  margin-right: auto;
+  margin: 0 20px;
+  background-color: transparent;
+  backdrop-filter: blur(0px);
+  border:none;
+  width: auto;
 }
 
+.inputs{
+  background-color: transparent;
+  border: none !important;
+  border-bottom: 1px solid #4b5dac!important;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+  text-align: right;  
+  padding-right: 30px;
+}
+.searchIcon {
+  position: absolute;
+  right: 5px; 
+  top: 40%; 
+  transform: translateY(-50%);
+  cursor: pointer; 
+  font-size: 20px; 
+}
+.inputs::placeholder {
+  color: var(--textSoft);
+}
 .table {
   width: 100%;
   background-color: none;
