@@ -33,7 +33,6 @@ const EquipmentSchema = new mongoose.Schema(
   }
 );
 
-// Equipment --> podrazumijeva kolekciju u bazi podataka equipments
 const EquipmentModel = mongoose.model("equipment", EquipmentSchema);
 
 module.exports = EquipmentModel;

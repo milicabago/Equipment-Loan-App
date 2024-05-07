@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+/** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
 const UserEquipmentSchema = new mongoose.Schema(
@@ -48,9 +49,6 @@ const UserEquipmentSchema = new mongoose.Schema(
   }
 );
 
-const UserEquipmentModel = mongoose.model(
-  "user_equipment",
-  UserEquipmentSchema
-);
+const UserEquipmentModel = mongoose.model("user_equipment", UserEquipmentSchema);
 
 module.exports = UserEquipmentModel;

@@ -87,7 +87,10 @@ const getAllPendingRequests = asyncHandler(async (req, res) => {
     if (equipment) {
       request.equipment_info = {
         name: equipment.name,
-        serial_number: equipment.serial_number
+        full_name: equipment.full_name,
+        serial_number: equipment.serial_number,
+        quantity: equipment.quantity,
+        request_status: equipment.request_status
       };
     }
   }

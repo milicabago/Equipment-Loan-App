@@ -11,8 +11,10 @@ const { checkAdmin, checkUser } = require("../middleware/checkRoleHandler");
 router.post("/login", loginUser);
 router.post("/register", registerOrCreateUser);
 router.post("/forgotPassword", forgotPassword);
-router.patch("/resetPassword", validateToken, resetPassword);
-router.get("/current", validateToken, currentUser); // Test route
+router.patch("/resetPassword/:userId/:token", validateToken, resetPassword);
+
+/** Test route **/
+router.get("/current", validateToken, currentUser);
 
 /** Routes for ADMIN **/
 router.use("/admin", validateToken, checkAdmin, require("./adminRoutes"));

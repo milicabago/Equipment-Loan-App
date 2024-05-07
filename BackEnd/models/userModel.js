@@ -46,6 +46,6 @@ const UserSchema = new mongoose.Schema(
 
 // "User" --> podrazumijeva kolekciju u bazi podataka users
 // Ako nismo prethodno stvorili kolekciju "users", MongoDB će je stvoriti
-const UserModel = mongoose.model("User", UserSchema);
+const UserModel = mongoose.model("users", UserSchema);
 
 module.exports = UserModel;
