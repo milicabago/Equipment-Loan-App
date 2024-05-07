@@ -54,6 +54,7 @@
   text-align: left;
   vertical-align: middle;
   border: none;
+  text-align: center;
 }
 
 .table th:first-child {
@@ -64,19 +65,28 @@
 .table th:last-child {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
+  text-align: center;
 }
 
 .table th {
   background-color: var(--button);
+}
+.table .quantity {
+  text-align: center;
 }
 
 .user_info,
 .equipment_info,
 .quantity,
 .assign_date{
-    font-style: italic;
+  white-space: nowrap;
 }
-
+.table .status{
+  color: var(--button);
+}
+.table .request_status{
+  color: gray;
+}
 
 .actions {
   display: flex;
@@ -100,12 +110,10 @@
   color: #007bff;
 }
 
-.delete:hover {
-  background-color: var(--button);
-}
-
-.edit:hover {
-  background-color: var(--button);
+.return:hover,
+.cancel:hover,
+.seeMore:hover {
+  background-color: black;
 }
 
 .modal {
@@ -207,3 +215,23 @@
   font-size: 16px; 
   box-sizing: border-box; 
 }
+.seeMore{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid var(--button);
+  color: var(--button);  
+  margin-left: 10px;
+}
+.return{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid green;
+  color: green;
+}
+.cancel{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid orangered;
+  color: orangered;
+}
+

@@ -141,7 +141,7 @@ const Settings = () => {
                 }
                 setUser(response.data.updatedUser);
             } else {
-                toast.error("Failed to update profile.");
+                toast.error(error.response.data.message );
             }
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -175,7 +175,7 @@ const Settings = () => {
                             </div>
                     <div className={styles.user}>
                         <div className={styles.img}>
-                            <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50" />
+                            <Image className={styles.userImage} src="/user.png" alt="" width="50" height="50" />
                         </div>
                         <div className={styles.userDetail}>
                             <div className={styles.detailItem}>

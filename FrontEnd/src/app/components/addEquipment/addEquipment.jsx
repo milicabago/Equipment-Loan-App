@@ -35,6 +35,10 @@ const AddEquipment = (data) => {
 
     const onSubmit = async (data) => {
         try {
+            if (data.contact && !/^\+?\d+$/.test(data.contact)) {
+                toast.error('Invalid contact number!', { duration: 3000 });
+                return;
+            }
             let token = document.cookie
                 .split('; ')
                 .find(row => row.startsWith('accessToken'))
@@ -58,7 +62,6 @@ const AddEquipment = (data) => {
         } catch (error) {
             toast.error(error.response.data.message , { duration: 3000 });
         }
-        reset();
     };
 
     return(

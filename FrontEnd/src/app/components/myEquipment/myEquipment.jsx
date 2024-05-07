@@ -161,9 +161,9 @@ const MyEquipment = () => {
                             <tr key={item._id}>
                                 <td className={styles.name}>{item.name}</td>
                                 <td className={styles.model}>{item.full_name}</td>
-                                <td className={styles.serial_number}>{item.quantity}</td>
+                                <td className={styles.quantity}>{item.quantity}</td>
                                 <td className={styles.button}>
-                                <button className={styles.return} onClick={() => openAssignModal(item)}>Assign</button>
+                                <button className={styles.assign} onClick={() => openAssignModal(item)}>Assign</button>
                                 <button className={styles.seeMore} onClick={() => openReadModal(item)}>See More</button>
                                 </td>
                             </tr>
@@ -216,7 +216,7 @@ const MyEquipment = () => {
                     />
                     <p className={styles.question}> Are you sure you want to assign this equipment?</p>
                     <div className={styles.modalButtons}>
-                        <button className={styles.accept} onClick={() => assignEquipment(equipmentToAssign._id)}>Assign</button>
+                        <button onClick={() => assignEquipment(equipmentToAssign._id)}>Assign</button>
                         <button onClick={closeAssignModal}>Close</button>
                     </div>
                 </div>

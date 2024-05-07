@@ -9,20 +9,21 @@
   font-size: 20px;
   font-weight: bold;
   color: #ffffff;
+  margin-top: 20px;
   margin-bottom: 40px;
 }
 
 .loading {
   position: absolute;
-  top: 50%;
+  top: 20%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
 }
     
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: 4px solid #f3f3f3;
   border-top: 4px solid #3498db;
@@ -62,41 +63,38 @@
 .table th:last-child {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
+  text-align: center;
 }
 
 .table th {
   background-color: var(--button);
 }
-
-.user_info,
-.equipment_info,
-.quantity,
-.assign_date{
-  font-style: italic;
+.table .quantity, .status{
+  text-align: center;
 }
 
-
+.status{
+  color: var(--button) !important;
+}
 .actions {
   display: flex;
   gap: 8px;
 }
+
+.user,
+.equipment,
+.quantity,
+.assign_date,
+.status,
+.action{
+  white-space: nowrap;}
   
-
-.actions button {
-  padding: 8px 12px;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  font-size: 14px;
-  color: #007bff;
+.seeMore:hover {
+  background-color: black;
 }
 
-.delete:hover {
-  background-color: var(--button);
-}
-
-.edit:hover {
-  background-color: var(--button);
+.return:hover {
+  background-color: black;
 }
 
 .modal {
@@ -153,7 +151,6 @@
   background-color: #e74c3c;
 }
 
-
 .modalContent{
   display: flex;
   flex-direction: column;
@@ -195,4 +192,19 @@
   border-radius: 4px;
   font-size: 16px; 
   box-sizing: border-box; 
+}
+
+.seeMore{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid var(--button);
+  color: var(--button);
+  margin-left: 10px;
+  
+}
+.return{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid orangered;
+  color: orangered;
 }

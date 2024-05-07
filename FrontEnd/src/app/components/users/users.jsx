@@ -202,7 +202,7 @@ const Users = () => {
             <tr>
               <th>NAME</th>
               <th>ROLE</th>
-              <th>STATUS</th>
+              <th>CONTACT</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
@@ -225,7 +225,8 @@ const Users = () => {
                   </div>
                 </td>
                 <td>
-                  <div className={styles.status}>Active</div>
+                  <div className={styles.contact}>{user.contact ? (user.contact) : (<span className={styles.italic}>none</span>)}
+                    </div>
                 </td>
                 <td>
                   <button className={styles.edit} onClick={() => openEditModal(user)}>Edit</button>

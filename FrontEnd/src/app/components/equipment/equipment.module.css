@@ -79,12 +79,16 @@
 .table th:last-child {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
+  text-align: center;
+
 }
 
 .table th {
   background-color: var(--button);
 }
-
+.table .quantity {
+  text-align: center;
+}
 
 .profile {
   display: flex;
@@ -148,12 +152,10 @@
   color: #007bff;
 }
 
-.delete:hover {
-  background-color: var(--button);
-}
-
-.edit:hover {
-  background-color: var(--button);
+.delete:hover,
+.edit:hover,
+.seeMore:hover {
+  background-color: black;
 }
 
 .modal {
@@ -250,3 +252,25 @@
   font-style: italic;
   color: var(--textSoft);
 }
+.seeMore{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid var(--button);
+  color: var(--button);
+  
+  
+}
+.edit{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid green;
+  color: green;
+}
+.delete{
+  border-radius: 15px;
+  padding: 10px;
+  border: 2px solid orangered;
+  color: orangered;
+  margin: 0 10px;
+}
+

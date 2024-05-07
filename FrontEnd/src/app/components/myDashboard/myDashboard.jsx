@@ -209,30 +209,23 @@ const MyDashboard = () => {
                         
                                 <tr key={request._id}>
                                     
-                                    <td className={styles.equipment_info}>{request.equipment_info ? request.equipment_info.name : user.name}</td>                                    
+                                    <td className={styles.name}>{request.equipment_info ? request.equipment_info.name : user.name}</td>                                    
                                     <td className={styles.quantity}>{request.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
                                     <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>{request.request_status === 'active' ? 'Active' : request.request_status}</td>
                                     <td>
-                                    <button className={styles.return} onClick={() => openReturnModal(request)}>Return</button>
+                                        <button className={styles.return} onClick={() => openReturnModal(request)}>Return</button>
                                         <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
                                     </td>
                                 </tr>
                             ))}
-                        
                     </tbody>
-                
                 </table>
+                <br/> <br/><br/>
+                  <h1>Pending requests</h1>
                 <table className={styles.table}>
-                <thead>
-                        <tr className={styles.pending}>
-                            <th>EQUIPMENT</th>
-                            <th>QUANTITY</th>
-                            <th>ASSIGN DATE</th>
-                            <th>STATUS</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
+                
+                    
                     <tbody>
                         {pendingRequests.map(request => (
                             
@@ -240,9 +233,9 @@ const MyDashboard = () => {
                                 <td className={styles.name}>{request.equipment_info.name}</td>
                                 <td className={styles.quantity}>{request.quantity}</td>
                                 <td className={styles.assign_date}>{formatDate(request.createdAt)}</td>
-                                <td className={`${styles.status} ${request.request_status === 'pending' ? styles.active : ''}`}>{request.request_status === 'pending' ? 'Pending..' : request.request_status}</td>
+                                <td className={`${styles.request_status} ${request.request_status === 'pending' ? styles.active : ''}`}>{request.request_status === 'pending' ? 'Pending' : request.request_status}</td>
                                 <td className={styles.button}>
-                                <button className={styles.seeMore} onClick={() => openCancelModal(request)}>Cancel</button>
+                                    <button className={styles.cancel} onClick={() => openCancelModal(request)}>Cancel</button>
                                 </td>
                             </tr>
                         ))}
@@ -319,7 +312,7 @@ const MyDashboard = () => {
                     <div>
                         <p className={styles.question}> Are you sure you want to cancel this request?</p>
                         <div className={styles.modalButtons}>
-                            <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Cancel</button>
+                            <button onClick={() => cancelRequest(equipmentToCancel._id)}>Cancel</button>
                             <button onClick={closeCancelModal}>Close</button>
                         </div>
                     </div>

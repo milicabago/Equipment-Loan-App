@@ -135,8 +135,8 @@ const Dashboard = () => {
                     <tbody>
                       {requests.map(request => (
                                 <tr key={request._id}>
-                                    <td className={styles.user_info}>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
-                                    <td className={styles.equipment_info}>{request.equipment_info ? request.equipment_info.name : 'Unkrnown'}</td>
+                                    <td className={styles.user}>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
+                                    <td className={styles.equipment}>{request.equipment_info ? request.equipment_info.name : 'Unkrnown'}</td>
                                     <td className={styles.quantity}>{request.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
                                     <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>{request.request_status === 'active' ? 'Active' : request.request_status}
@@ -197,7 +197,7 @@ const Dashboard = () => {
                         />
                         <p className={styles.question}> Are you sure you want to return this equipment?</p>
                         <div className={styles.modalButtons}>
-                            <button className={styles.accept} onClick={() => returnRequests(requestToReturn._id)}>Return</button>
+                            <button onClick={() => returnRequests(requestToReturn._id)}>Return</button>
                             <button onClick={closeReturnModal}>Close</button>
                         </div>
                     </div>

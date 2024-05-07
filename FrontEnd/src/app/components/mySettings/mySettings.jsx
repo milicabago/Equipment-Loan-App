@@ -152,7 +152,7 @@ const Settings = () => {
             }
         } catch (error) {
             console.error("Error updating profile:", error);
-            toast.error("Failed to update profile. Please try again later.");
+            toast.error(error.response.data.message , { duration: 3000 });
         }
     };
    

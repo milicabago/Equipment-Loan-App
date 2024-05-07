@@ -66,7 +66,7 @@
 .button{
     padding: 15px;
     margin-top: 20px;    
-    width: 10%;
+    width: auto !important;
     background-color: var(--button);
     color: var(--text);
     border: none;

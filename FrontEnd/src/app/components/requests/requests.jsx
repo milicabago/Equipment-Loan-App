@@ -182,7 +182,7 @@ const Request = () => {
                                         </td>
                                         <td className={styles.action}>
                                             <button className={styles.accept} onClick={() => openAcceptModal(request)}>Accept</button>
-                                            <button className={styles.read} onClick={() => openDenyModal(request)}>Deny</button>
+                                            <button className={styles.deny} onClick={() => openDenyModal(request)}>Deny</button>
                                             <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
                                         </td>
                                     </tr>
@@ -225,7 +225,7 @@ const Request = () => {
                     <div>
                         <p> Are you sure you want to accept this request?</p>
                         <div className={styles.modalButtons}>
-                            <button className={styles.accept} onClick={() => acceptRequests(requestToAccept._id)}>Accept</button>
+                            <button onClick={() => acceptRequests(requestToAccept._id)}>Accept</button>
                             <button onClick={closeAcceptModal}>Close</button>
                         </div>
                     </div>
@@ -243,7 +243,7 @@ const Request = () => {
                     <div>
                         <p> Are you sure you want to deny this request?</p>
                         <div className={styles.modalButtons}>
-                            <button className={styles.deny} onClick={() => denyRequests(requestToDeny._id)}>Deny</button>
+                            <button onClick={() => denyRequests(requestToDeny._id)}>Deny</button>
                             <button onClick={closeDenyModal}>Close</button>
                         </div>
                     </div>

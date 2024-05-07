@@ -24,13 +24,15 @@ const RegisterPage = () => {
     };
 
     const schema = yup.object().shape({
-        first_name: yup.string().required("First name is required!"),
-        last_name: yup.string().required("Last name is required!"),
-        username: yup.string().required("Username is required!"),
-        email: yup.string().email().required("Email is required!"),
-        password: yup.string().min(8).required("Password is required"),
-        confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required(),   
-        position: yup.string().required("Position is required!")     
+        first_name: yup.string().required("First name is required!").matches(/^(\S+\s)*\S+$/, '"First name" cannot contain multiple consecutive spaces!'),
+        last_name: yup.string().required("Last name is required!").matches(/^(\S+\s)*\S+$/, '"Last name" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+        email: yup.string().email().required("Email is required!").matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '"Email" is not valid!'),
+        username: yup.string().required("Username is required!").min(3).max(30).matches(/^[a-zA-Z0-9]+$/, '"Username" can only contain letters and numbers!'),
+        role: yup.string().required("Role is required!").oneOf(["admin", "user"], 'Invalid "role" value!'),
+        position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/, '"Position" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+        password: yup.string().min(8, "Password must be at least 8 characters long").required("Password is required!"),
+        confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password")
+
     });
     
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -71,52 +73,52 @@ const RegisterPage = () => {
                 <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>Equipment Loan</span>
-                        <span className={styles.desc} >Registriraj se!</span> 
+                        <span className={styles.desc} >Register!</span> 
                     </div>
                     <div className={styles.field}>
-                    <label className={styles.firstName}>Ime:
+                    <label className={styles.firstName}>First Name:
                     <p>{errors.first_name?.message}</p>
-                        <input type="text" className={styles.autofill} placeholder="Unesite ime" {...register("first_name")} autoComplete="off" />
+                        <input type="text" className={styles.autofill} placeholder="Enter first name" {...register("first_name")} autoComplete="off" />
                     </label>  
 
-                    <label className={styles.lastName}>Prezime:
+                    <label className={styles.lastName}>Last Name:
                     <p>{errors.last_name?.message}</p>
-                        <input type="text" className={styles.autofill} placeholder="Unesite prezime" {...register("last_name")} autoComplete="off" />
+                        <input type="text" className={styles.autofill} placeholder="Enter last name" {...register("last_name")} autoComplete="off" />
                     </label>
 
-                    <label className={styles.username}>Korisničko ime:
+                    <label className={styles.username}>Username:
                     <p>{errors.username?.message}</p>
-                        <input type="text" className={styles.autofill} placeholder="Unesite korisničko ime" {...register("username")} autoComplete="off" />
+                        <input type="text" className={styles.autofill} placeholder="Enter username" {...register("username")} autoComplete="off" />
                     </label>
 
                     <label className={styles.email}>Email:
                     <p>{errors.email?.message}</p>
-                        <input type="text" className={styles.autofill} placeholder="Unesite email" {...register("email")} autoComplete="off" />
+                        <input type="text" className={styles.autofill} placeholder="Enter email" {...register("email")} autoComplete="off" />
                     </label>
 
-                    <label className={styles.password}>Lozinka:
+                    <label className={styles.password}>Password:
                     <p>{errors.password?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
-                                type={showPassword ? "text" : "password"} placeholder="Unesite lozinku" {...register("password")} autoComplete="off"/>
+                                type={showPassword ? "text" : "password"} placeholder="Enter password" {...register("password")} autoComplete="off"/>
                             <span className={styles.passwordToggle} onClick={togglePasswordVisibility}>
                                 {showPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
                     </label>
 
-                    <label className={styles.confirmPassword}>Potvrdite lozinku:
+                    <label className={styles.confirmPassword}>Confirm Password:
                     <p>{errors.confirm_password?.message}</p>
                         <div className={styles.passwordInputContainer}>
                             <input 
-                                type={showConfirmPassword ? "text" : "password"} placeholder="Potvrdite lozinku" {...register("confirm_password")} autoComplete="off"/>
+                                type={showConfirmPassword ? "text" : "password"} placeholder="Confirm password" {...register("confirm_password")} autoComplete="off"/>
                             <span className={styles.passwordToggle} onClick={toggleConfirmPasswordVisibility}>
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
                     </label>
 
-                    <label className={styles.position}>Pozicija:
+                    <label className={styles.position}>Position:
                                 <p>{errors.position?.message}</p>
                                 <select {...register("position")} className={styles.select}>
                                 <option className={styles.employee} value="Project manager">Project manager</option>

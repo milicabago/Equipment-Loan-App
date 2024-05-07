@@ -128,6 +128,7 @@ const Sidebar = () => {
     localStorage.removeItem('user._id');
     clearHistoryAndRedirect();
     
+    
   };
 
   const clearHistoryAndRedirect = () => {
@@ -152,7 +153,7 @@ const Sidebar = () => {
     return(
         <div className={styles.container}>
           <div className={styles.user}>
-            <Image className={styles.userImage} src="/noavatar.png" alt="" width="50" height="50" />
+            <Image className={styles.userImage} src="/user.png" alt="" width="50" height="50" />
             <div className={styles.userDetail}>
               <div className={styles.username}>
               <span className={styles.firstname}>{firstName}</span>{' '}

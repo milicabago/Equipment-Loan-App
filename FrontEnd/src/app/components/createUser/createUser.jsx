@@ -13,10 +13,12 @@ const schema = yup.object().shape({
     last_name: yup.string().required("Last name is required!").matches(/^(\S+\s)*\S+$/, '"Last name" cannot start or end with spaces, or contain multiple consecutive spaces!'),
     email: yup.string().email().required("Email is required!").matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '"Email" is not valid!'),
     username: yup.string().required("Username is required!").min(3).max(30).matches(/^[a-zA-Z0-9]+$/, '"Username" can only contain letters and numbers!'),
-    password: yup.string().min(8).required("Password is required!"),
     role: yup.string().required("Role is required!").oneOf(["admin", "user"], 'Invalid "role" value!'),
-    contact: yup.string().optional(),
-    position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/, '"Position" cannot start or end with spaces, or contain multiple consecutive spaces!')
+    contact: yup.string().notRequired("Contact is required!").matches(/^(\+\d{1,3})?\d{9,15}$/, 'Contact must be a valid phone number'),
+    position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/, '"Position" cannot start or end with spaces, or contain multiple consecutive spaces!'),
+    password: yup.string().min(8, "Password must be at least 8 characters long").required("Password is required!"),
+    confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password")
+
 });
 
 const Users = (data) => {
@@ -68,7 +70,6 @@ const Users = (data) => {
         } catch (error) {
             toast.error(error.response.data.message , { duration: 3000 });
         }
-        reset();
     };
 
     return (
@@ -93,7 +94,16 @@ const Users = (data) => {
                     
                     <label className={styles.contact}>Contact:
                     <p>{errors.contact?.message}</p>
-                    <input type="string" placeholder="Enter contact number" {...register("contact")} autoComplete='off'/></label> 
+                    <input type="tel" 
+                    onKeyPress={(event) => {
+                        const keyCode = event.keyCode || event.which;
+                        const keyValue = String.fromCharCode(keyCode);
+                        const value = event.target.value;
+                        const regex = /^\+?\d*$/; 
+                        if (!regex.test(value + keyValue)) {
+                            event.preventDefault();
+                        }
+                    }} placeholder="Enter contact number" {...register("contact")} autoComplete='off'/></label> 
                     
                     <label className={styles.email}>Email Address:
                     <p>{errors.email?.message}</p>

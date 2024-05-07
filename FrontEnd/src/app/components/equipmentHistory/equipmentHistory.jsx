@@ -63,7 +63,7 @@ const EquipmentHistory = () => {
                                         <td>{item.equipment_info.quantity}</td>
                                         <td>{formatDate(item.createdAt)}</td>
                                         <td>{formatDate(item.assign_date)}</td>
-                                        <td>{item.return_status_request}</td>
+                                        <td>{item.return_status_request === 'returned' ? 'Returned' : 'Canceled'}</td>
                                     </tr>
                                 ))}
                         </tbody>
