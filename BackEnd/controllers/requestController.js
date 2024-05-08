@@ -538,7 +538,9 @@ const deleteRequest = asyncHandler(async (req, res) => {
     }
 
     // Provjeri je li status zahtjeva "canceled" ili "returned"
-    if (request.return_status_request === UserEquipmentStatus.CANCELED || request.return_status_request === UserEquipmentStatus.RETURNED) {
+    if (request.return_status_request === UserEquipmentStatus.CANCELED || request.return_status_request === UserEquipmentStatus.RETURNED
+      || request.request_status === UserEquipmentStatus.DENIED
+    ) {
       // Obriši zahtjev iz baze
       const deletedRequest = await Request.findByIdAndDelete(req.params.id);
       res.status(200).json({ message: "Request deleted successfully", deletedRequest });
