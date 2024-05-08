@@ -30,9 +30,7 @@ const Layout = ({ children }) => {
                         
 
                         </div>
-                        <div className={styles.rightbar}>
-                            <Rightbar/>
-                        </div>
+                       
 
                     </div>
 

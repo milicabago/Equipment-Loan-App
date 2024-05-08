@@ -92,8 +92,8 @@ const AddEquipment = (data) => {
                     <label className={styles.condition}> Equipment Condition:
                         <p>{errors.condition?.message}</p>
                         <select className={styles.select} {...register("condition")}>
-                            <option value="true">Functional</option>
-                            <option value="false">Non-functional</option>
+                            <option className={styles.functional} value="true">Functional</option>
+                            <option className={styles.functional} value="false">Non-functional</option>
                         </select>
                     </label>
 

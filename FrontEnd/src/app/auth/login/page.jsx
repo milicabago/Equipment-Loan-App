@@ -15,12 +15,12 @@ import toast from 'react-hot-toast';
 const LoginPage = (data) => {
     const [role, setRole] = useState(null);
     const router = useRouter();
-    const [cookies, setCookie]  = useCookies(['accessToken']);
+    const [cookies, setCookie, removeCookie]  = useCookies(['accessToken']);
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
-
+    
     const schema = yup.object().shape({
         email: yup.string().required("Email is required"),
         password: yup.string().min(8).required("Password is required"),
@@ -34,6 +34,10 @@ const LoginPage = (data) => {
         window.history.pushState(null, '', window.location.href);
         window.history.forward();
     };
+    useEffect(() => {
+        removeCookie('accessToken');
+        localStorage.clear();
+    }, []);
 
     useEffect(() => {
         const token = cookies.accessToken; 
@@ -62,6 +66,7 @@ const LoginPage = (data) => {
         router.push("/auth/register");
     };
     
+
     const onSubmit = (data) => {
         axios
             .post(process.env.NEXT_PUBLIC_BASE_URL + "login", data)

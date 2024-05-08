@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import toast from'react-hot-toast';
 
 import {
     MdDashboard,
@@ -81,6 +82,11 @@ const Sidebar = () => {
               setRole(userRole === 'user' ? '' : '');
               setFirstName(userFirstName);
               setLastName(userLastName);
+              if (userRole !== 'user') {
+                clearHistoryAndRedirect();
+                toast.error('You are not authorized to access this page');
+                return;
+              }
           }
       } else {
           handleLogout();
@@ -119,6 +125,7 @@ useEffect(() => {
 
 
 
+
     return(
         <div className={styles.container}>
           <div className={styles.user}>
@@ -148,6 +155,7 @@ useEffect(() => {
               Logout</button>
 
         </div>
+         
     )
 }
 

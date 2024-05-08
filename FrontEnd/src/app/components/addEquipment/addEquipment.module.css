@@ -74,6 +74,13 @@
     border-radius: 25px;
 }
 
+
+.functional{
+    color: var(--textSoft);
+    font-weight: bold;
+    background-color: black;
+    padding: 30px;
+}
 .true,
 .false{
     color: var(--textSoft);

@@ -157,6 +157,12 @@
   border-radius: 10px;
   font-size: 15px;
 }
+.employee{
+  color: var(--textSoft);
+  font-weight: bold;
+  background-color: black;
+  padding: 30px;
+}
 
 .par{
   text-align: center;

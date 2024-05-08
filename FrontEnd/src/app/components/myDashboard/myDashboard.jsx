@@ -122,35 +122,28 @@ const MyDashboard = () => {
         }
     };
 
-    const cancelRequest = async (equipmentId) => {
+
+   
+    const cancelRequest = async (requestId) => {
         try {
             let token = document.cookie
             .split('; ')
             .find(row => row.startsWith('accessToken'))
             .split('=')[1];
-            await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `user/equipment/request/${equipmentId}`, 
-                {   
-                    equipment_id: equipmentId
-                }, {
+            const response = await axios.patch(
+                `${process.env.NEXT_PUBLIC_BASE_URL}user/equipment/request/${requestId}`,
+                null, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 }
             );
-            setEquipment(prevEquipment => prevEquipment.map(equipment => {
-                if (equipment._id === equipmentId) {    
-                    return { ...equipment, input_quantity: equipmentQuantity };
-                }
-                return equipment;
-            }));
-            closeCancelModal();
-            toast.success('Request cancelled successfully!', { duration: 3000 } );
+            toast.success(response.data.message, { duration: 3000 });
             setTimeout(() => {
                 window.location.reload();
-            }, 3000);
-
+            }, 2000);
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response.data.message || "Error" );
         }
     };
 
@@ -222,7 +215,6 @@ const MyDashboard = () => {
                     </tbody>
                 </table>
                 <br/> <br/><br/>
-                  <h1>Pending requests</h1>
                 <table className={styles.table}>
                 
                     
@@ -312,7 +304,7 @@ const MyDashboard = () => {
                     <div>
                         <p className={styles.question}> Are you sure you want to cancel this request?</p>
                         <div className={styles.modalButtons}>
-                            <button onClick={() => cancelRequest(equipmentToCancel._id)}>Cancel</button>
+                            <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Cancel</button>
                             <button onClick={closeCancelModal}>Close</button>
                         </div>
                     </div>

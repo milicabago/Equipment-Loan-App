@@ -6,9 +6,7 @@ import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
-
-
-
+import toast from 'react-hot-toast';
 import {
     MdDashboard,
     MdSupervisedUserCircle,
@@ -17,6 +15,7 @@ import {
     MdLogout,
     MdEditDocument
 } from 'react-icons/md';
+
 
 
 const menuItems = [
@@ -95,6 +94,7 @@ const Sidebar = () => {
  
   useEffect(() => {
     const token = cookies.accessToken;
+    
     if (token) {
         const decodedToken = jwtDecode(token);
         const id = decodedToken.user._id;
@@ -110,6 +110,12 @@ const Sidebar = () => {
             setRole(userRole === 'admin' ? 'Administrator' : '');
             setFirstName(userFirstName);
             setLastName(userLastName);
+
+            if (userRole !== 'admin') {
+              clearHistoryAndRedirect();
+              toast.error('You are not authorized to access this page');
+              return;
+            }
         }
     } else {
         handleLogout();
@@ -128,7 +134,6 @@ const Sidebar = () => {
     localStorage.removeItem('user._id');
     clearHistoryAndRedirect();
     
-    
   };
 
   const clearHistoryAndRedirect = () => {
@@ -146,7 +151,7 @@ const Sidebar = () => {
             handleLogout();
         }
     }
-}, [cookies.accessToken]);
+  }, [cookies.accessToken]);
 
 
 

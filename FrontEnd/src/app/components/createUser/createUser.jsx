@@ -133,7 +133,7 @@ const Users = (data) => {
                     
                     <label className={styles.role}>Role:
                     <select {...register("role")} className={styles.select} defaultValue="user">
-                            <option  className={styles.admin} value="admin">Administrator</option>
+                            <option className={styles.admin} value="admin">Administrator</option>
                             <option className={styles.user} value="user">User</option>
                         </select>
                     </label> 
@@ -149,7 +149,7 @@ const Users = (data) => {
                     </select>
                     </label> 
                     <div>
-                        <button className={styles.button} type="submit">Create</button>
+                        <button className={styles.button} type="submit">Create User</button>
                     </div>
                 </form>
             </div>            

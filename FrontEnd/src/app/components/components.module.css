@@ -33,7 +33,7 @@
 .content{
   flex:6;
   position: static;
-  background-color: transparent;
+  background-color: none !important;
   height: 100vh;
   width: 100%;
   flex-direction: row;
@@ -60,14 +60,16 @@
   flex-direction: row;
   gap: 20px;
   height: 80vh;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+  width: 80%;
+  background-color: none !important;
 
 
 }
 
+
+
 .board{
-  flex: 3;
+  flex: 2;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -83,13 +85,42 @@
 .board::-webkit-scrollbar {
   display: none;
 }
-.rightbar{
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border-radius: 20px;
-  margin-bottom: 50px;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+
+@media only screen and (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .content {
+    flex-direction: column;
+  }
+  .main {
+    flex-direction: column;
+  }
+}
+@media only screen and (max-width: 480px) {
+  .menu {
+    margin-right: 0; 
+  }
+  .nav, .board {
+    margin-bottom: 20px; 
+  }
+  .main {
+    width: 100%; 
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 320px) {
+  .container {
+    padding: 10px; 
+  }
+  .menu, .content, .nav, .main, .board {
+    padding: 10px; 
+  }
+  .menu, .content, .nav, .main, .board {
+    margin: 5px; 
+  }
+  .nav, .board {
+    margin-bottom: 10px; 
+  }
 }
