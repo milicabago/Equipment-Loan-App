@@ -93,7 +93,7 @@ The entire FrontEnd code is written in __JavaScript__ and __CSS__ programming la
 
 React framework, preferred for FrontEnd development, that simplifies building full-stack web applications by providing additional features and optimizations while abstracting and configuring necessary tooling for React development
 
-> ### Dependencies and DevDependencies
+> ### Dependencies and DevDependencies (FrontEnd)
 
 | Dependencies        | Description ↴                                                                    | DevDependencies            | Description ↴                                               |
 | :---                | :---                                                                             | :---                       | :---                                                        | 
@@ -126,7 +126,7 @@ JavaScript runtime. It is used to execute JavaScript code on the server-side, en
 
 NoSQL database. It is popular for its scalability and ease of use, allowing data storage in a flexible format (JSON).
 
-> ### Dependencies and DevDependencies
+> ### Dependencies and DevDependencies (BackEnd)
 
 | Dependencies           | Description ↴                                                         | DevDependencies | Description ↴                                                                        |
 | :---                   | :---                                                                  | :---            | :---                                                                                  |
