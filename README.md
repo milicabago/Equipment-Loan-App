@@ -55,14 +55,14 @@ NEXT_PUBLIC_BASE_URL = http://localhost:5001/api/ # PORT from BackEnd
 ```
 PORT=5001 # PORT for server (BackEnd)
 # Add your database CONNECTION_STRING 
-CONNECTION_STRING=mongodb+srv://<username>:<password>@<cluster_name>.0arnl28.mongodb.net/?retryWrites=true&w=majority&appName=<cluster_name>
+CONNECTION_STRING=mongodb+srv://<username>:<password>@<cluster_name>...=<cluster_name>
 RESET_PASSWORD_URL=http://localhost:3000/auth/resetPassword # PORT from FrontEnd
 ACCESS_TOKEN_SECRET=YourSecretAccessToken
 EMAIL_ADDRESS=YourEmail@gmail.com
 EMAIL_PASSWORD=YourPassword
 ```
-
-- You can create the database on [__MongoDB__](https://account.mongodb.com/account/login)
+> [!NOTE]
+> You can create the database on [__MongoDB__](https://account.mongodb.com/account/login)
 
 ## FrontEnd Technologies
 
@@ -74,20 +74,20 @@ React framework, preferred for FrontEnd development, that simplifies building fu
 
 > ### Dependencies and DevDependencies
 
-| Dependencies        | Description ↴  | DevDependencies        | Description ↴  |
-| :---                | :---           | :---                   | :---           | 
-| @hookform/resolvers | Provides resolvers for form validation in React                                  | @babel/preset-react        | Babel preset for transforming JSX syntax                |
-| @nextui-org/react   | Contains a set of UI components for React applications                           | @babel/preset-env          | Babel preset for transforming modern JavaScript syntax     |
-| react-hook-form     | Enables form management in React applications                                    | eslint-config-next         | ESLint configurations tailored for Next.js projects      |
-| react-hot-toast     | A library for displaying notifications (toasts) in React applications            | @babel/core                | Core module for Babel JavaScript compiler              |
+| Dependencies        | Description ↴                                                                    | DevDependencies            | Description ↴                                               |
+| :---                | :---                                                                             | :---                       | :---                                                        | 
+| @hookform/resolvers | Provides resolvers for form validation in React                                  | @babel/preset-react        | Babel preset for transforming JSX syntax                    |
+| @nextui-org/react   | Contains a set of UI components for React applications                           | @babel/preset-env          | Babel preset for transforming modern JavaScript syntax      |
+| react-hook-form     | Enables form management in React applications                                    | eslint-config-next         | ESLint configurations tailored for Next.js projects         |
+| react-hot-toast     | A library for displaying notifications (toasts) in React applications            | @babel/core                | Core module for Babel JavaScript compiler                   |
 | react-cookie        | Facilitates working with cookies in React applications                           | eslint                     | Tool for identifying and reporting JavaScript code patterns |
-| react-modal         | Enables modal window display in React applications                               |                            |                            |
-| react-icons         | Contains icons that can be used in React applications                            |                            |                            |
-| jwt-decode          | Used for decoding JSON Web Tokens (JWT) to extract user information              |                            |                            |
-| react-dom           | Used for manipulating the DOM in React applications                              |                            |                            |
-| react               | A library for building user interfaces in React applications                     |                            |                            |
-| axios               | An HTTP client for making HTTP request                                           |                            |                            |
-| yup                 | A library for schema-based data validation in JavaScript                         |                            |                            |
+| react-modal         | Enables modal window display in React applications                               |                            |                                                             |
+| react-icons         | Contains icons that can be used in React applications                            |                            |                                                             |
+| jwt-decode          | Used for decoding JSON Web Tokens (JWT) to extract user information              |                            |                                                             |
+| react-dom           | Used for manipulating the DOM in React applications                              |                            |                                                             |
+| react               | A library for building user interfaces in React applications                     |                            |                                                             |
+| axios               | An HTTP client for making HTTP request                                           |                            |                                                             |
+| yup                 | A library for schema-based data validation in JavaScript                         |                            |                                                             |
 
 ## Backend Technologies
 
@@ -107,18 +107,18 @@ NoSQL database. It is popular for its scalability and ease of use, allowing data
 
 > ### Dependencies and DevDependencies
 
-| Dependencies        | Description ↴  | DevDependencies | Description ↴  |
-| :---                | :---           | :---            | :---            |
-| express-async-handler  | Middleware for handling asynchronous exceptions in Express.js         | nodemon | Utility for monitoring changes in source code and automatically restarting the server    |
-| cookie-parser          | Middleware for parsing cookies in requests                            |         |         |
-| jsonwebtoken           | JSON Web Token (JWT) authentication implementation                    |         |         |
-| nodemailer             | Library for sending email messages                                    |         |         |
-| mongoose               | MongoDB library for Node.js, offering schema-based data modeling      |         |         |
-| express                | Fast, minimalist web framework for Node.js                            |         |         |
-| dotenv                 | Library for loading environment variables from a ```.env``` file      |         |         |
-| bcrypt                 | Secure password hashing library                                       |         |         |
-| cors                   | Middleware for enabling Cross-Origin Resource Sharing (CORS) requests |         |         |
-| joi                    | Data validation and schema description library                        |         |         |
+| Dependencies           | Description ↴                                                         | DevDependencies | Description ↴                                                                        |
+| :---                   | :---                                                                  | :---            | :---                                                                                  |
+| express-async-handler  | Middleware for handling asynchronous exceptions in Express.js         | nodemon         | Utility for monitoring changes in source code and automatically restarting the server |
+| cookie-parser          | Middleware for parsing cookies in requests                            |                 |                                                                                       |
+| jsonwebtoken           | JSON Web Token (JWT) authentication implementation                    |                 |                                                                                       |
+| nodemailer             | Library for sending email messages                                    |                 |                                                                                       |
+| mongoose               | MongoDB library for Node.js, offering schema-based data modeling      |                 |                                                                                       |
+| express                | Fast, minimalist web framework for Node.js                            |                 |                                                                                       |
+| dotenv                 | Library for loading environment variables from a ```.env``` file      |                 |                                                                                       |
+| bcrypt                 | Secure password hashing library                                       |                 |                                                                                       |
+| cors                   | Middleware for enabling Cross-Origin Resource Sharing (CORS) requests |                 |                                                                                       |
+| joi                    | Data validation and schema description library                        |                 |                                                                                       |
 
 ## User Roles
 
