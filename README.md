@@ -10,14 +10,35 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
 ## Table of Contents
 
 1. [Installation](#installation)
+
+   1.1. [Getting Started](#getting-started)
+
+   1.2. [FrontEnd](#frontend)
+
+   1.3. [BackEnd](#backend)
+
 2. [FrontEnd Technologies](#frontend-technologies)
+
+   2.1. [Next.js](#nextjs)
+
+   2.2. [Dependencies and DevDependencies](#dependencies-and-devdependencies)
+   
 3. [BackEnd Technologies](#backend-technologies)
-4. [User Roles](#user-roles)
 
-   a) [Administrator](#administrator)
+   3.1. [Node.js](#nodejs)
 
-   b) [User](#user)
+   3.2. [Express.js](#expressjs)
 
+   3.3. [MongoDB](#mongodb)
+
+   3.4. [Dependencies and DevDependencies](#dependencies-and-devdependencies)
+   
+4. [Use Case Diagram](#use-case-diagram)
+
+   4.1. [Administrator](#administrator)
+
+   4.2. [Users](#users)
+   
 6. [Conclusion](#conclusion)
 
 ## Installation
@@ -62,7 +83,7 @@ EMAIL_ADDRESS=YourEmail@gmail.com
 EMAIL_PASSWORD=YourPassword
 ```
 > [!NOTE]
-> You can create the database on [__MongoDB__](https://account.mongodb.com/account/login)
+> Database create on [__MongoDB__](https://account.mongodb.com/account/login)
 
 ## FrontEnd Technologies
 
@@ -120,16 +141,28 @@ NoSQL database. It is popular for its scalability and ease of use, allowing data
 | cors                   | Middleware for enabling Cross-Origin Resource Sharing (CORS) requests |                 |                                                                                       |
 | joi                    | Data validation and schema description library                        |                 |                                                                                       |
 
-## User Roles
+## Use Case Diagram
 
-### Administrator
+<p align="center">
+  <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/32408dcf-3978-4b49-ad41-0a8d0cdc90af" width="55%" height="55%">
+</p>
 
-Description of Administrator role and capabilities.
+> ### Administrator
 
-### User
+*__Administrator__* has the authority to manage all available resources, users, and requests. He is granted all CRUD operations for resources and users, including assigning roles, job positions, as well as managing resource allocation through requests, rejecting requests, and deleting resources and users. The administrator is allowed to change only certain user data, while, of course, he can change his own personal data.
 
-Description of User role and capabilities.
+> ### Users
+*__User__* can manage only the resources he uses, borrow and return resources, and view the borrowing history. Each user can change their personal data.
 
 ## Conclusion
 
-Concluding remarks about the project.
+The *__Equipment Loan Application__* represents a robust solution for efficient equipment management within various organizations. By leveraging modern technologies, such as Node.js, Express.js, React, and MongoDB, it offers a seamless experience for users in borrowing, returning, and tracking equipment. The application's intuitive user interface enhances usability, while its emphasis on security ensures data protection and integrity.
+
+the application has been meticulously crafted to meet the diverse needs of users, administrators, and stakeholders alike. As we continue to refine and enhance its functionality, we remain committed to delivering a reliable and user-centric platform that streamlines equipment management processes and fosters productivity across organizations.
+
+We express our sincere gratitude to *globalsoft* company for providing us with the opportunity to develop such an impactful application during our research internship as part of our graduate studies. Their support and collaboration have been instrumental in facilitating the acquisition of knowledge and programming skills essential for our professional growth. 
+
+We look forward to furthering the development of this application and embracing future challenges.
+
+---
+© Equipment-Loan-App 2024.
