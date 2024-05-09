@@ -21,7 +21,7 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
 
    2.1. [Next.js](#nextjs)
 
-   2.2. [Dependencies and DevDependencies](#dependencies-and-devdependencies)
+   2.2. [Dependencies and DevDependencies](#dependencies-and-devdependencies1)
    
 3. [BackEnd Technologies](#backend-technologies)
 
@@ -31,7 +31,7 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
 
    3.3. [MongoDB](#mongodb)
 
-   3.4. [Dependencies and DevDependencies](#dependencies-and-devdependencies)
+   3.4. [Dependencies and DevDependencies](#dependencies-and-devdependencies2)
    
 4. [Use Case Diagram](#use-case-diagram)
 
