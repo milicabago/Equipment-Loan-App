@@ -113,10 +113,8 @@ EMAIL_PASSWORD=YourPassword
 
 The entire FrontEnd code is written in __HTML__, __CSS__ and __JavaScript__ programming languages.
 
-<br>
-
 <p align="center">
-  <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e05e1e76-6c68-423c-a94a-2dab86187394" width="55%" height="55%">
+  <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e7a3ff60-954f-452f-ae45-6a7610992b84" width="55%" height="55%">
 </p>
 
 <br>
