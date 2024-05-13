@@ -2,10 +2,16 @@
 
 The **_Equipment Loan Application_** is a web application that provides a solution for efficient equipment borrowing, returning, and tracking in various companies. Through the implementation of modern technologies, it ensures reliable and fast access to data, enabling effective management of users, equipment, and related requests. With its tailored user interface, it offers an intuitive experience for all users, while simultaneously ensuring maximum security and data protection.
 
+---
+<br>
+
 ## Project Team
 
-- **FrontEnd Developer:** *univ.bacc.ing.comp. Milica Bago*
-- **BackEnd Developer:** *univ.bacc.ing.comp. Dario Klarić*
+- **FrontEnd Developer:** *univ.bacc.ing.comp. [__Milica Bago__](https://github.com/milicabago)*
+- **BackEnd Developer:** *univ.bacc.ing.comp. [__Dario Klarić__](https://github.com/dklaric00)*
+
+---
+<br>
 
 ## Table of Contents
 
@@ -39,7 +45,18 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
 
    4.2. [Users](#users)
    
-6. [Conclusion](#conclusion)
+5. [Conclusion](#conclusion)
+   
+6. [App Preview](#app-preview)
+
+   6.1. [Login, Register and Reset Password](#login-register-and-reset-password)
+
+   6.2. [As an Administrator](#as-an-administrator)
+   
+   6.3. [As a User](#as-a-user)
+
+---
+<br>
 
 ## Installation
 
@@ -51,7 +68,9 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
    git clone https://github.com/dklaric00/Equipment-Loan-App.git
    ```
    
-- Run the code in one of the editors → _VS Code, Sublime Text, Atom_ or any other editor of your choice.
+- Run the code in one of the editors → *[VS Code](https://code.visualstudio.com/), [Sublime Text](https://www.sublimetext.com/), [Atom](https://atom-editor.cc/)* or any other editor of your choice.
+  
+<br>
 
 > ### FrontEnd
 
@@ -64,6 +83,8 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
 ```
 NEXT_PUBLIC_BASE_URL = http://localhost:5001/api/ # PORT from BackEnd
 ```
+
+<br>
 
  > ### BackEnd
 
@@ -85,13 +106,26 @@ EMAIL_PASSWORD=YourPassword
 > [!NOTE]
 > Database create on [__MongoDB__](https://account.mongodb.com/account/login)
 
+---
+<br>
+
 ## FrontEnd Technologies
 
-The entire FrontEnd code is written in __JavaScript__ and __CSS__ programming languages.
+The entire FrontEnd code is written in __HTML__, __CSS__ and __JavaScript__ programming languages.
+
+<br>
+
+<p align="center">
+  <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e05e1e76-6c68-423c-a94a-2dab86187394" width="55%" height="55%">
+</p>
+
+<br>
 
 > ### Next.js
 
 React framework, preferred for FrontEnd development, that simplifies building full-stack web applications by providing additional features and optimizations while abstracting and configuring necessary tooling for React development
+
+<br>
 
 > ### Dependencies and DevDependencies (FrontEnd)
 
@@ -110,21 +144,36 @@ React framework, preferred for FrontEnd development, that simplifies building fu
 | axios               | An HTTP client for making HTTP request                                           |                            |                                                             |
 | yup                 | A library for schema-based data validation in JavaScript                         |                            |                                                             |
 
+---
+<br>
+
 ## Backend Technologies
 
 The entire BackEnd code is written in __JavaScript__ programming lenguage.
+
+<p align="center">
+  <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/14257639-84ad-424d-b8e9-83a8471bd6a2" width="50%" height="50%">
+</p>
+
+<br>
 
 > ### Node.js
 
 JavaScript runtime. It is used to execute JavaScript code on the server-side, enabling the development of fast web applications.
 
+<br>
+
 > ### Express.js
 
  Web framework for Node.js. It is used for its simplicity and flexibility in building web applications and APIs, which speeds up the development process.
 
+<br>
+
 > ### MongoDB
 
 NoSQL database. It is popular for its scalability and ease of use, allowing data storage in a flexible format (JSON).
+
+<br>
 
 > ### Dependencies and DevDependencies (BackEnd)
 
@@ -141,18 +190,27 @@ NoSQL database. It is popular for its scalability and ease of use, allowing data
 | cors                   | Middleware for enabling Cross-Origin Resource Sharing (CORS) requests |                 |                                                                                       |
 | joi                    | Data validation and schema description library                        |                 |                                                                                       |
 
-## Use Case Diagram
+---
+<br>
 
+## Use Case Diagram
+<br>
 <p align="center">
   <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/32408dcf-3978-4b49-ad41-0a8d0cdc90af" width="55%" height="55%">
 </p>
+<br>
 
 > ### Administrator
 
 *__Administrator__* has the authority to manage all available resources, users, and requests. He is granted all CRUD operations for resources and users, including assigning roles, job positions, as well as managing resource allocation through requests, rejecting requests, and deleting resources and users. The administrator is allowed to change only certain user data, while, of course, he can change his own personal data.
 
+<br>
+
 > ### Users
 *__User__* can manage only the resources he uses, borrow and return resources, and view the borrowing history. Each user can change their personal data.
+
+---
+<br>
 
 ## Conclusion
 
@@ -160,9 +218,68 @@ The *__Equipment Loan Application__* represents a robust solution for efficient 
 
 the application has been meticulously crafted to meet the diverse needs of users, administrators, and stakeholders alike. As we continue to refine and enhance its functionality, we remain committed to delivering a reliable and user-centric platform that streamlines equipment management processes and fosters productivity across organizations.
 
-We express our sincere gratitude to *globalsoft* company for providing us with the opportunity to develop such an impactful application during our research internship as part of our graduate studies. Their support and collaboration have been instrumental in facilitating the acquisition of knowledge and programming skills essential for our professional growth. 
+We express our sincere gratitude to *[globalsoft](https://www.globalsoft.ba/)* company for providing us with the opportunity to develop such an impactful application during our research internship as part of our graduate studies. Their support and collaboration have been instrumental in facilitating the acquisition of knowledge and programming skills essential for our professional growth. 
 
 We look forward to furthering the development of this application and embracing future challenges.
 
 ---
+<br>
+
+## App Preview
+
+> ### Login, Register and Reset Password
+
+![Login](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/9677b43e-7a25-4dbb-a06e-40fdf6476e3d)
+
+
+![Register](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e153fc00-9510-45a9-8692-19bf597da83d)
+
+
+![Forgot_Password](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/449fcec6-3991-49aa-bf33-a8e391312dae)
+
+
+![Reset_Password](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/f1d84019-12a0-4df9-adf7-d7f3d5402614)
+
+<br>
+
+> ### As an Administrator
+
+![Dashboard](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/1ee698b8-599d-40f0-a2cd-b872259f391d)
+
+
+![Requests](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/5c10dac8-67cd-48d0-83e5-992e71c934fb)
+
+
+![Users](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e8d3ec19-9349-418b-ad25-ba352c106b2d)
+
+
+![Equipment](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e6d6b9a3-ba9d-4b01-a204-a0b4b327536c)
+
+
+![Create_User](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/58d1b918-c983-4e58-8cbf-e29009377e94)
+
+
+![Add Equipment](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/39cde03b-ea29-4fc4-92a2-37a91ed3247d)
+
+
+![Settings](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/3d48d705-3b3c-4d9d-9b1e-9bac37409542)
+
+<br>
+
+> ### As a User
+
+![Dashboard](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/ba6d09d7-be85-45f9-84ef-828a1085e809)
+
+
+![Equipment](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/3b0589d3-9c49-487d-af7f-5d35d8a4743e)
+
+
+![History](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/32f565af-969f-4822-add9-62e8679b3a44)
+
+
+![Settings](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/88a0224a-c188-4cf7-8c9d-cb2be4c66697)
+
+---
+<br>
+
 © Equipment-Loan-App 2024.
