@@ -5,10 +5,12 @@ const Equipment = require("../models/equipmentModel");
 const UserEquipment = require("../models/userEquipmentModel");
 const { UserEquipmentStatus } = require("../constants");
 
-//@desc Get all equipments
-//@route GET /api/admin/equipment
-//@route GET /api/user/equipment
-//@access private
+/**
+ * @desc Get all equipments
+ * @route GET /api/admin/equipment
+ * @route GET /api/user/equipment
+ * @access private
+ */
 const getAllEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.find().sort({ name: 1 });
 
@@ -20,10 +22,12 @@ const getAllEquipment = asyncHandler(async (req, res) => {
   res.status(200).json(equipment);
 });
 
-//@desc Get equipment
-//@route GET /api/admin/equipment/:id 
-//@route GET /api/user/equipment/:id
-//@access private
+/**
+ * @desc Get equipment
+ * @route GET /api/admin/equipment/:id
+ * @route GET /api/user/equipment/:id
+ * @access private
+ */
 const getEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.findById(req.params.id);
   if (!equipment) {
@@ -33,14 +37,16 @@ const getEquipment = asyncHandler(async (req, res) => {
   res.status(200).json(equipment);
 });
 
-//@desc Add New equipment
-//@route POST /api/admin/addEquipment
-//@access private
+/**
+ * @desc Add New equipment
+ * @route POST /api/admin/addEquipment
+ * @access private
+ */
 const addEquipment = asyncHandler(async (req, res) => {
 
   const { name, full_name, serial_number, condition, quantity, description } = req.body;
 
-  // Equipment validation
+  // Equipment validation schema
   const addEquipmentSchema = Joi.object({
     name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
@@ -56,7 +62,7 @@ const addEquipment = asyncHandler(async (req, res) => {
     description: Joi.string().allow("").optional(),
   });
 
-  // Validacija podataka za dodavanje opreme
+  // Display validation messages using Joi schema
   const { error } = addEquipmentSchema.validate(req.body, { abortEarly: false });
   if (error) {
     const errorMessages = error.details.map(detail => detail.message);
@@ -64,7 +70,7 @@ const addEquipment = asyncHandler(async (req, res) => {
     throw new Error(errorMessages.join(', '));
   }
 
-  // Provjera postoji li oprema u bazi prema jedinstenom serijskom broju
+  // Check if equipment exists in the database by unique serial number
   const existingEquipment = await Equipment.findOne({ serial_number: req.body.serial_number });
   if (existingEquipment) {
     res.status(400);
@@ -84,9 +90,11 @@ const addEquipment = asyncHandler(async (req, res) => {
   res.status(201).json({ message: "Added equipment.", equipment });
 });
 
-//@desc Update equipment
-//@route PUT /api/admin/equipment/:id
-//@access private
+/**
+ * @desc Update equipment
+ * @route PUT /api/admin/equipment/:id
+ * @access private
+ */
 const updateEquipment = asyncHandler(async (req, res) => {
 
   const equipment = await Equipment.findById(req.params.id);
@@ -95,7 +103,7 @@ const updateEquipment = asyncHandler(async (req, res) => {
     throw new Error("Equipment not found!");
   }
 
-  // Equipment validation
+  // Equipment validation schema
   const updateEquipmentSchema = Joi.object({
     name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
@@ -113,15 +121,15 @@ const updateEquipment = asyncHandler(async (req, res) => {
     }),
   });
 
-  // Validacija podataka za update
-  const { error } = updateEquipmentSchema.validate(req.body, { abortEarly: false }); // Dodajemo opciju abortEarly: false -> kako bi prikazali sve greške
+  // Display validation messages using Joi schema
+  const { error } = updateEquipmentSchema.validate(req.body, { abortEarly: false }); // Add option abortEarly: false -> to show all errors
   if (error) {
     const errorMessages = error.details.map(detail => detail.message);
     res.status(400);
     throw new Error(errorMessages.join(', '));
   }
 
-  // Provjeri postoji li oprema s istim serijskim brojem u bazi osim trenutne opreme koju ažuriranam
+  // Check if there is equipment with the same serial number in the database, except current equipment updating
   const existingEquipment = await Equipment.findOne({ serial_number: req.body.serial_number, _id: { $ne: req.params.id } });
   if (existingEquipment) {
     res.status(400);
@@ -139,9 +147,11 @@ const updateEquipment = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Updated equipment.", updatedEquipment });
 });
 
-//@desc Delete equipment
-//@route DELETE /api/admin/equipment/:id
-//@access private
+/**
+ * @desc Delete equipment
+ * @route DELETE /api/admin/equipment/:id
+ * @access private
+ */
 const deleteEquipment = asyncHandler(async (req, res) => {
   const equipment = await Equipment.findById(req.params.id);
   if (!equipment) {
@@ -151,7 +161,7 @@ const deleteEquipment = asyncHandler(async (req, res) => {
 
   const userEquipment = await UserEquipment.find({ equipment_id: equipment._id });
 
-  // Provjera zaduženja korisnika za opremu
+  // // Check user's equipment assignments
   if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.ACTIVE)) {
     res.status(400);
     throw new Error("Equipment is assigned to the user. Please unassign equipment before deleting!");
@@ -168,8 +178,8 @@ const deleteEquipment = asyncHandler(async (req, res) => {
 
 module.exports = {
   getAllEquipment,
-  addEquipment,
   getEquipment,
+  addEquipment,
   updateEquipment,
   deleteEquipment,
 };

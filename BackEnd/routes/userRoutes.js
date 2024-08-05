@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 /** Controllers **/
-const { updateUserProfile, getUserProfile } = require("../controllers/userController");
-const { getActiveRequests, getPendingRequests, assignEquipment, unassignEquipment, cancelEquipmentRequest, deleteRequest, getEquipmentHistory } = require("../controllers/requestController");
+const { getActiveRequests, getPendingRequests, assignEquipment, unassignEquipment, cancelEquipmentRequest, getEquipmentHistory, deleteRequest } = require("../controllers/userRequestController");
 const { getAllEquipment, getEquipment } = require("../controllers/equipmentController");
+const { getUserProfile, updateUserProfile } = require("../controllers/userController");
 
 /**** Routes for USER (EMPLOYEE OF THE COMPANY) ****/
 

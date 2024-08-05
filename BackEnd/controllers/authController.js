@@ -6,6 +6,129 @@ const nodeMailer = require('nodemailer');
 /** Models **/
 const User = require('../models/userModel');
 
+/**
+ * @desc Register user
+ * @route POST /api/register 
+ * @access public
+ */
+const registerUser = asyncHandler(async (req, res) => {
+
+    const { first_name, last_name, email, username, password, position } = req.body;
+
+    // User validation schema
+    const userSchema = Joi.object({
+        first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({ // za koristenje početnih i završnih razmaka trim() dodati ispred pattern
+            'string.pattern.base': '\"first_name\" cannot contain multiple consecutive spaces!',
+        }),
+        last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+            'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+        }),
+        email: Joi.string().email({ minDomainSegments: 2 }).required().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).messages({
+            'string.pattern.base': '\"email\" is not valid!',
+        }),
+        username: Joi.string().alphanum().min(3).max(30).required(),
+        password: Joi.string().min(8).required(),
+        position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+            'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+        }),
+    });
+
+    // Display validation messages using Joi schema
+    const { error } = userSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        const errorMessages = error.details.map(detail => detail.message);
+        res.status(400);
+        throw new Error(errorMessages.join(', '));
+    }
+
+    // Check if user exists in the database by unique email or username
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+        res.status(400);
+        throw new Error("User with email or username already created!");
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    console.log("Hashed password: " + hashedPassword);
+
+    // Create a new user
+    const user = await User.create({
+        first_name,
+        last_name,
+        email,
+        username,
+        password: hashedPassword,
+        role: "user", // Default role is "user"
+        contact: "",
+        position,
+    });
+
+    // If user is created, return status 201 and user data
+    if (user) {
+        res
+            .status(201)
+            .json({ message: "User created!", _id: user._id, email: user.email, username: user.username });
+    } else {
+        res.status(400);
+        throw new Error("User data is not valid!");
+    }
+});
+
+/** 
+ * @desc Login user
+ * @route POST /api/login
+ * @access public
+*/
+const loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    // Login validation
+    const loginSchema = Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().required()
+    });
+
+    const { error } = loginSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        const errorMessages = error.details.map(detail => detail.message);
+        res.status(400);
+        throw new Error(errorMessages.join(', '));
+    }
+
+    const user = await User.findOne({ email });
+
+    // Provjeri je li korisnik pronađen
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found!");
+    }
+
+    // Provjeri je li lozinka ispravna
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        res.status(400);
+        throw new Error("Invalid email or password!");
+    }
+
+    // Podaci korisnika koji će biti spremljeni u JWT token
+    const payload = {
+        user: {
+            _id: user._id,
+            role: user.role,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email, // obrisati ako ne treba
+            username: user.username, // obrisati ako ne treba
+        }
+    };
+
+    // Generate JWT token
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1hr" });
+    res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 3600000 }).status(200).json({ message: "Login successful!", accessToken });
+});
+
 /** 
  * @desc Link for a forgotten password is sent by email
  * @route POST /api/forgotPassword
@@ -73,7 +196,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 /**
  * @desc Password reset link with ID and TOKEN in email
- *  @route PATCH /api/resetPassword/:userId/:token
+ * @route PATCH /api/resetPassword/:userId/:token
  * @access private
  */
 const resetPassword = asyncHandler(async (req, res) => {
@@ -117,4 +240,27 @@ const resetPassword = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "Password reset successful!" });
 });
 
-module.exports = { forgotPassword, resetPassword };
+/**
+ * @desc Current user with access token information
+ * @route GET /api/current
+ * @access private
+ */
+const currentUser = asyncHandler(async (req, res) => {
+    // Korisnički podaci dostupni su u `req.user` objektu koji je postavljen nakon provjere tokena
+    const currentUserData = req.user;
+    if (currentUserData) {
+        // Korisnik je prijavljen, ispiši poruku da je trenutni korisnik prijavljen
+        currentUserData.iat = new Date(currentUserData.iat * 1000).toLocaleString();
+        currentUserData.exp = new Date(currentUserData.exp * 1000).toLocaleString();
+
+        res.json({
+            message: `User \'${currentUserData.user.first_name} ${currentUserData.user.last_name}\' is logged.`,
+            user: currentUserData,
+        });
+    } else {
+        // Korisnik nije prijavljen
+        res.json({ message: "No user logged in." });
+    }
+});
+
+module.exports = { registerUser, loginUser, forgotPassword, resetPassword, currentUser };

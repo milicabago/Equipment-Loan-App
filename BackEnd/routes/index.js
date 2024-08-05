@@ -1,15 +1,14 @@
 const express = require("express");
 const router = express.Router();
 /** Controllers **/
-const { registerOrCreateUser, loginUser, currentUser } = require("../controllers/userController");
-const { forgotPassword, resetPassword } = require("../controllers/authController");
+const { registerUser, loginUser, forgotPassword, resetPassword, currentUser } = require("../controllers/authController");
 /** Middlewares **/
 const validateToken = require("../middleware/validateTokenHandler");
 const { checkAdmin, checkUser } = require("../middleware/checkRoleHandler");
 
 /** Routes for all USERS **/
 router.post("/login", loginUser);
-router.post("/register", registerOrCreateUser);
+router.post("/register", registerUser);
 router.post("/forgotPassword", forgotPassword);
 router.patch("/resetPassword/:userId/:token", validateToken, resetPassword);
 
