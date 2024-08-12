@@ -125,7 +125,7 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
         throw new Error("User not found!");
     }
 
-    // Validation schema
+    // Admin change user information - Validation schema
     const adminUpdateSchemaForUser = Joi.object({
         email: Joi.string().email().required(),
         username: Joi.string().alphanum().min(3).max(30).required(),
@@ -232,7 +232,7 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
         throw new Error("User doesn't have permission to UPDATE another user profile!");
     }
 
-    // Validation schema
+    // Admin update personal data - Validation schema
     const adminUpdateProfileShema = Joi.object({
         first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
             'string.pattern.base': 'First name - Too many spaces entered!',
@@ -254,12 +254,12 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     });
 
     // Display validation messages using Joi schema
-    const { error } = adminUpdateProfileShema.validate(req.body, { abortEarly: false }); // Dodajemo opciju abortEarly: false kako bi prikazali sve greške
+    const { error } = adminUpdateProfileShema.validate(req.body, { abortEarly: false }); // Add option abortEarly: false -> to display all errors
 
     if (error) {
-        const errorMessages = error.details.map(detail => detail.message); // Mapiramo sve greške u niz
+        const errorMessages = error.details.map(detail => detail.message); // Map all errors to an array 
         res.status(400);
-        throw new Error(errorMessages.join(', ')); // Spajamo sve greške u jednu poruku
+        throw new Error(errorMessages.join(', ')); //Connect all errors in one message
     }
 
     // Verify if the new email is already in use

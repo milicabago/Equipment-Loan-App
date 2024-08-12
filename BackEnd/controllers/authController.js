@@ -99,28 +99,28 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // Provjeri je li korisnik pronađen
+    // Check is user found
     if (!user) {
         res.status(404);
         throw new Error("User not found!");
     }
 
-    // Provjeri je li lozinka ispravna
+    // Compare the password with the hashed password in the database
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
         res.status(400);
         throw new Error("Invalid email or password!");
     }
 
-    // Podaci korisnika koji će biti spremljeni u JWT token
+    // User data that will be saved in the JWT token
     const payload = {
         user: {
             _id: user._id,
             role: user.role,
             first_name: user.first_name,
             last_name: user.last_name,
-            email: user.email, // obrisati ako ne treba
-            username: user.username, // obrisati ako ne treba
+            email: user.email,
+            username: user.username,
         }
     };
 
@@ -139,14 +139,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // Validation schema for email 
+    // Email - Validation schema 
     const emailSchema = Joi.object({
         email: Joi.string().email({ minDomainSegments: 2 }).required().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).messages({
             'string.pattern.base': 'Email is not valid!',
         }),
     });
 
-    // Validation errors of user input
+    // Display validation error messages using Joi schema
     const { error } = emailSchema.validate(req.body, { abortEarly: true });
     if (error) {
         const errorMessages = error.details.filter(detail => ['string.email', 'string.pattern.base'].includes(detail.type)).map(detail => detail.message);
@@ -210,12 +210,12 @@ const resetPassword = asyncHandler(async (req, res) => {
         throw new Error("User not found!");
     }
 
-    // Validation schema for new password
+    // New password - Validation schema
     const newPasswordSchema = Joi.object({
         newPassword: Joi.string().min(8).required(),
     });
 
-    // Validation errors of user input
+    // Display validation error messages using Joi schema
     const { error } = newPasswordSchema.validate(req.body, { abortEarly: false });
     if (error) {
         const errorMessages = error.details.map(detail => detail.message);
@@ -246,19 +246,19 @@ const resetPassword = asyncHandler(async (req, res) => {
  * @access private
  */
 const currentUser = asyncHandler(async (req, res) => {
-    // Korisnički podaci dostupni su u `req.user` objektu koji je postavljen nakon provjere tokena
+    // User data is available in the `req.user` object set after token verification
     const currentUserData = req.user;
     if (currentUserData) {
-        // Korisnik je prijavljen, ispiši poruku da je trenutni korisnik prijavljen
+        // Print a message that the current USER is is logged in
         currentUserData.iat = new Date(currentUserData.iat * 1000).toLocaleString();
         currentUserData.exp = new Date(currentUserData.exp * 1000).toLocaleString();
 
         res.json({
-            message: `User \'${currentUserData.user.first_name} ${currentUserData.user.last_name}\' is logged.`,
+            message: `User \'${currentUserData.user.first_name} ${currentUserData.user.last_name}\' is logged in.`,
             user: currentUserData,
         });
     } else {
-        // Korisnik nije prijavljen
+        // If there is no user data, print a message that NO USER is logged in
         res.json({ message: "No user logged in." });
     }
 });

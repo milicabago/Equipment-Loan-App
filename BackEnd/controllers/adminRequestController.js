@@ -4,6 +4,7 @@ const Joi = require("joi");
 const User = require("../models/userModel");
 const Equipment = require("../models/equipmentModel");
 const Request = require("../models/userEquipmentModel");
+const EquipmentHistory = require("../models/equipmentHistoryModel");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
@@ -36,7 +37,7 @@ const getAllActiveRequests = asyncHandler(async (req, res) => {
             };
         }
 
-        //Find equipment information based on equipment_id
+        // Find equipment information based on equipment_id
         const equipment = await Equipment.findById(request.equipment_id);
         // If equipment is found, add equipment information to the request
         if (equipment) {
@@ -65,16 +66,16 @@ const getAllActiveRequests = asyncHandler(async (req, res) => {
  * @access private
  */
 const getAllPendingRequests = asyncHandler(async (req, res) => {
-    // Pronađi sve zahtjeve koji su u statusu "pending"
+    // Find all requests that are in status "pending"
     const requests = await Request.find({ request_status: UserEquipmentStatus.PENDING }).sort({ assign_date: 1 });
 
-    // Provjeri jesu li pronađeni zahtjevi
+    // Check if requests are found
     if (!requests || requests.length === 0) {
         res.status(404);
         throw new Error("There are no pending requests!");
     }
 
-    // Iteriraj kroz sve zahtjeve i dohvati informacije o korisnicima
+    // Iterate through all requests and fetch user and equipment information
     for (const request of requests) {
         const user = await User.findById(request.user_id);
         if (user) {
@@ -85,9 +86,9 @@ const getAllPendingRequests = asyncHandler(async (req, res) => {
             };
         }
 
-        // Pronađi informacije o opremi na temelju equipment_id
+        // Find equipment information based on equipment_id
         const equipment = await Equipment.findById(request.equipment_id);
-        // Ako je oprema pronađena, dodaj informacije o opremi u zahtjev
+        // If equipment is found, add equipment information to the request
         if (equipment) {
             request.equipment_info = {
                 name: equipment.name,
@@ -99,7 +100,7 @@ const getAllPendingRequests = asyncHandler(async (req, res) => {
         }
     }
 
-    // Dodaj user_info na kraj svakog zahtjeva
+    // Add user_info and equipment_info at the end of each request
     const response = requests.map(request => {
         return {
             ...request._doc,
@@ -112,23 +113,23 @@ const getAllPendingRequests = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Deactivate request for assigned equipment
+ * @desc Deactivate request for assigned equipment (returned)
  * @route PATCH /api/admin/:id
  * @access private
  */
 const deactivateRequest = asyncHandler(async (req, res) => {
     const request = await Request.findById(req.params.id);
-    const equipmentQuantity = await Equipment.findById(request.equipment_id);
+    const unassign_quantity = req.body.unassign_quantity;
 
     // Check if the request is found
     if (!request) {
-        res.status(404).json({ message: "Request not found!" });
-        return;
+        res.status(404);
+        throw new Error("Request not found!");
     }
 
-    // Validation schema
+    // Deactivate request (unassign equipment) - Validation schema
     const deactivateRequestSchema = Joi.object({
-        unassigned_quantity: Joi.number().integer().min(1).required()
+        unassign_quantity: Joi.number().integer().min(1).required()
     });
 
     // Display validation messages using Joi schema
@@ -139,36 +140,61 @@ const deactivateRequest = asyncHandler(async (req, res) => {
         throw new Error(errorMessages.join(', '));
     }
 
-    // Ako admin unese vise od onoga nego sto je zaduzeno
-    if (req.body.unassigned_quantity > request.quantity) {
+    const equipment = await Equipment.findById(request.equipment_id);
+
+    // Check if the equipment is found
+    if (!equipment) {
+        res.status(404);
+        throw new Error("Equipment not found!");
+    }
+
+    // Check if the quantity to unassign is greater than the quantity assigned
+    if (unassign_quantity > request.quantity) {
         res.status(400);
         throw new Error("Invalid quantity for unassigning equipment!");
     }
 
-    // Smanji ukupnu količinu opreme u zahtjevu za količinu koja se razdužuje
-    request.unassigned_quantity += req.body.unassigned_quantity;
-    request.quantity -= req.body.unassigned_quantity;
+    const newHistory = new EquipmentHistory({
+        user_id: request.user_id,
+        equipment_id: request.equipment_id,
+        unassigned_quantity: unassign_quantity,
+        unassign_date: new Date(),
+        return_status_request: UserEquipmentStatus.RETURNED,
+    });
+    await newHistory.save();
 
-    // Povećaj količinu dostupne opreme u bazi (nakon razduživanja korisnika)
-    if (equipmentQuantity) {
-        equipmentQuantity.quantity += req.body.unassigned_quantity;
-        await equipmentQuantity.save();
-    }
+    // Decrease the total quantity of equipment in the request by the quantity being unassigned
+    request.quantity -= unassign_quantity;
 
-    // Kada razdužimo korisnika opreme
+    // Update request status if everything is returned
     if (request.quantity === 0) {
-        request.return_status_request = UserEquipmentStatus.RETURNED;
         request.request_status = UserEquipmentStatus.INACTIVE;
-        request.unassign_date = new Date();
+        request.return_status_request = UserEquipmentStatus.RETURNED;
 
-        res.status(200).json({ message: "User has returned all equipment.", request });
+        // Delete the request from the database because everything is returned
+        await Request.deleteOne({ _id: request._id });
+
+        // Increase the quantity of available equipment in the database (after unassigning the user)
+        equipment.quantity += unassign_quantity;
+        await equipment.save();
+
+        return res.status(200).json({
+            message: `User has returned ALL EQUIPMENT. Request deleted.`,
+        });
     }
 
-    // Spremi promjene
-    const changeRequestStatus = await request.save();
+    // Increase the quantity of available equipment in the database (after everyone unassigning the user)
+    equipment.quantity += unassign_quantity;
+    await equipment.save();
 
-    // Vrati ažurirani zahtjev
-    res.status(200).json({ message: "Request status updated to returned.", changeRequestStatus });
+    // Save changes to the database
+    const updatedRequest = await request.save();
+
+    // Return the response
+    res.status(200).json({
+        message: `Request status updated to RETURNED (${unassign_quantity} → ${equipment.name}).`,
+        request: updatedRequest
+    });
 });
 
 /**
@@ -176,49 +202,158 @@ const deactivateRequest = asyncHandler(async (req, res) => {
  * @route PATCH /api/admin/requests/:id
  * @access private
  */
-const acceptOrDeniedRequest = asyncHandler(async (req, res) => {
-    // Pronađi zahtjev po ID-u
+const acceptOrDenyRequest = asyncHandler(async (req, res) => {
+    const { request_status } = req.body;
+    const requestId = req.params.id;
+    // Find the request by ID
     const request = await Request.findById(req.params.id);
 
-    // Provjeri postoji li zahtjev s tim ID-om
+    // Check if the request is found
     if (!request) {
         res.status(404);
         throw new Error("Request not found!");
     }
 
-    const equipmentQuantity = await Equipment.findById(request.equipment_id);
+    const equipment = await Equipment.findById(request.equipment_id);
+    if (!equipment) {
+        res.status(404);
+        throw new Error("Equipment not found!");
+    }
 
-    // Ažuriraj status zahtjeva na temelju statusa poslanog u tijelu zahtjeva
-    if (req.body.request_status === 'active') {
+    const equipmentDetails = {
+        name: equipment.name,
+        serial_number: equipment.serial_number,
+    };
+
+    // Update request status based on the status sent in the request body
+    // If request status is "active", assign equipment to user
+    // If request status is "denied", delete request
+    if (request_status === 'active') {
+
         request.request_status = UserEquipmentStatus.ACTIVE;
         request.assign_date = new Date();
 
-        // Smanji količinu dostupne opreme u bazi (nakon aktiviranja zahtjeva)
-        if (equipmentQuantity) {
-            equipmentQuantity.quantity -= request.quantity;
-            if (equipmentQuantity.quantity < 0) {
-                res.status(400);
-                throw new Error("Not enough equipment available for assignment!");
-            }
-            await equipmentQuantity.save();
-        }
-
+        equipment.quantity -= request.quantity;
+        await equipment.save();
         await request.save();
 
-        res.status(200).json({ message: "Request activated successfully.", request_status: request.request_status });
-    } else if (req.body.request_status === 'denied') {
+        res.status(200).json({
+            message: "Request activated successfully.",
+            equipment: equipmentDetails,
+        });
+    } else if (request_status === 'denied') {
         if (request.request_status === UserEquipmentStatus.DENIED) {
             return res.status(400).json({ message: "Request is already denied!" });
         }
 
-        request.request_status = UserEquipmentStatus.DENIED;
-        await request.save();
+        // const unassigned_quantity = request.quantity;
 
-        res.status(200).json({ message: "Request denied.", request_status: request.request_status });
+        // const newHistory = new EquipmentHistory({
+        //     user_id: request.user_id,
+        //     equipment_id: request.equipment_id,
+        //     unassigned_quantity: unassigned_quantity,
+        //     unassign_date: new Date(),
+        //     return_status_request: UserEquipmentStatus.DENIED,
+        // });
+        // // Save changes to database
+        // await newHistory.save();
+
+        // Delete the request from the Request collection
+        await Request.findByIdAndDelete(requestId);
+
+        res.status(200).json({
+            message: "Equipment request DENIED and DELETED successfully.",
+            equipment: equipmentDetails,
+        });
     } else {
         res.status(400);
         throw new Error("Invalid status!");
     }
 });
 
-module.exports = { getAllActiveRequests, getAllPendingRequests, deactivateRequest, acceptOrDeniedRequest };
+/**
+ * @desc Get history for RETURNED equipment
+ * @route GET /api/admin/equipmentHistory
+ * @access private
+ */
+const getEquipmentHistory = asyncHandler(async (req, res) => {
+    // Execute a query to the database to retrieve unassigned equipment history
+    const historyData = await EquipmentHistory.find({}).sort({ unassign_date: -1 });
+
+    // Check if equipment history is found
+    if (!historyData || historyData.length === 0) {
+        res.status(404);
+        throw new Error("Equipment history not found!");
+    }
+
+    // Iterate through all requests and fetch equipment and user information
+    for (const history of historyData) {
+        // Fetch equipment information
+        const equipment = await Equipment.findById(history.equipment_id);
+        if (equipment) {
+            history.equipment_info = {
+                name: equipment.name,
+                serial_number: equipment.serial_number,
+            };
+        }
+
+        // Fetch user information
+        const user = await User.findById(history.user_id);
+        if (user) {
+            history.user_info = {
+                first_name: user.first_name,
+                last_name: user.last_name,
+                username: user.username,
+            };
+        }
+    }
+
+    // Format the response
+    const response = historyData.map(history => {
+        return {
+            ...history._doc,
+            equipment_info: history.equipment_info,
+            user_info: history.user_info
+        };
+    });
+
+    res.status(200).json(response);
+});
+
+
+/**
+ * @desc Delete request from History
+ * @route DELETE /api/admin/equipmentHistory/:id
+ * @access private
+ */
+const deleteRequest = asyncHandler(async (req, res) => {
+    const history = await EquipmentHistory.findById(req.params.id);
+    try {
+        if (!history) {
+            res.status(404);
+            throw new Error("Request not found!");
+        }
+
+        // Check if the status of the request is "returned"
+        if (history.return_status_request === UserEquipmentStatus.RETURNED) {
+            // Delete request from database
+            await EquipmentHistory.findByIdAndDelete(req.params.id);
+            res.status(200).json({ message: "Request deleted successfully." });
+        } else {
+            res.status(400);
+            throw new Error("Request status is not 'RETURNED'!");
+        }
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+module.exports = {
+    getAllActiveRequests,
+    getAllPendingRequests,
+    deactivateRequest,
+    acceptOrDenyRequest,
+    getEquipmentHistory,
+    deleteRequest
+};

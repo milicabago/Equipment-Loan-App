@@ -11,7 +11,7 @@ const UserEquipmentSchema = new mongoose.Schema(
     },
     equipment_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "equipment",
+      ref: "Equipment",
       required: [true, "Equipment ID is required"],
     },
     quantity: {
@@ -31,16 +31,6 @@ const UserEquipmentSchema = new mongoose.Schema(
     assign_date: {
       type: Date,
       required: [true, "Assign date is required"],
-    },
-    unassign_date: {
-      type: Date,
-      default: null,
-      required: false,
-    },
-    unassigned_quantity: {
-      type: Number,
-      required: false,
-      default: 0,
     },
   },
   {

@@ -30,6 +30,7 @@ const EquipmentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    collection: "equipment",
   }
 );
 
