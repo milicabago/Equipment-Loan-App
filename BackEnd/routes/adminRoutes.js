@@ -50,6 +50,7 @@ router.put("/equipment/:id", updateEquipment);
 router.delete("/equipment/:id", deleteEquipment);
 router.get("/equipmentHistory", getEquipmentHistory);
 router.delete("/equipmentHistory/:id", deleteRequest);
+// DODATI ZA BRISANJE KOMPLETNE POVIJESTI ***********************
 
 /** GET admin profile data **/
 /** PUT admin profile by ID **/

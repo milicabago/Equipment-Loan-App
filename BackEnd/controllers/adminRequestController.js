@@ -7,6 +7,8 @@ const Request = require("../models/userEquipmentModel");
 const EquipmentHistory = require("../models/equipmentHistoryModel");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
+/** Notifications **/
+const Notification = require('../models/notificationModel');
 
 /**** Requests managed by ADMIN ****/
 
@@ -121,18 +123,15 @@ const deactivateRequest = asyncHandler(async (req, res) => {
     const request = await Request.findById(req.params.id);
     const unassign_quantity = req.body.unassign_quantity;
 
-    // Check if the request is found
     if (!request) {
         res.status(404);
         throw new Error("Request not found!");
     }
 
-    // Deactivate request (unassign equipment) - Validation schema
     const deactivateRequestSchema = Joi.object({
         unassign_quantity: Joi.number().integer().min(1).required()
     });
 
-    // Display validation messages using Joi schema
     const { error } = deactivateRequestSchema.validate(req.body, { abortEarly: false });
     if (error) {
         const errorMessages = error.details.map(detail => detail.message);
@@ -142,13 +141,11 @@ const deactivateRequest = asyncHandler(async (req, res) => {
 
     const equipment = await Equipment.findById(request.equipment_id);
 
-    // Check if the equipment is found
     if (!equipment) {
         res.status(404);
         throw new Error("Equipment not found!");
     }
 
-    // Check if the quantity to unassign is greater than the quantity assigned
     if (unassign_quantity > request.quantity) {
         res.status(400);
         throw new Error("Invalid quantity for unassigning equipment!");
@@ -163,34 +160,50 @@ const deactivateRequest = asyncHandler(async (req, res) => {
     });
     await newHistory.save();
 
-    // Decrease the total quantity of equipment in the request by the quantity being unassigned
     request.quantity -= unassign_quantity;
 
-    // Update request status if everything is returned
+    // Notification messages
+    const notificationMessage = request.quantity === 0
+        ? `Equipment ALL RETURNED: ${unassign_quantity} → ${equipment.name}`
+        : `Equipment RETURNED: ${unassign_quantity} → ${equipment.name}`;
+
+    // Create and save the notification in the database
+    const notification = new Notification({
+        user_id: request.user_id,
+        message: notificationMessage,
+        createdAt: new Date(),
+    });
+    await notification.save()
+
     if (request.quantity === 0) {
         request.request_status = UserEquipmentStatus.INACTIVE;
         request.return_status_request = UserEquipmentStatus.RETURNED;
 
-        // Delete the request from the database because everything is returned
         await Request.deleteOne({ _id: request._id });
 
-        // Increase the quantity of available equipment in the database (after unassigning the user)
         equipment.quantity += unassign_quantity;
         await equipment.save();
+
+        // Emit notification for returning all equipment to the specific USER
+        if (req.io) {
+            req.io.to(request.user_id.toString()).emit('equipmentReturned', notification);
+        }
 
         return res.status(200).json({
             message: `User has returned ALL EQUIPMENT. Request deleted.`,
         });
     }
 
-    // Increase the quantity of available equipment in the database (after everyone unassigning the user)
     equipment.quantity += unassign_quantity;
     await equipment.save();
 
-    // Save changes to the database
     const updatedRequest = await request.save();
 
-    // Return the response
+    // Emit notification for partial return of equipment to the specific USER
+    if (req.io) {
+        req.io.to(request.user_id.toString()).emit('equipmentReturned', notification);
+    }
+
     res.status(200).json({
         message: `Request status updated to RETURNED (${unassign_quantity} → ${equipment.name}).`,
         request: updatedRequest

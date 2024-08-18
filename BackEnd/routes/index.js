@@ -5,6 +5,8 @@ const { registerUser, loginUser, forgotPassword, resetPassword, currentUser } = 
 /** Middlewares **/
 const validateToken = require("../middleware/validateTokenHandler");
 const { checkAdmin, checkUser } = require("../middleware/checkRoleHandler");
+/** Notifications **/
+const { createNotification, getNotifications, deleteNotification, readNotification } = require("../controllers/notificationController");
 
 /** Routes for all USERS **/
 router.post("/login", loginUser);
@@ -20,5 +22,11 @@ router.use("/admin", validateToken, checkAdmin, require("./adminRoutes"));
 
 /** Routes for USER **/
 router.use("/user", validateToken, checkUser, require("./userRoutes"));
+
+/** Notifications Routes **/
+router.post("/notifications", validateToken, createNotification);
+router.get("/allNotifications", validateToken, getNotifications);
+router.delete("/notifications/:id", validateToken, deleteNotification);
+router.patch("/notifications/:id/read", validateToken, readNotification);
 
 module.exports = router;

@@ -1,7 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Joi = require("joi");
 /** Models **/
-const User = require("../models/userModel");
 const Equipment = require("../models/equipmentModel");
 const Request = require("../models/userEquipmentModel");
 const EquipmentHistory = require("../models/equipmentHistoryModel");
