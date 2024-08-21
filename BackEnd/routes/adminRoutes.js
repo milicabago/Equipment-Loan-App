@@ -6,8 +6,9 @@ const {
     getAllPendingRequests,
     deactivateRequest,
     acceptOrDenyRequest,
-    getEquipmentHistory,
-    deleteRequest } = require("../controllers/adminRequestController");
+    getAllEquipmentHistory,
+    deleteRequest,
+    deleteSelectHistory } = require("../controllers/adminRequestController");
 const { createUser, getAllUsers, getUser, adminUpdateUser, deleteUser, getUserProfile, updateAdminProfile } = require("../controllers/adminController");
 const { addEquipment, getAllEquipment, getEquipment, updateEquipment, deleteEquipment } = require("../controllers/equipmentController");
 
@@ -48,9 +49,9 @@ router.get("/equipment", getAllEquipment);
 router.get("/equipment/:id", getEquipment);
 router.put("/equipment/:id", updateEquipment);
 router.delete("/equipment/:id", deleteEquipment);
-router.get("/equipmentHistory", getEquipmentHistory);
+router.get("/equipmentHistory", getAllEquipmentHistory);
 router.delete("/equipmentHistory/:id", deleteRequest);
-// DODATI ZA BRISANJE KOMPLETNE POVIJESTI ***********************
+router.get("/equipmentHistory/deleteHistory", deleteSelectHistory);
 
 /** GET admin profile data **/
 /** PUT admin profile by ID **/

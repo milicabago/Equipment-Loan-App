@@ -3,7 +3,7 @@ const Joi = require("joi");
 /** Models **/
 const Equipment = require("../models/equipmentModel");
 const Request = require("../models/userEquipmentModel");
-const EquipmentHistory = require("../models/equipmentHistoryModel");
+const UserHistory = require("../models/userHistoryModel");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
@@ -228,7 +228,7 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
     // Cancel the request
     // const unassigned_quantity = request.quantity;
 
-    // const newHistory = new EquipmentHistory({
+    // const newUserHistory = new UserHistory({
     //   user_id: request.user_id,
     //   equipment_id: request.equipment_id,
     //   unassigned_quantity: unassigned_quantity,
@@ -236,7 +236,7 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
     //   return_status_request: UserEquipmentStatus.CANCELED,
     // });
     // // Save changes to database
-    // await newHistory.save();
+    // await newUserHistory.save();
 
     // Delete the request from the Request collection
     await Request.findByIdAndDelete(requestId);
@@ -340,7 +340,7 @@ const unassignEquipmentRequest = asyncHandler(async (req, res) => {
  */
 const getEquipmentHistory = asyncHandler(async (req, res) => {
   // Execute a query to the database to retrieve the returned equipment
-  const historyData = await EquipmentHistory.find({
+  const historyData = await UserHistory.find({
     user_id: req.user.user._id,
     return_status_request: UserEquipmentStatus.RETURNED
   }).sort({ unassign_date: -1 });
@@ -378,7 +378,7 @@ const getEquipmentHistory = asyncHandler(async (req, res) => {
  * @access private
  */
 const deleteRequest = asyncHandler(async (req, res) => {
-  const history = await EquipmentHistory.findById(req.params.id);
+  const history = await UserHistory.findById(req.params.id);
   try {
     if (!history) {
       res.status(404);
@@ -388,7 +388,7 @@ const deleteRequest = asyncHandler(async (req, res) => {
     // Check if the status of the request is "returned"
     if (history.return_status_request === UserEquipmentStatus.RETURNED) {
       // Delete request from database
-      await EquipmentHistory.findByIdAndDelete(req.params.id);
+      await UserHistory.findByIdAndDelete(req.params.id);
       res.status(200).json({ message: "Request deleted successfully." });
     } else {
       res.status(400);
@@ -400,6 +400,41 @@ const deleteRequest = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @desc Delete selected requests from history 
+ * @route GET /api/user/equipmentHistory/deleteHistory
+ * @access private
+ */
+const deleteSelectHistory = asyncHandler(async (req, res, next) => {
+  const { ids } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    res.status(400);
+    throw new Error("No selected history records to delete!");
+  }
+
+  // Check if all IDs exist in the database
+  const historyItems = await UserHistory.find({ _id: { $in: ids } });
+
+  // Find IDs that were not found in the database
+  const foundIds = historyItems.map(item => item._id.toString());
+  const notFoundIds = ids.filter(id => !foundIds.includes(id));
+
+  if (notFoundIds.length > 0) {
+    res.status(404);
+    throw new Error(`Some history records were not found: ${notFoundIds.join(', ')}`);
+  }
+
+  try {
+    // Obrisati sve stavke koje odgovaraju ID-evima
+    await UserHistory.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Selected records have been successfully DELETED." });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = {
   getActiveRequests,
   getPendingRequests,
@@ -408,4 +443,5 @@ module.exports = {
   cancelEquipmentRequest,
   getEquipmentHistory,
   deleteRequest,
+  deleteSelectHistory
 };

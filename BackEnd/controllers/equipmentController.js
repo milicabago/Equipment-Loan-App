@@ -3,6 +3,9 @@ const Joi = require("joi");
 /** Models **/
 const Equipment = require("../models/equipmentModel");
 const UserEquipment = require("../models/userEquipmentModel");
+const UserHistory = require("../models/userHistoryModel")
+const AdminHistory = require("../models/adminHistoryModel");
+/** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
 /**
@@ -161,7 +164,7 @@ const deleteEquipment = asyncHandler(async (req, res) => {
 
   const userEquipment = await UserEquipment.find({ equipment_id: equipment._id });
 
-  // // Check user's equipment assignments
+  // Check user's equipment assignments
   if (userEquipment && userEquipment.some(eq => eq.request_status === UserEquipmentStatus.ACTIVE)) {
     res.status(400);
     throw new Error("Equipment is assigned to the user. Please unassign equipment before deleting!");
@@ -171,6 +174,10 @@ const deleteEquipment = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Equipment request has been sent. Please resolve request before deleting the equipment!");
   }
+
+  // Delete equipment from history for the selected equipment
+  await UserHistory.deleteMany({ equipment_id: equipment._id });
+  await AdminHistory.deleteMany({ equipment_id: equipment._id });
 
   const deleteEquipment = await Equipment.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Deleted equipment!", deleteEquipment });

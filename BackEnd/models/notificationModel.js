@@ -18,11 +18,15 @@ const NotificationSchema = new mongoose.Schema(
         },
         createdAt: {
             type: Date,
+            default: Date.now,
             required: [true, "Create date is required"],
-            expires: '30d', // Automatically deletes notifications after 30 days
+            expires: '30d', // Automatically deletes notifications after 30 days (NE RADI)
         },
     }
 );
+
+// Add TTL index manually
+NotificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 }); // NE RADI
 
 const NotificationModel = mongoose.model("Notification", NotificationSchema);
 

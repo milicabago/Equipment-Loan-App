@@ -2,13 +2,12 @@ const express = require("express");
 const router = express.Router();
 /** Controllers **/
 const { registerUser, loginUser, forgotPassword, resetPassword, currentUser } = require("../controllers/authController");
+const { createNotification, getNotifications, deleteNotification, readNotification } = require("../controllers/notificationController");
 /** Middlewares **/
 const validateToken = require("../middleware/validateTokenHandler");
 const { checkAdmin, checkUser } = require("../middleware/checkRoleHandler");
-/** Notifications **/
-const { createNotification, getNotifications, deleteNotification, readNotification } = require("../controllers/notificationController");
 
-/** Routes for all USERS **/
+/** Routes for all types of USERS **/
 router.post("/login", loginUser);
 router.post("/register", registerUser);
 router.post("/forgotPassword", forgotPassword);
@@ -23,7 +22,7 @@ router.use("/admin", validateToken, checkAdmin, require("./adminRoutes"));
 /** Routes for USER **/
 router.use("/user", validateToken, checkUser, require("./userRoutes"));
 
-/** Notifications Routes **/
+/** Routes for Notifications **/
 router.post("/notifications", validateToken, createNotification);
 router.get("/allNotifications", validateToken, getNotifications);
 router.delete("/notifications/:id", validateToken, deleteNotification);

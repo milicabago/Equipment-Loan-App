@@ -8,7 +8,8 @@ const {
     unassignEquipmentRequest,
     cancelEquipmentRequest,
     getEquipmentHistory,
-    deleteRequest } = require("../controllers/userRequestController");
+    deleteRequest,
+    deleteSelectHistory } = require("../controllers/userRequestController");
 const { getAllEquipment, getEquipment } = require("../controllers/equipmentController");
 const { getUserProfile, updateUserProfile } = require("../controllers/userController");
 
@@ -34,6 +35,7 @@ router.post("/equipment/request", assignEquipment); // request_status = "pending
 router.patch("/equipment/request/:id", cancelEquipmentRequest); // Korisnik uređuje poslan zahtjev i šalje ga ponovno ili ga poništava
 router.get("/equipmentHistory", getEquipmentHistory);
 router.delete("/equipmentHistory/:id", deleteRequest);
+router.get("/equipmentHistory/deleteHistory", deleteSelectHistory);
 
 /** GET user profile data **/
 /** PUT user profile by ID **/

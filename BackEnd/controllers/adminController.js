@@ -4,6 +4,8 @@ const Joi = require("joi");
 /** Models **/
 const User = require("../models/userModel");
 const UserEquipment = require("../models/userEquipmentModel");
+const UserHistory = require("../models/userHistoryModel");
+const AdminHistory = require("../models/adminHistoryModel")
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
@@ -188,6 +190,10 @@ const deleteUser = asyncHandler(async (req, res) => {
         res.status(403);
         throw new Error("User has pending request. Please resolve request before deleting the user!");
     }
+
+    // Delete equipment from history for the selected user
+    await UserHistory.deleteMany({ user_id: user._id });
+    await AdminHistory.deleteMany({ user_id: user._id });
 
     const deleteUser = await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "User has been deleted!", deleteUser });

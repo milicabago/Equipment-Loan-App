@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
-const EquipmentHistorySchema = new mongoose.Schema(
+const UserHistorySchema = new mongoose.Schema(
     {
         user_id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -29,10 +29,10 @@ const EquipmentHistorySchema = new mongoose.Schema(
     },
     {
         timestamps: true,
-        collection: "equipment_history",
+        collection: "user_history",
     }
 );
 
-const EquipmentHistoryModel = mongoose.model("equipment_history", EquipmentHistorySchema);
+const UserHistoryModel = mongoose.model("user_history", UserHistorySchema);
 
-module.exports = EquipmentHistoryModel;
+module.exports = UserHistoryModel;
