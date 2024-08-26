@@ -31,6 +31,7 @@ const UserSchema = new mongoose.Schema(
     },
     position: {
       type: String,
+      default: "Employee",
       required: [true, "Position is required"],
     },
     role: {

@@ -13,11 +13,11 @@ const User = require('../models/userModel');
  */
 const createNotification = asyncHandler(async (req, res, next) => {
     try {
-        const { user_id, message } = req.body;
-        const newNotification = new Notification({ user_id, message });
+        const { user_id, message, sender } = req.body; // Include sender in the request body
+        const newNotification = new Notification({ user_id, message, sender });
         await newNotification.save();
 
-        const user = await User.findById(user_id)
+        const user = await User.findById(user_id);
         if (!user) {
             res.status(400);
             throw new Error('User not found!');
@@ -37,9 +37,15 @@ const createNotification = asyncHandler(async (req, res, next) => {
 const getNotifications = asyncHandler(async (req, res, next) => {
     try {
         const loginUserId = req.user.user._id;
+        let notifications;
 
-        // Find notifications for the logged-in user
-        const notifications = await Notification.find({ user_id: loginUserId }).sort({ createdAt: -1 }).limit(5); // Limit to the most recent 5 notifications
+        if (req.user.user.role === 'admin') {
+            // Find notifications specific to this admin
+            notifications = await Notification.find({ user_id: loginUserId }).sort({ createdAt: -1 });
+        } else {
+            // Find notifications for the logged-in user sent by admins
+            notifications = await Notification.find({ user_id: loginUserId, sender: 'admin' }).sort({ createdAt: -1 });
+        }
 
         if (notifications.length === 0) {
             res.status(404);
@@ -95,9 +101,33 @@ const deleteNotification = asyncHandler(async (req, res, next) => {
     }
 });
 
+
+/**
+ * @desc Delete all notifications for the logged-in user
+ * @route DELETE /api/allNotifications
+ * @access private
+ */
+const deleteAllNotifications = asyncHandler(async (req, res, next) => {
+    try {
+        const loginUserId = req.user.user._id;
+
+        const result = await Notification.deleteMany({ user_id: loginUserId });
+
+        if (result.deletedCount === 0) {
+            res.status(404);
+            throw new Error("No notifications found to delete!");
+        }
+
+        res.status(200).json({ message: "All notifications DELETED." });
+    } catch (error) {
+        next(error); // Forwarding error to errorHandler (middleware)
+    }
+});
+
 module.exports = {
     createNotification,
     getNotifications,
     readNotification,
-    deleteNotification
+    deleteNotification,
+    deleteAllNotifications
 };

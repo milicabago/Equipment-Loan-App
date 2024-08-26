@@ -49,6 +49,9 @@ const addEquipment = asyncHandler(async (req, res) => {
 
   const { name, full_name, serial_number, condition, quantity, description } = req.body;
 
+  console.log("Condition: " + req.body.condition);
+
+
   // Equipment validation schema
   const addEquipmentSchema = Joi.object({
     name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
@@ -81,7 +84,7 @@ const addEquipment = asyncHandler(async (req, res) => {
   }
 
 
-  const equipment = await Equipment.create({
+  const newEquipment = new Equipment({
     name,
     full_name,
     serial_number,
@@ -90,7 +93,9 @@ const addEquipment = asyncHandler(async (req, res) => {
     description: description,
   });
 
-  res.status(201).json({ message: "Added equipment.", equipment });
+  await newEquipment.save();
+
+  res.status(201).json({ message: "Added equipment.", newEquipment });
 });
 
 /**

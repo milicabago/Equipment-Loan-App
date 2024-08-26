@@ -6,6 +6,7 @@ const User = require("../models/userModel");
 const UserEquipment = require("../models/userEquipmentModel");
 const UserHistory = require("../models/userHistoryModel");
 const AdminHistory = require("../models/adminHistoryModel")
+const Notification = require("../models/notificationModel");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
@@ -35,7 +36,7 @@ const createUser = asyncHandler(async (req, res) => {
         contact: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
             'string.pattern.base': 'Contact - Too many spaces entered!',
         }),
-        position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+        position: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({
             'string.pattern.base': 'Position - Too many spaces entered!',
         }),
     });
@@ -67,7 +68,7 @@ const createUser = asyncHandler(async (req, res) => {
         email,
         username,
         password: hashedPassword,
-        role: role || "user", // Default role is "user"
+        role, // Default role is "user"
         contact,
         position,
     });
@@ -84,12 +85,14 @@ const createUser = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Get all users
+ * @desc Get all users except the logged-in ADMIN
  * @route GET /api/admin/users
  * @access private
  */
 const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({}).sort({ first_name: 1, last_name: 1 });
+    const loginAdminId = req.user.user._id;
+    // Find all users except the logged-in ADMIN
+    const users = await User.find({ _id: { $ne: loginAdminId } }).sort({ first_name: 1, last_name: 1 });
 
     if (!users) {
         res.status(404);
@@ -115,11 +118,11 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 /**
- * @decs Admin Update user profile
+ * @decs Admin Update USER profile or another ADMIN profile + NOTIFICATION
  * @route PATCH /api/admin/users/:id
  * @access private
  */
-const adminUpdateUser = asyncHandler(async (req, res) => {
+const adminUpdateUserOrAdmin = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
@@ -127,43 +130,65 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
         throw new Error("User not found!");
     }
 
-    // Admin change user information - Validation schema
-    const adminUpdateSchemaForUser = Joi.object({
-        email: Joi.string().email().required(),
+    const adminUpdateSchemaForUserOrAdmin = Joi.object({
         username: Joi.string().alphanum().min(3).max(30).required(),
         role: Joi.string().valid("admin", "user").required(),
-        position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({ // za dodavanje početnih i završnih razmaka trim() dodati ispred pattern
+        position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
             'string.pattern.base': 'Position - Too many spaces entered!',
         }),
     });
 
-    // Display validation messages using Joi schema
-    const { error } = adminUpdateSchemaForUser.validate(req.body, { abortEarly: false });
-
+    const { error } = adminUpdateSchemaForUserOrAdmin.validate(req.body, { abortEarly: false });
     if (error) {
         const errorMessages = error.details.map(detail => detail.message);
         res.status(400);
         throw new Error(errorMessages.join(', '));
     }
 
-    const { email, username } = req.body;
+    const { username, role, position } = req.body;
 
-    // Check if user exists in the database by unique email or username
-    const existingUser = await User.findOne({ $and: [{ _id: { $ne: user._id } }, { $or: [{ email }, { username }] }] });
+    const existingUser = await User.findOne({ $and: [{ _id: { $ne: user._id } }, { username }] });
     if (existingUser) {
         res.status(400);
         throw new Error("User with email or username already exists!");
     }
 
-    // Update user data
-    user.email = req.body.email || user.email;
-    user.username = req.body.username || user.username;
-    user.role = req.body.role || user.role;
-    user.position = req.body.position || user.position;
+    const changes = [];
+    if (user.role !== role) changes.push(`ROLE changed:\n${user.role} -> ${role}`);
+    if (user.username !== username) changes.push(`USERNAME changed:\n${user.username} -> ${username}`);
+    if (user.position !== position) changes.push(`POSITION changed:\n${user.position} -> ${position}`);
+
+    user.username = username;
+    user.role = role;
+    user.position = position;
 
     const updatedUser = await user.save();
 
-    res.status(200).json({ message: "User updated.", updatedUser });
+    // Delete all notifications if the role is changed
+    if (changes.some(change => change.includes('ROLE changed'))) {
+        await Notification.deleteMany({ user_id: user._id });
+    }
+
+    // Send a single notification with all changes
+    // const notificationMessage = `Admin has updated your profile:\n${changes.join(', ')}`;
+    const notificationMessage = `Admin has updated your profile:\n${changes.join(', ')}`;
+
+    // Send notifications
+    const notification = new Notification({
+        user_id: user._id,
+        sender: "admin",
+        message: notificationMessage,
+        createdAt: new Date()
+    });
+    await notification.save();
+
+    if (req.io) {
+        req.io.to(user._id.toString()).emit('adminUpdateUserOrAdminProfile', notification);
+    } else {
+        console.error("Socket.IO is not available!");
+    }
+
+    res.status(200).json({ message: "User or Admin profile updated.", updatedUser });
 });
 
 /**
@@ -312,4 +337,4 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "User updated.", updatedUser });
 });
 
-module.exports = { createUser, getAllUsers, getUser, adminUpdateUser, deleteUser, getUserProfile, updateAdminProfile };
+module.exports = { createUser, getAllUsers, getUser, adminUpdateUserOrAdmin, deleteUser, getUserProfile, updateAdminProfile };

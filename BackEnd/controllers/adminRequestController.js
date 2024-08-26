@@ -115,7 +115,7 @@ const getAllPendingRequests = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Deactivate request for assigned equipment (returned)
+ * @desc Deactivate request for assigned equipment (returned) + NOTIFICATION
  * @route PATCH /api/admin/:id
  * @access private
  */
@@ -155,6 +155,7 @@ const deactivateRequest = asyncHandler(async (req, res) => {
         user_id: request.user_id,
         equipment_id: request.equipment_id,
         unassigned_quantity: unassign_quantity,
+        assign_date: request.assign_date,
         unassign_date: new Date(),
         return_status_request: UserEquipmentStatus.RETURNED,
     });
@@ -164,6 +165,7 @@ const deactivateRequest = asyncHandler(async (req, res) => {
         user_id: request.user_id,
         equipment_id: request.equipment_id,
         unassigned_quantity: unassign_quantity,
+        assign_date: request.assign_date,
         unassign_date: new Date(),
         return_status_request: UserEquipmentStatus.RETURNED,
     });
@@ -173,12 +175,13 @@ const deactivateRequest = asyncHandler(async (req, res) => {
 
     // Notification messages
     const notificationMessage = request.quantity === 0
-        ? `Equipment ALL RETURNED: ${unassign_quantity} → ${equipment.name}`
-        : `Equipment RETURNED: ${unassign_quantity} → ${equipment.name}`;
+        ? `Equipment ALL RETURNED: ${unassign_quantity} of ${equipment.name}`
+        : `Equipment RETURNED: ${unassign_quantity} of ${equipment.name}`;
 
     // Create and save the notification in the database
     const notification = new Notification({
         user_id: request.user_id,
+        sender: "admin",
         message: notificationMessage,
         createdAt: new Date(),
     });
@@ -196,6 +199,8 @@ const deactivateRequest = asyncHandler(async (req, res) => {
         // Emit notification for returning all equipment to the specific USER
         if (req.io) {
             req.io.to(request.user_id.toString()).emit('equipmentReturned', notification);
+        } else {
+            console.error("Socket.IO is not available!");
         }
 
         return res.status(200).json({
@@ -211,22 +216,25 @@ const deactivateRequest = asyncHandler(async (req, res) => {
     // Emit notification for partial return of equipment to the specific USER
     if (req.io) {
         req.io.to(request.user_id.toString()).emit('equipmentReturned', notification);
+    } else {
+        console.error("Socket.IO is not available!");
     }
 
     res.status(200).json({
-        message: `Request status updated to RETURNED (${unassign_quantity} → ${equipment.name}).`,
+        message: `Request status updated to RETURNED (${unassign_quantity} of ${equipment.name}).`,
         request: updatedRequest
     });
 });
 
 /**
- * @desc Update request status (Accept or Deny)
+ * @desc Update request status (Accept or Deny) + NOTIFICATION
  * @route PATCH /api/admin/requests/:id
  * @access private
  */
 const acceptOrDenyRequest = asyncHandler(async (req, res) => {
-    const { request_status } = req.body;
+    const { request_status, return_status_request } = req.body;
     const requestId = req.params.id;
+
     // Find the request by ID
     const request = await Request.findById(req.params.id);
 
@@ -236,6 +244,7 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
         throw new Error("Request not found!");
     }
 
+    // Check if the equipment is found
     const equipment = await Equipment.findById(request.equipment_id);
     if (!equipment) {
         res.status(404);
@@ -247,17 +256,21 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
         serial_number: equipment.serial_number,
     };
 
-    // Update request status based on the status sent in the request body
+    // Notification message
+    let notificationMessage = "";
+
     // If request status is "active", assign equipment to user
     // If request status is "denied", delete request
     if (request_status === 'active') {
-
         request.request_status = UserEquipmentStatus.ACTIVE;
         request.assign_date = new Date();
 
         equipment.quantity -= request.quantity;
         await equipment.save();
         await request.save();
+
+        // Notification message
+        notificationMessage = `Equipment request ACTIVE:\n${request.quantity} of ${equipment.name}`;
 
         res.status(200).json({
             message: "Request activated successfully.",
@@ -268,28 +281,116 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: "Request is already denied!" });
         }
 
-        // const unassigned_quantity = request.quantity;
-
-        // const newHistory = new UserHistory({
-        //     user_id: request.user_id,
-        //     equipment_id: request.equipment_id,
-        //     unassigned_quantity: unassigned_quantity,
-        //     unassign_date: new Date(),
-        //     return_status_request: UserEquipmentStatus.DENIED,
-        // });
-        // // Save changes to database
-        // await newHistory.save();
-
         // Delete the request from the Request collection
         await Request.findByIdAndDelete(requestId);
+
+        notificationMessage = `Equipment request DENIED:\n${request.quantity} of ${equipment.name}`;
 
         res.status(200).json({
             message: "Equipment request DENIED and DELETED successfully.",
             equipment: equipmentDetails,
         });
-    } else {
+    }
+    // If return status request is "active", unassign equipment request accepted
+    // If return status request is "denied", unassign equipment request denied 
+    else if (return_status_request === 'active') {
+        // Update the request status for unassignment
+        request.quantity -= request.unassign_quantity;
+        equipment.quantity += request.unassign_quantity;
+        request.return_status_request = UserEquipmentStatus.INACTIVE;
+        await equipment.save();
+
+        const newUserHistory = new UserHistory({
+            user_id: request.user_id,
+            equipment_id: request.equipment_id,
+            unassigned_quantity: request.unassign_quantity,
+            assign_date: request.assign_date,
+            unassign_date: new Date(),
+            return_status_request: UserEquipmentStatus.RETURNED,
+        });
+        await newUserHistory.save();
+
+        const newAdminHistory = new AdminHistory({
+            user_id: request.user_id,
+            equipment_id: request.equipment_id,
+            unassigned_quantity: request.unassign_quantity,
+            assign_date: request.assign_date,
+            unassign_date: new Date(),
+            return_status_request: UserEquipmentStatus.RETURNED,
+        });
+        await newAdminHistory.save();
+
+        // When all equipment is returned
+        if (request.quantity === 0) {
+            request.request_status = UserEquipmentStatus.INACTIVE;
+            request.return_status_request = UserEquipmentStatus.RETURNED;
+            notificationMessage = `Equipment ALL RETURNED:\n${request.unassign_quantity} of ${equipment.name}`;
+            await request.save();
+            await Request.findByIdAndDelete(requestId);
+
+            // Create and save the notification in the database
+            const notification = new Notification({
+                user_id: request.user_id,
+                sender: "admin",
+                message: notificationMessage,
+                createdAt: new Date(),
+            });
+            await notification.save();
+
+            // Emit notification to the specific USER
+            if (req.io) {
+                req.io.to(request.user_id.toString()).emit('equipmentAcceptOrDeny', notification);
+            } else {
+                console.error("Socket.IO is not available!");
+            }
+
+            res.status(200).json({
+                message: "User has returned ALL EQUIPMENT. Request deleted.",
+                equipment: equipmentDetails,
+            });
+        } else {
+            notificationMessage = `Equipment RETURN processed:\n${request.unassign_quantity} of ${equipment.name}`;
+            request.unassign_quantity = 0;
+            request.unassign_date = null;
+            await request.save();
+        }
+
+        res.status(200).json({
+            message: "Equipment RETURN processed successfully.",
+            equipment: equipmentDetails,
+        });
+
+    } else if (return_status_request === "denied") {
+        request.return_status_request = UserEquipmentStatus.INACTIVE;
+
+        notificationMessage = `Request to unassign equipment DENIED:\n${request.unassign_quantity} of ${equipment.name}`;
+        request.unassign_quantity = 0;
+        request.unassign_date = "";
+        await request.save();
+
+        res.status(200).json({
+            message: `Request to unassign equipment DENIED: ${request.unassign_quantity} of ${equipment.name}`,
+        });
+    }
+    else {
         res.status(400);
         throw new Error("Invalid status!");
+    }
+
+    // Create and save the notification in the database
+    const notification = new Notification({
+        user_id: request.user_id,
+        sender: "admin",
+        message: notificationMessage,
+        createdAt: new Date(),
+    });
+    await notification.save();
+
+    // Emit notification to the specific USER
+    if (req.io) {
+        req.io.to(request.user_id.toString()).emit('equipmentAcceptOrDeny', notification);
+    } else {
+        console.error("Socket.IO is not available!");
     }
 });
 

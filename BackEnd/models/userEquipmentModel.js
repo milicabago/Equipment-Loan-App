@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
+const { required } = require("joi");
 
 const UserEquipmentSchema = new mongoose.Schema(
   {
@@ -18,6 +19,11 @@ const UserEquipmentSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Quantity is required"],
     },
+    unassign_quantity: {
+      type: Number,
+      default: 0,
+      required: [true, "Unassign quantity is required"],
+    },
     request_status: {
       type: String,
       enum: Object.values(UserEquipmentStatus),
@@ -31,6 +37,11 @@ const UserEquipmentSchema = new mongoose.Schema(
     assign_date: {
       type: Date,
       required: [true, "Assign date is required"],
+    },
+    unassign_date: {
+      type: Date,
+      default: null,
+      required: [false, "Assign date is not required"],
     },
   },
   {

@@ -4,6 +4,8 @@ const Joi = require("joi");
 const Equipment = require("../models/equipmentModel");
 const Request = require("../models/userEquipmentModel");
 const UserHistory = require("../models/userHistoryModel");
+const Notification = require("../models/notificationModel")
+const User = require("../models/userModel");
 /** Constants **/
 const { UserEquipmentStatus } = require("../constants");
 
@@ -93,7 +95,7 @@ const getPendingRequests = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @desc Request equipment assignment
+ * @desc Request equipment assignment + NOTIFICATION
  * @route POST /api/user/equipment/request
  * @access private
  */
@@ -109,7 +111,7 @@ const assignEquipment = asyncHandler(async (req, res) => {
 
   // Assign equipment - Validation schema
   const assignEquipmentSchema = Joi.object({
-    equipment_id: Joi.string().required(), // zbog testiranja staviti equipment_id 
+    equipment_id: Joi.string().required(),
     input_quantity: Joi.number().integer().min(1).required()
   });
 
@@ -149,19 +151,37 @@ const assignEquipment = asyncHandler(async (req, res) => {
     quantity: input_quantity,
     request_status: UserEquipmentStatus.PENDING,
     assign_date: new Date(),
+    unassign_date: null,
   });
 
   try {
     // Save the new request to the database
     await newRequest.save();
 
-    /** OBAVIJESTI **/
-    // Pošalji obavijest korisniku o uspješnom slanju zahtjeva
-    // Logika slanja obavijesti korisniku, na primjer putem emaila ili push notifikacija
+    const loginUser = req.user.user;
+    // Fetch all ADMIN users
+    const admins = await User.find({ role: 'admin' });
 
-    // Pošalji obavijest administratoru o novom zahtjevu
-    // Logika slanja obavijesti administratoru, na primjer putem emaila ili push notifikacija
-    /** OBAVIJESTI **/
+    // Create notification message
+    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} requested the assignment -\n${input_quantity} of ${equipment.name}.`;
+
+    // Save notification to the database and emit to each admin
+    for (const admin of admins) {
+      const notification = new Notification({
+        user_id: admin._id,
+        sender: "user",
+        message: notificationMessage,
+        createdAt: new Date(),
+      });
+      await notification.save();
+
+      // Emit notification to admin
+      if (req.io) {
+        req.io.to(admin._id.toString()).emit('newAssignmentRequest', notification);
+      } else {
+        console.log("Socket.IO is not available!");
+      }
+    }
 
     // Send response with appropriate message
     return res.status(200).json({ message: "Equipment assignment request sent successfully.", request: newRequest });
@@ -171,7 +191,7 @@ const assignEquipment = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Cancel or Update New equipment request
+ * @desc Cancel or Update New equipment request + NOTIFICATION
  * @route PATCH /api/user/equipment/request/:id
  * @access private
  */
@@ -223,23 +243,35 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
     serial_number: equipment.serial_number
   };
 
+  const loginUser = req.user.user;
+  // Fetch all ADMIN users
+  const admins = await User.find({ role: 'admin' });
+
   // Cancel the request
   if (return_status_request === "canceled") {
-    // Cancel the request
-    // const unassigned_quantity = request.quantity;
-
-    // const newUserHistory = new UserHistory({
-    //   user_id: request.user_id,
-    //   equipment_id: request.equipment_id,
-    //   unassigned_quantity: unassigned_quantity,
-    //   unassign_date: new Date(),
-    //   return_status_request: UserEquipmentStatus.CANCELED,
-    // });
-    // // Save changes to database
-    // await newUserHistory.save();
-
     // Delete the request from the Request collection
     await Request.findByIdAndDelete(requestId);
+
+    // Create notification message
+    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} canceled the request for ${equipment.name}.`;
+
+    // Save notification to the database and emit to each admin
+    for (const admin of admins) {
+      const notification = new Notification({
+        user_id: admin._id,
+        sender: "user",
+        message: notificationMessage,
+        createdAt: new Date(),
+      });
+      await notification.save();
+
+      // Emit notification to admin
+      if (req.io) {
+        req.io.to(admin._id.toString()).emit('cancelOrUpdateRequest', notification);
+      } else {
+        console.log("Socket.IO is not available!");
+      }
+    }
 
     res.status(200).json({
       message: "Equipment request CANCELED and DELETED successfully.",
@@ -259,6 +291,29 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
 
     // Save changes to database
     const updatedUserEquipment = await request.save();
+
+
+    // Create notification message
+    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} updated the request for ${equipment.name} to ${new_quantity}.`;
+
+    // Save notification to the database and emit to each admin
+    for (const admin of admins) {
+      const notification = new Notification({
+        user_id: admin._id,
+        sender: "user",
+        message: notificationMessage,
+        createdAt: new Date(),
+      });
+      await notification.save();
+
+      // Emit notification to admin
+      if (req.io) {
+        req.io.to(admin._id.toString()).emit('cancelOrUpdateRequest', notification);
+      } else {
+        console.log("Socket.IO is not available!");
+      }
+    }
+
     res.status(200).json({
       message: "NEW ASSIGNMENT request has been sent!",
       updatedUserEquipment,
@@ -267,11 +322,8 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
   }
 });
 
-/*** VIDJETI kako za live obavijesti, kada user klikne na dugme da se salje obavijest da određenu opremu želi razdužiti ***/
-/*** ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓  ***/
-
 /**
- * @desc Request notification to unassign equipment
+ * @desc Request notification to unassign equipment + NOTIFICATION
  * @route POST /api/user/unassignEquipment
  * @access private
  */
@@ -314,23 +366,51 @@ const unassignEquipmentRequest = asyncHandler(async (req, res) => {
   // Check the validity of the quantity
   if (unassign_quantity > userEquipment.quantity) {
     res.status(400);
-    throw new Error("Please enter a valid quantity for unassigning equipment!");
+    throw new Error("Please enter a valid quantity\nfor unassigning equipment!");
   }
 
-  // Kreiraj obavijest za admina
-  const notification = {
-    userId: userObjectId,
-    equipmentId: equipmentObjectId,
-    equipmentName: equipment.name,
-    requestedUnassignQuantity: unassign_quantity,
-    requestDate: new Date(),
-  };
+  const existingRequest = await Request.findOne({ user_id: req.user.user._id, equipment_id, return_status_request: UserEquipmentStatus.PENDING });
+  if (existingRequest) {
+    res.status(400);
+    throw new Error("You have already sent a unassign request for this equipment!");
+  }
 
-  // Emitiranje obavijesti adminima (Socket.IO primjer)
-  req.io.emit('unassignRequest', notification);
+  // Update return_status_request to PENDING and set the unassign_quantity
+  userEquipment.return_status_request = UserEquipmentStatus.PENDING;
+  userEquipment.unassign_quantity = unassign_quantity;
+  userEquipment.unassign_date = new Date();
+  await userEquipment.save();
+
+  const loginUser = req.user.user;
+
+  // Create notification message
+  const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} requested to unassign.\n${unassign_quantity} of ${equipment.name}`;
+
+  // Fetch all ADMIN users
+  const admins = await User.find({ role: 'admin' });
+
+  // Save notification to the database and emit to each admin
+  for (const admin of admins) {
+    const notification = new Notification({
+      user_id: admin._id,
+      sender: "user",
+      message: notificationMessage,
+      createdAt: new Date(),
+    });
+    await notification.save();
+
+    // Emit notification to admin
+    if (req.io) {
+      req.io.to(admin._id.toString()).emit('unassignRequest', notification);
+    } else {
+      console.log("Socket.IO is not available!");
+    }
+  }
+
+  const loginUserName = `${loginUser.first_name} ${loginUser.last_name}`;
 
   // Request to unassign equipment sent to admin
-  res.status(200).json({ message: `Request to unassign ${unassign_quantity} of ${equipment.name} sent to admin.` });
+  res.status(200).json({ user: loginUserName, message: `Request to unassign ${unassign_quantity} of ${equipment.name} sent to admin.` });
 });
 
 /**

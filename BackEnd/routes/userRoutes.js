@@ -13,32 +13,25 @@ const {
 const { getAllEquipment, getEquipment } = require("../controllers/equipmentController");
 const { getUserProfile, updateUserProfile } = require("../controllers/userController");
 
-/**** Routes for USER (EMPLOYEE OF THE COMPANY) ****/
+/**** Routes managed by USER (EMPLOYEE OF THE COMPANY) ****/
 
-/** GET active requests with assigned equipment for each USER **/
-/** PATCH notification-request to unassign equipment **/
+/** Routes fot REQUESTS ('active') and send NOTIFICATION with REQUEST for unassign **/
 router.get("/", getActiveRequests); // request_status === "active"
-router.post("/unassignEquipment", unassignEquipmentRequest); // SLANJE obavijesti da želi razdužiti opremu
+router.post("/unassignEquipment", unassignEquipmentRequest); // return_status_request === "pending"
 
-/** GET all equipment **/
-/** GET all PENDING requests for equipment **/
-/** GET one equipment **/
+/** Routes for EQUIPMENT and REQUESTS ('pending') **/
 router.get("/equipment", getAllEquipment);
 router.get("/equipment/pendingRequests", getPendingRequests);
 router.get("/equipment/:id", getEquipment);
 
-/** POST request for equipment **/
-/** PATCH request for equipment → USER edits a submitted request and resubmits it or cancels it **/
-/** GET equipment history for each USER **/
-/** DELETE request from history **/
+/** Routes for REQUESTS ('pending'; 'canceled') and EQUIPMENT HISTORY **/
 router.post("/equipment/request", assignEquipment); // request_status = "pending"
-router.patch("/equipment/request/:id", cancelEquipmentRequest); // Korisnik uređuje poslan zahtjev i šalje ga ponovno ili ga poništava
+router.patch("/equipment/request/:id", cancelEquipmentRequest); // request_status = "pending" || return_status_request = "canceled"
 router.get("/equipmentHistory", getEquipmentHistory);
 router.delete("/equipmentHistory/:id", deleteRequest);
 router.get("/equipmentHistory/deleteHistory", deleteSelectHistory);
 
-/** GET user profile data **/
-/** PUT user profile by ID **/
+/** Routes for profile of USER **/
 router.route("/settings").get(getUserProfile);
 router.route("/settings/:id").put(updateUserProfile); // USER can only change personal data
 

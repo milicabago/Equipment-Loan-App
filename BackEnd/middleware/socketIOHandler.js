@@ -1,30 +1,28 @@
-const http = require("http");
 const socketIo = require("socket.io");
+const http = require("http");
 
 const initializeSocketIO = (app) => {
-    /** HTTP server for Socket.IO **/
     const server = http.createServer(app);
-
-    /** Initialize Socket.IO instance **/
     const io = socketIo(server, {
         cors: {
             origin: "http://localhost:3000", // FrontEnd URL
         },
     });
 
-    /** Socket.IO Middleware for all routes **/
+    // Middleware req.io for all routes
     app.use((req, res, next) => {
         req.io = io;
         next();
     });
 
-    /** Socket.IO events for managing user connections **/
+    // Socket.IO connection
     io.on("connection", (socket) => {
         const { user_id } = socket.handshake.query;
         console.log(`Connected user ID: ${user_id}`);
 
         if (user_id) {
             socket.join(user_id);  // User joins the room with user_id identifier
+
         } else {
             console.log('User ID is undefined!');
         }

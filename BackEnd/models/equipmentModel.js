@@ -17,6 +17,7 @@ const EquipmentSchema = new mongoose.Schema(
     },
     condition: {
       type: Boolean,
+      default: true,
       required: [true, "Condition is required"],
     },
     quantity: {

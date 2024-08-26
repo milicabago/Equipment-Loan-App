@@ -7,6 +7,11 @@ const NotificationSchema = new mongoose.Schema(
             ref: "User",
             required: [true, "User ID is required"],
         },
+        sender: {
+            type: String,
+            enum: ["user", "admin"],
+            required: [true, "Receiver is required"],
+        },
         message: {
             type: String,
             required: [true, "Message is required"],
@@ -18,15 +23,13 @@ const NotificationSchema = new mongoose.Schema(
         },
         createdAt: {
             type: Date,
-            default: Date.now,
             required: [true, "Create date is required"],
-            expires: '30d', // Automatically deletes notifications after 30 days (NE RADI)
         },
     }
 );
 
-// Add TTL index manually
-NotificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 }); // NE RADI
+// Define TTL index to automatically delete notifications after 30 days
+NotificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 }); // 30 days in seconds
 
 const NotificationModel = mongoose.model("Notification", NotificationSchema);
 

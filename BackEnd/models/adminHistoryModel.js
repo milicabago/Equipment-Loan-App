@@ -18,6 +18,10 @@ const AdminHistorySchema = new mongoose.Schema(
             type: Number,
             required: [true, "Quantity is required"],
         },
+        assign_date: {
+            type: Date,
+            required: [true, "Assign date is required"],
+        },
         unassign_date: {
             type: Date,
             required: [true, "Unassign date is required"],
@@ -32,6 +36,9 @@ const AdminHistorySchema = new mongoose.Schema(
         collection: "admin_history",
     }
 );
+
+// Define TTL index to automatically delete history after 30 days
+AdminHistorySchema.index({ unassign_date: 1 }, { expireAfterSeconds: 2592000 }); // 30 days in seconds
 
 const AdminHistoryModel = mongoose.model("admin_history", AdminHistorySchema);
 

@@ -9,42 +9,32 @@ const {
     getAllEquipmentHistory,
     deleteRequest,
     deleteSelectHistory } = require("../controllers/adminRequestController");
-const { createUser, getAllUsers, getUser, adminUpdateUser, deleteUser, getUserProfile, updateAdminProfile } = require("../controllers/adminController");
+const { createUser, getAllUsers, getUser, adminUpdateUserOrAdmin, deleteUser, getUserProfile, updateAdminProfile } = require("../controllers/adminController");
 const { addEquipment, getAllEquipment, getEquipment, updateEquipment, deleteEquipment } = require("../controllers/equipmentController");
 
-/**** Routes for ADMIN ****/
+/**** Routes managed by ADMIN ****/
 
-/** GET all active requests with assigned equipment **/
-/** PATCH request to unassign equipment **/
+/** Routes for REQUESTS ('active'; 'returned') **/
 router.get("/", getAllActiveRequests); // request_status === "active"
 router.patch("/:id", deactivateRequest); // return_status_request === "returned" 
 
-/** GET all PENDING requests **/
-/** ACCEPT or DENY request for equipment **/
+/** Routes for REQUESTS ('active'; 'pending'; 'denied') **/
 router.get("/requests", getAllPendingRequests); // request_status === "pending"
-router.patch("/requests/:id", acceptOrDenyRequest);  // request_status === "active" | request_status === "denied"
+router.patch("/requests/:id", acceptOrDenyRequest);  // request_status === "active" || request_status === "denied" for assign equipment
 
-/** POST for create new User **/
+/** Route for create USER **/
 router.post("/createUser", createUser);
 
-/** GET all users **/
-/** GET one user **/
-/** PATCH user data (ADMIN can change → EMAIL, ROLE, POSITION) **/
-/** DELETE user **/
+/** Routes for USERS **/
 router.get("/users", getAllUsers);
 router.get("/users/:id", getUser);
-router.patch("/users/:id", adminUpdateUser);
+router.patch("/users/:id", adminUpdateUserOrAdmin); // ADMIN can change → USERNAME, ROLE, POSITION
 router.delete("/users/:id", deleteUser);
 
-/** POST for create new Equipment **/
+/** Route for add EQUIPMENT **/
 router.post("/addEquipment", addEquipment);
 
-/** GET all equipment **/
-/** GET equipment **/
-/** PUT equipment **/
-/** DELETE equipment **/
-/** GET equipment history **/
-/** DELETE request from history **/
+/** Routes for EQUIPMENT and EQUIPMENT HISTORY **/
 router.get("/equipment", getAllEquipment);
 router.get("/equipment/:id", getEquipment);
 router.put("/equipment/:id", updateEquipment);
@@ -53,8 +43,7 @@ router.get("/equipmentHistory", getAllEquipmentHistory);
 router.delete("/equipmentHistory/:id", deleteRequest);
 router.get("/equipmentHistory/deleteHistory", deleteSelectHistory);
 
-/** GET admin profile data **/
-/** PUT admin profile by ID **/
+/** Routes for profile of ADMIN **/
 router.route("/settings").get(getUserProfile)
 router.route("/settings/:id").put(updateAdminProfile) // ADMIN cannot change → ROLE
 
