@@ -53,7 +53,7 @@ const getActiveRequests = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Get all Pending requests for USER
+ * @desc Get all Pending assign and unassign requests for USER
  * @route GET /api/user/equipment/pendingRequests
  * @access private
  */
@@ -63,7 +63,7 @@ const getPendingRequests = asyncHandler(async (req, res, next) => {
 
     const pendingRequests = await Request.find({
       user_id: userId,
-      request_status: UserEquipmentStatus.PENDING,
+      $or: [{ request_status: UserEquipmentStatus.PENDING }, { return_status_request: UserEquipmentStatus.PENDING }]
     }).sort({ assign_date: 1 });
 
     if (!pendingRequests || pendingRequests.length === 0) {

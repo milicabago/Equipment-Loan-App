@@ -364,12 +364,13 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
         request.return_status_request = UserEquipmentStatus.INACTIVE;
 
         notificationMessage = `Request to unassign equipment DENIED:\n${request.unassign_quantity} of ${equipment.name}`;
+        let unassignQuantity = request.unassign_quantity;
         request.unassign_quantity = 0;
         request.unassign_date = "";
         await request.save();
 
         res.status(200).json({
-            message: `Request to unassign equipment DENIED: ${request.unassign_quantity} of ${equipment.name}`,
+            message: `Request to unassign equipment DENIED: ${unassignQuantity} of ${equipment.name}`,
         });
     }
     else {

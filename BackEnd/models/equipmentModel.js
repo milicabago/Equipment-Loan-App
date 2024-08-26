@@ -24,6 +24,11 @@ const EquipmentSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Quantity is required"],
     },
+    invalid_quantity: {
+      type: Number,
+      default: 0,
+      required: [false, "Invalid quantity is required"],
+    },
     description: {
       type: String,
       required: false,

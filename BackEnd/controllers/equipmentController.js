@@ -123,6 +123,7 @@ const updateEquipment = asyncHandler(async (req, res) => {
       'string.pattern.base': '\"serial_number\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
     condition: Joi.boolean().required(),
+    invalid_quantity: Joi.number().integer().min(1).optional(),
     quantity: Joi.number().integer().min(0).required(),
     description: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"description\" cannot start or end with spaces, or contain multiple consecutive spaces!',
@@ -142,6 +143,20 @@ const updateEquipment = asyncHandler(async (req, res) => {
   if (existingEquipment) {
     res.status(400);
     throw new Error("Equipment with serial number already exists!");
+  }
+
+  const invalid_quantity = req.body.invalid_quantity;
+  if (invalid_quantity > equipment.quantity) {
+    res.status(400);
+    throw new Error("Invalid input quantity for non-fuctional equipment!");
+  }
+
+  equipment.quantity -= invalid_quantity;
+  await equipment.save();
+
+  if (equipment.quantity === 0) {
+    res.status(400);
+    throw new Error("Equipment is not more available! Accept button disable!");
   }
 
   const updatedEquipment = await Equipment.findByIdAndUpdate(

@@ -22,6 +22,7 @@ router.post("/unassignEquipment", unassignEquipmentRequest); // return_status_re
 /** Routes for EQUIPMENT and REQUESTS ('pending') **/
 router.get("/equipment", getAllEquipment);
 router.get("/equipment/pendingRequests", getPendingRequests);
+// router.get("/equipment/unassignPendingRequests", getPendingRequests);
 router.get("/equipment/:id", getEquipment);
 
 /** Routes for REQUESTS ('pending'; 'canceled') and EQUIPMENT HISTORY **/
