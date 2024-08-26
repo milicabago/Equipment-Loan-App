@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.3.4",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7",
     "@nextui-org/react": "^2.2.10",
     "axios": "^1.6.8",
+    "bootstrap": "^5.3.3",
     "chart.js": "^4.4.2",
     "jwt-decode": "^4.0.0",
+    "lodash": "^4.17.21",
     "next": "14.2.1",
+    "rc-slider": "^11.1.5",
     "react": "^18",
+    "react-bootstrap": "^2.10.4",
     "react-chartjs-2": "^5.2.0",
     "react-cookie": "^7.1.4",
     "react-dom": "^18",
@@ -23,14 +31,21 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^5.0.1",
     "react-modal": "^3.16.1",
+    "react-range": "^1.10.0",
+    "react-slider": "^2.0.6",
+    "react-toastify": "^10.0.5",
     "recharts": "^2.12.6",
+    "socket.io-client": "^4.7.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
+    "autoprefixer": "^10.4.20",
     "eslint": "^8",
-    "eslint-config-next": "14.2.1"
+    "eslint-config-next": "14.2.1",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.7"
   }
 }

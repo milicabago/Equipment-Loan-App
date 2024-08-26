@@ -1,20 +1,25 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import styles from './sidebar.module.css';
+import styles from '@/app/components/sidebar/sidebar.module.css';
 import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useLogout } from '@/app/auth/logout/logout';
 import {
     MdDashboard,
     MdSupervisedUserCircle,
-    MdShoppingBag,
     MdOutlineSettings,
     MdLogout,
-    MdEditDocument
+    MdHistory,
+    MdAssignmentReturn,
+    MdStorage,
+    MdPlaylistAdd,
+    MdPersonAdd
 } from 'react-icons/md';
+
 
 
 
@@ -31,7 +36,7 @@ const menuItems = [
         {
           title: "Requests",
           path: "/admin/requests",
-          icon: <MdShoppingBag />,
+          icon: <MdAssignmentReturn />,
         },
         {
           title: "Users",
@@ -41,7 +46,7 @@ const menuItems = [
         {
           title: "Equipment",
           path: "/admin/equipment",
-          icon: <MdShoppingBag />,
+          icon: <MdStorage />,
         },
         
         
@@ -54,12 +59,17 @@ const menuItems = [
         {
           title: "Create User",
           path: "/admin/createUser",
-          icon: <MdSupervisedUserCircle />,
+          icon: <MdPersonAdd />,
         },
         {
           title: "Add Equipment",
           path: "/admin/addEquipment",
-          icon: <MdEditDocument />,
+          icon: <MdPlaylistAdd />,
+        },
+        {
+          title: "History",
+          path: "/admin/history",
+          icon: <MdHistory />,
         },
         
         
@@ -78,6 +88,7 @@ const menuItems = [
        
       ],
     },
+    
 
   ];
 
@@ -90,6 +101,7 @@ const Sidebar = () => {
   const [lastName, setLastName] = useState(null);
   const [id, setId] = useState('');
   const router = useRouter();
+  const { handleLogout } = useLogout(); 
 
  
   useEffect(() => {
@@ -105,7 +117,7 @@ const Sidebar = () => {
         const currentTime = Date.now();
 
         if (expirationTime < currentTime) {
-            handleLogout();
+          handleLogout();
         } else {
             setRole(userRole === 'admin' ? 'Administrator' : '');
             setFirstName(userFirstName);
@@ -118,7 +130,7 @@ const Sidebar = () => {
             }
         }
     } else {
-        handleLogout();
+      handleLogout();
         setFirstName(null);
         setLastName(null);
         setRole(null);
@@ -126,15 +138,7 @@ const Sidebar = () => {
 }, [cookies.accessToken]);
 
 
-  const handleLogout = () => {
-    setFirstName(null);
-    setLastName(null);
-    setRole(null);
-    removeCookie('accessToken');
-    localStorage.removeItem('user._id');
-    clearHistoryAndRedirect();
-    
-  };
+  
 
   const clearHistoryAndRedirect = () => {
     router.replace('/auth/login');
@@ -148,10 +152,10 @@ const Sidebar = () => {
         const expirationTime = decodedToken.exp * 1000;
         const currentTime = Date.now();
         if (expirationTime < currentTime) {
-            handleLogout();
+          handleLogout();
         }
     }
-  }, [cookies.accessToken]);
+  }, [cookies.accessToken, handleLogout]);
 
 
 

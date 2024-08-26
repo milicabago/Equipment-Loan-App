@@ -1,9 +1,9 @@
-import MyDashboard from "../components/myDashboard/myDashboard";
+import Dashboard from "./dashboard/page";
 
 const User = () => {
     return (
       <div>
-        <MyDashboard/>
+        <Dashboard/>
       </div>
       
     );

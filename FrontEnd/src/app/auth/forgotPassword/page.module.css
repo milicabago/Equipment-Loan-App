@@ -6,35 +6,16 @@
   align-items: center;
   justify-content: center;
 }
-
-.start {
+.background {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 10px;
-  gap: 15px;
 }
-
-.title {
-  color: var(--text);
-  font-weight: bold;
-  font-size: 25px;
-  margin-top: 50px;
-}
-
-.desc {
-  color: var(--textSoft);
-  font-size: 15px;
-}
-
-.email {
-  align-self: flex-start;
-  width: 100%;
-  font-size: 15px;
-}
-
 .form {
   position: relative;
   background-color: rgba(0, 0, 0, 0.8);
@@ -50,7 +31,6 @@
   align-items: center;
   color: white;
 }
-
 .form input {
   padding: 20px;
   width: 100%;
@@ -61,7 +41,6 @@
   margin-top: 10px;
   font-size: 16px;
 }
-
 .form button {
   padding: 15px;
   width: 100%;
@@ -73,22 +52,34 @@
   margin-bottom: 50px;
   margin-top: 10px;
 }
-
-.background {
-  position: absolute;
-  width: 100%;
-  height: 100vh;
-  background-size: cover;
-  background-position: center;
+.start {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 10px;
+  gap: 15px;
 }
-.btn{
+.title {
+  color: var(--text);
+  font-weight: bold;
+  font-size: 25px;
+  margin-top: 50px;
+}
+.description {
+  color: var(--textSoft);
+  font-size: 15px;
+}
+.email {
+  align-self: flex-start;
+  width: 100%;
+  font-size: 15px;
+}
+.button{
   width: 100%;
 }
-
-.p{
+.p {
   text-align: center;
   color: white;
   font-style: italic;
@@ -96,8 +87,7 @@
   margin-bottom: 40px;
   cursor: auto;
 }
-
-.login{
+.login {
   align-items: center;
   font-size: 17px;
   color: #769eee;

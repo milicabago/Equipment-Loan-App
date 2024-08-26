@@ -1,10 +1,11 @@
 "use client"
-import styles from './dashboard.module.css';
+import styles from './page.module.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
+import io from 'socket.io-client';
 
 const Dashboard = () => {
     const [requests, setRequests] = useState([]);
@@ -16,13 +17,35 @@ const Dashboard = () => {
     const [returnModalIsOpen, setReturnModalIsOpen] = useState(false);
     const [returnQuantity, setReturnQuantity] = useState(1);
     const [currentQuantity] = useState();
+    const [socket, setSocket] = useState(null);
+
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
-        const formattedDate = date.toLocaleDateString();
-        const formattedTime = date.toLocaleTimeString();
+        const formattedDate = date.toLocaleDateString('hr-HR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+        const formattedTime = date.toLocaleTimeString('hr-HR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
         return `${formattedDate} ${formattedTime}`;
     };
     
+    useEffect(() => {
+        Modal.setAppElement('body');
+      }, []);
+    
+
+      useEffect(() => {
+        const newSocket = io('http://localhost:5001');
+        setSocket(newSocket);
+
+        return () => newSocket.close();
+    }, [setSocket]);
+
     useEffect(() => {
         const token = cookies.accessToken;
         const config = {
@@ -69,7 +92,7 @@ const Dashboard = () => {
                 return;
             }
             await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/${requestId}`, 
-                { unassigned_quantity: returnQuantity },{
+                { unassign_quantity: returnQuantity },{
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -77,18 +100,23 @@ const Dashboard = () => {
             );
             setRequests(prevRequests => prevRequests.map(request => {
             if (request._id === requestId) {
-                return { ...request, unassigned_quantity: returnQuantity };
+                return { ...request, unassign_quantity: returnQuantity };
             }
             return request;
             }));
             closeReturnModal();
             toast.success('Equipment returned successfully!', { duration: 3000 } );
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+            
         } catch (error) {
             console.error("Error:", error);
             toast.error(error.response.data.message , { duration: 3000 });
+        }
+    };
+
+    const handleReturnEquipment = async (request) => {
+        if (socket) {
+            // Emitiraj obavijest korisniku putem Socket.IO
+            socket.emit('equipmentReturned');
         }
     };
     
@@ -116,6 +144,10 @@ const Dashboard = () => {
             <div className={styles.loading}>
                 <div className={styles.spinner}></div>
             </div>
+         ) : requests.length === 0 ? (
+            <div>
+                <h1 className={styles.empty}>No assigned equipment at the moment.</h1>
+            </div>
         ) : (
             <div>
                 <div className={styles.title}>
@@ -127,7 +159,7 @@ const Dashboard = () => {
                             <th>USER</th>
                             <th>EQUIPMENT</th>
                             <th>QUANTITY</th>
-                            <th>DATE</th>
+                            <th>ASSIGN DATE</th>
                             <th>STATUS</th>
                             <th>ACTIONS</th>
                         </tr>
@@ -167,7 +199,8 @@ const Dashboard = () => {
                         <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
-                        <p><span className={styles.label}>Assign Date:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
+                        <p><span className={styles.label}>Request Sent:</span> <span className={styles.value}>{formatDate(requestToRead.createdAt)}</span></p>
+                        <p><span className={styles.label}>Request Accepted:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
                     </div>
                 )}
                 <div className={styles.modalButtons}>
@@ -197,8 +230,8 @@ const Dashboard = () => {
                         />
                         <p className={styles.question}> Are you sure you want to return this equipment?</p>
                         <div className={styles.modalButtons}>
-                            <button onClick={() => returnRequests(requestToReturn._id)}>Return</button>
-                            <button onClick={closeReturnModal}>Close</button>
+                        <button onClick={() => { returnRequests(requestToReturn._id); handleReturnEquipment(requestToReturn) }}>Confirm</button>
+                            <button onClick={closeReturnModal}>Dismiss</button>
                         </div>
                     </div>
                 )}

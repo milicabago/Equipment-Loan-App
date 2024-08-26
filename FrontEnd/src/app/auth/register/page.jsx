@@ -11,6 +11,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 
+
 const RegisterPage = () => {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
@@ -26,10 +27,10 @@ const RegisterPage = () => {
     const schema = yup.object().shape({
         first_name: yup.string().required("First name is required!").matches(/^(\S+\s)*\S+$/, '"First name" cannot contain multiple consecutive spaces!'),
         last_name: yup.string().required("Last name is required!").matches(/^(\S+\s)*\S+$/, '"Last name" cannot start or end with spaces, or contain multiple consecutive spaces!'),
-        email: yup.string().email().required("Email is required!").matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '"Email" is not valid!'),
         username: yup.string().required("Username is required!").min(3).max(30).matches(/^[a-zA-Z0-9]+$/, '"Username" can only contain letters and numbers!'),
+        contact: yup.string().notRequired("Contact is not required!").matches(/^(\+\d{1,3})?\d{9,15}$/, 'Contact must be a valid phone number'),
+        email: yup.string().email().required("Email is required!").matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '"Email" is not valid!'),
         role: yup.string().required("Role is required!").oneOf(["admin", "user"], 'Invalid "role" value!'),
-        position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/, '"Position" cannot start or end with spaces, or contain multiple consecutive spaces!'),
         password: yup.string().min(8, "Password must be at least 8 characters long").required("Password is required!"),
         confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password")
 
@@ -47,7 +48,7 @@ const RegisterPage = () => {
                 username: data.username,
                 email: data.email,
                 password: data.password,
-                position: data.position
+                contact: data.contact,
             })
             .then(() =>{
                 router.push('/auth/login');
@@ -91,6 +92,24 @@ const RegisterPage = () => {
                         <input type="text" className={styles.autofill} placeholder="Enter username" {...register("username")} autoComplete="off" />
                     </label>
 
+                    <label className={styles.contact}>Contact:
+                    <p>{errors.contact?.message}</p>
+                    <input
+                        type="tel"
+                        onKeyDown={(event) => {
+                            const key = event.key; 
+                            const value = event.target.value;
+                            const regex = /^\+?\d*$/;
+                            if (!regex.test(value + key) && key !== "Backspace" && key !== "Delete") {
+                                event.preventDefault(); 
+                            }
+                        }}
+                        placeholder="Enter contact number"
+                        {...register("contact")}
+                        autoComplete='off'/>
+                    </label> 
+                    
+
                     <label className={styles.email}>Email:
                     <p>{errors.email?.message}</p>
                         <input type="text" className={styles.autofill} placeholder="Enter email" {...register("email")} autoComplete="off" />
@@ -117,18 +136,6 @@ const RegisterPage = () => {
                             </span>
                         </div>
                     </label>
-
-                    <label className={styles.position}>Position:
-                                <p>{errors.position?.message}</p>
-                                <select {...register("position")} className={styles.select}>
-                                <option className={styles.employee} value="Project manager">Project manager</option>
-                                <option className={styles.employee} value="Software developer">Software developer</option>
-                                <option className={styles.employee} value="Graphic designer">Graphic designer</option>
-                                <option className={styles.employee} value="Financial accountant">Financial accountant</option>
-                                <option className={styles.employee} value="DevOps Engineer">DevOps Engineer</option>
-                                <option className={styles.employee} value="Junior Product Owner">Junior Product Owner</option>
-                            </select>
-                            </label>
                     </div>
                     <div className={styles.btn}>
                         <button type="submit">Register</button>

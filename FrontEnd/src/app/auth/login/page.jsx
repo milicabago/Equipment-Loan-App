@@ -74,7 +74,11 @@ const LoginPage = (data) => {
                 console.log("Logged in successfully!");
                 const token = response.data.accessToken;
                 const decodedToken = jwtDecode(token); 
-                const userRole = decodedToken.user.role; 
+                const userRole = decodedToken.user.role;
+                
+                const userId = decodedToken.user._id;  
+                console.log("Stored userId:", userId); 
+                localStorage.setItem('userId', userId); 
 
                 setCookie ('accessToken', token);
                 if (userRole === "admin") {

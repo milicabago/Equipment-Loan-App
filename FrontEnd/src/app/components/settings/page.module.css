@@ -4,30 +4,26 @@
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
-
 .title {
   font-size: 20px;
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 40px;
 }
-
 .user {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   display: flex;
   align-items: flex-start;
-  
-}
 
+}
 .userImage {
   border-radius: 50%;
   margin-right: 20px;
   width: 100px;
   height: 100px;
 }
-
 .userDetail {
   position: relative;
   margin-top: 20px;
@@ -39,7 +35,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
 }
-
 .label{
   font-size: 16px;
   color: #ffffff;
@@ -63,8 +58,6 @@
   margin-left: 10px;
   font-style: italic;
 }
-
-
 .loading {
   position: absolute;
   top: 20%;
@@ -72,7 +65,6 @@
   transform: translate(-50%, -50%);
   text-align: center;
 }
-    
 .spinner {
   width: 60px;
   height: 60px;
@@ -81,7 +73,6 @@
   border-top: 4px solid #3498db;
   animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -100,20 +91,16 @@
   cursor: pointer;
   border-radius: 25px;
 }
-
 .button:disabled {
   background-color: black;
   border: 1px solid var(--button);
   cursor: not-allowed;
 }
-
-
 .detailItem {
   position: relative;
   display: flex;
   align-items: center; 
 }
-
 .passwordToggle {
   position: absolute;
   right: 5px;

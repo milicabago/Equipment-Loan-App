@@ -1,13 +1,14 @@
-"use client";import styles from './page.module.css'
+"use client";
+import styles from './page.module.css'
+import { useState } from 'react';
+import { useRouter } from "next/navigation";
+import axios from 'axios';
 import Image from "next/image";
+import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
-import { useRouter } from "next/navigation";
-import axios from 'axios';
-import toast from 'react-hot-toast';
 
 const ResetPasswordPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -47,15 +48,18 @@ const ResetPasswordPage = () => {
             if (response.status === 200) {
                 toast.success("Password reset successful!", { duration: 3000 });
                 setTimeout(() => {
+                    toast.success("Redirecting to login page...", { duration: 3000 });
+                }, 2000);
+                setTimeout(() => {
                     router.push("/auth/login");
-                }, 3000);
+                }, 4000);
             } else {
                 toast.error("Password reset failed. Please try again later.");
             }
         } catch (error) {
             console.error("Password reset error:", error);
             if (error.response) {
-                toast.error('token' +error.response.data.message);
+                toast.error(error.response.data.message);
             } else {
                 toast.error("Password reset failed. Please try again later.");
             }

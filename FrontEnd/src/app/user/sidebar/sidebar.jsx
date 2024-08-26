@@ -1,5 +1,5 @@
 "use client"
-import styles from './sidebar.module.css';
+import styles from '@/app/components/sidebar/sidebar.module.css';
 import React, { useState, useEffect } from 'react';
 import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
@@ -7,13 +7,19 @@ import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import toast from'react-hot-toast';
+import { useLogout } from '@/app/auth/logout/logout';
+
 
 import {
-    MdDashboard,
-    MdShoppingBag,
-    MdOutlineSettings,
-    MdLogout,
-    MdEditDocument
+  MdDashboard,
+  MdSupervisedUserCircle,
+  MdOutlineSettings,
+  MdLogout,
+  MdHistory,
+  MdAssignmentReturn,
+  MdStorage,
+  MdPlaylistAdd,
+  MdPersonAdd
 } from 'react-icons/md';
 
 
@@ -27,14 +33,19 @@ const menuItems = [
           icon: <MdDashboard />,
         },
         {
+          title: "Requests",
+          path: "/user/requests",
+          icon: <MdAssignmentReturn />,
+        },
+        {
           title: "Equipment",
           path: "/user/equipment",
-          icon: <MdShoppingBag />,
+          icon: <MdStorage />,
         },
         {
           title: "History",
-          path: "/user/equipmentHistory",
-          icon: <MdEditDocument />,
+          path: "/user/history",
+          icon: <MdHistory />,
         },
         
         
@@ -63,6 +74,7 @@ const Sidebar = () => {
     const [lastName, setLastName] = useState(null);
     const [id, setId] = useState('');
     const router = useRouter();
+    const { handleLogout } = useLogout(); 
 
 
     useEffect(() => {
@@ -96,15 +108,7 @@ const Sidebar = () => {
         }
   }, [cookies.accessToken])
 
-const handleLogout = () => {
-  setFirstName(null);
-  setLastName(null);
-  setRole(null);
-  removeCookie('accessToken'); 
-  localStorage.removeItem('user._id');
-  clearHistoryAndRedirect();
-  
-};
+
 
 const clearHistoryAndRedirect = () => {
   router.replace('/auth/login');

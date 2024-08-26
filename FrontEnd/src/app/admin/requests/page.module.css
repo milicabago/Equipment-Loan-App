@@ -1,47 +1,15 @@
 .container {
-  background: none;
-  padding: 20px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
-
-.title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 40px;
-}
-  
-  .cardsContainer {
-  flex-direction: column;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+    background: none;
+    padding: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
   }
-  .empty {
-    padding: 50px;
+  
+  .title {
     font-size: 20px;
-    text-align: center;
-    margin-top: 20px;
-    font-style: italic;
-  }
-  .card {
-  background-color: #f5f5f5;
-  color: #000;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .card h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  }
-  
-  .card p {
-  margin: 0;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 40px;
   }
   
   .loading {
@@ -65,8 +33,10 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
   }
+  .status{
+    color: gray !important;
+  }
   
-
   
   .table {
   width: 100%;
@@ -85,6 +55,7 @@
   text-align: left;
   vertical-align: middle;
   border: none;
+  white-space: nowrap;
   }
   
   .table th:first-child {
@@ -95,12 +66,49 @@
   .table th:last-child {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
+  text-align: center;
   }
   
   .table th {
   background-color: var(--button);
   }
-
+  .table .quantity, .status{
+    text-align: center;
+  }
+  
+  
+  .name,
+  .equipment,
+  .quantity,
+  .date,
+  .status,
+  .action{
+    white-space: nowrap;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .actions button {
+    padding: 8px 12px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #007bff;
+  }
+  
+  .seeMore:hover,
+  .accept:hover,
+  .deny:hover {
+    background-color: black;
+  }
+  
+  .edit:hover {
+    background-color: var(--button);
+  }
   
   .modal {
   position: fixed;
@@ -121,6 +129,7 @@
   margin-bottom: 10px;
   font-weight: bold;
   text-align: center;
+  margin-bottom: 10px;
   }
   
   .modalMessage {
@@ -132,6 +141,7 @@
   .modalButtons {
   display: flex;
   justify-content: flex-end;
+  margin-top: 10px;
   }
   
   .modalButtons button {
@@ -154,7 +164,8 @@
   .modalButtons button:last-child:hover {
   background-color: #e74c3c;
   }
-
+  
+  
   
   .modalContent{
     display: flex;
@@ -174,3 +185,33 @@
     border-bottom: 1px solid var(--button);
     font-style: italic;
   }
+  .seeMore{
+    border-radius: 15px;
+    padding: 10px;
+    border: 2px solid var(--button);
+    color: var(--button);
+    
+    
+  }
+  .accept{
+    border-radius: 15px;
+    padding: 10px;
+    border: 2px solid green;
+    color: green;
+  }
+  .deny{
+    border-radius: 15px;
+    padding: 10px;
+    border: 2px solid orangered;
+    color: orangered;
+    margin: 0 10px;
+  }
+  
+  .empty {
+    padding: 50px;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+  }
+  
