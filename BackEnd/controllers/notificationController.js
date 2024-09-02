@@ -101,10 +101,9 @@ const deleteNotification = asyncHandler(async (req, res, next) => {
     }
 });
 
-
 /**
  * @desc Delete all notifications for the logged-in user
- * @route DELETE /api/allNotifications
+ * @route DELETE /api/deleteAllNotifications
  * @access private
  */
 const deleteAllNotifications = asyncHandler(async (req, res, next) => {

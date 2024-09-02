@@ -22,7 +22,22 @@ const getAllEquipment = asyncHandler(async (req, res) => {
     throw new Error("Equipment not found!");
   }
 
-  res.status(200).json(equipment);
+  // Fetch all active user equipment assignments
+  let assignEquipment = await UserEquipment.find({ request_status: UserEquipmentStatus.ACTIVE });
+
+  // Aggregate the quantities for each equipment based on equipment_id
+  let assignQuantity = assignEquipment.reduce((acc, item) => {
+    acc[item.equipment_id] = (acc[item.equipment_id] || 0) + item.quantity;
+    return acc;
+  }, {});
+
+  // Combine the aggregated data with the equipment data
+  const equipmentWithAssignedQuantities = equipment.map(item => ({
+    ...item.toObject(),
+    assigned_quantity: assignQuantity[item._id] || 0
+  }));
+
+  res.status(200).json(equipmentWithAssignedQuantities);
 });
 
 /**
@@ -113,18 +128,18 @@ const updateEquipment = asyncHandler(async (req, res) => {
 
   // Equipment validation schema
   const updateEquipmentSchema = Joi.object({
-    name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+    name: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
-    full_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+    full_name: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"full_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
-    serial_number: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+    serial_number: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"serial_number\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
-    condition: Joi.boolean().required(),
-    invalid_quantity: Joi.number().integer().min(1).optional(),
-    quantity: Joi.number().integer().min(0).required(),
+    condition: Joi.boolean().optional(),
+    invalid_quantity: Joi.number().integer().min(0).optional(),
+    quantity: Joi.number().integer().min(0).optional(),
     description: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"description\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
@@ -145,27 +160,50 @@ const updateEquipment = asyncHandler(async (req, res) => {
     throw new Error("Equipment with serial number already exists!");
   }
 
-  const invalid_quantity = req.body.invalid_quantity;
-  if (invalid_quantity > equipment.quantity) {
-    res.status(400);
-    throw new Error("Invalid input quantity for non-fuctional equipment!");
-  }
+  // Check if invalid_quantity is present in the request
+  if (req.body.invalid_quantity !== undefined) {
+    // Ensure no other fields are being updated
+    const otherFields = ['name', 'full_name', 'serial_number', 'condition', 'quantity', 'description'];
+    const isOtherFieldPresent = otherFields.some(field => req.body[field] !== undefined);
 
-  equipment.quantity -= invalid_quantity;
-  await equipment.save();
-
-  if (equipment.quantity === 0) {
-    res.status(400);
-    throw new Error("Equipment is not more available! Accept button disable!");
-  }
-
-  const updatedEquipment = await Equipment.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
+    if (isOtherFieldPresent) {
+      res.status(400);
+      throw new Error("Cannot update equipment info when entered invalid quantity!");
     }
-  );
+
+    // Check and update invalid_quantity
+    const invalidQuantity = req.body.invalid_quantity;
+    if (invalidQuantity > equipment.quantity) {
+      res.status(400);
+      throw new Error("Wrong quantity entered for non-functional equipment!");
+    }
+
+    if (invalidQuantity === 0) {
+      equipment.invalid_quantity = 0;
+    } else {
+      equipment.quantity -= invalidQuantity;
+      equipment.invalid_quantity += invalidQuantity;
+    }
+
+    if (equipment.quantity === 0) {
+      equipment.condition = false;
+    }
+
+    await equipment.save();
+
+  } else {
+    // Update other fields
+    const updateFields = ['name', 'full_name', 'serial_number', 'condition', 'quantity', 'description'];
+    updateFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        equipment[field] = req.body[field];
+      }
+    });
+
+    await equipment.save();
+  }
+
+  const updatedEquipment = await equipment.save();
 
   res.status(200).json({ message: "Updated equipment.", updatedEquipment });
 });

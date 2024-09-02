@@ -22,9 +22,6 @@ const initializeSocketIO = (app) => {
 
         if (user_id) {
             socket.join(user_id);  // User joins the room with user_id identifier
-
-        } else {
-            console.log('User ID is undefined!');
         }
 
         socket.on("disconnect", () => {

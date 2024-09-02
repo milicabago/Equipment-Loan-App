@@ -6,7 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 /** Middlewares **/
 const errorHandler = require("./middleware/errorHandler");
-const initializeSocketIO = require("./middleware/socketIOHandler");
+const initializeSocketIO = require("./middleware/socketIoHandler");
 
 /**  Defined PORT (5001) and Connect to Database **/
 dotenv.config();

@@ -4,6 +4,11 @@ const { UserEquipmentStatus } = require("../constants");
 
 const AdminHistorySchema = new mongoose.Schema(
     {
+        admin_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: [true, "Admin ID is required"],
+        },
         user_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

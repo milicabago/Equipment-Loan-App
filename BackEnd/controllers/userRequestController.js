@@ -53,25 +53,25 @@ const getActiveRequests = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Get all Pending assign and unassign requests for USER
- * @route GET /api/user/equipment/pendingRequests
+ * @desc Get all Pending assign requests for USER
+ * @route GET /api/user/requests/assignPendingRequests
  * @access private
  */
-const getPendingRequests = asyncHandler(async (req, res, next) => {
+const getAssignPendingRequests = asyncHandler(async (req, res, next) => {
   try {
     const userId = req.user.user._id;
 
-    const pendingRequests = await Request.find({
+    const requests = await Request.find({
       user_id: userId,
-      $or: [{ request_status: UserEquipmentStatus.PENDING }, { return_status_request: UserEquipmentStatus.PENDING }]
+      request_status: UserEquipmentStatus.PENDING
     }).sort({ assign_date: 1 });
 
-    if (!pendingRequests || pendingRequests.length === 0) {
+    if (!requests || requests.length === 0) {
       res.status(404);
       throw new Error("No PENDING requests found!");
     }
 
-    for (const request of pendingRequests) {
+    for (const request of requests) {
       const equipment = await Equipment.findById(request.equipment_id);
 
       if (equipment) {
@@ -82,7 +82,7 @@ const getPendingRequests = asyncHandler(async (req, res, next) => {
       }
     }
 
-    const response = pendingRequests.map(request => ({
+    const response = requests.map(request => ({
       ...request._doc,
       equipment_info: request.equipment_info,
     }));
@@ -90,7 +90,49 @@ const getPendingRequests = asyncHandler(async (req, res, next) => {
     res.status(200).json(response);
 
   } catch (error) {
-    next(error); // Forwarding error to errorHandler (middleware)
+    next(error);
+  }
+});
+
+/**
+ * @desc Get all Pending unassign requests for USER
+ * @route GET /api/user/requests/unassignPendingRequests
+ * @access private
+ */
+const getUnassignPendingRequests = asyncHandler(async (req, res, next) => {
+  try {
+    const userId = req.user.user._id;
+
+    const requests = await Request.find({
+      user_id: userId,
+      return_status_request: UserEquipmentStatus.PENDING
+    }).sort({ assign_date: 1 });
+
+    if (!requests || requests.length === 0) {
+      res.status(404);
+      throw new Error("No PENDING requests found!");
+    }
+
+    for (const request of requests) {
+      const equipment = await Equipment.findById(request.equipment_id);
+
+      if (equipment) {
+        request.equipment_info = {
+          name: equipment.name,
+          serial_number: equipment.serial_number,
+        };
+      }
+    }
+
+    const response = requests.map(request => ({
+      ...request._doc,
+      equipment_info: request.equipment_info,
+    }));
+
+    res.status(200).json(response);
+
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -99,8 +141,8 @@ const getPendingRequests = asyncHandler(async (req, res, next) => {
  * @route POST /api/user/equipment/request
  * @access private
  */
-const assignEquipment = asyncHandler(async (req, res) => {
-  const { equipment_id, input_quantity } = req.body;
+const assignEquipmentRequest = asyncHandler(async (req, res) => {
+  const { equipment_id, assign_quantity } = req.body;
 
   // Find equipment by ID
   const equipment = await Equipment.findById(equipment_id);
@@ -112,7 +154,7 @@ const assignEquipment = asyncHandler(async (req, res) => {
   // Assign equipment - Validation schema
   const assignEquipmentSchema = Joi.object({
     equipment_id: Joi.string().required(),
-    input_quantity: Joi.number().integer().min(1).required()
+    assign_quantity: Joi.number().integer().min(1).required()
   });
 
   // Display validation messages using Joi schema
@@ -129,7 +171,7 @@ const assignEquipment = asyncHandler(async (req, res) => {
   const existingRequest = await Request.findOne({ user_id: userId, equipment_id, request_status: UserEquipmentStatus.PENDING });
   if (existingRequest) {
     res.status(400);
-    throw new Error("You have already sent a request for this equipment!");
+    throw new Error("You have already sent a request\nfor this equipment!");
   }
 
   // Check equipment availability
@@ -139,16 +181,16 @@ const assignEquipment = asyncHandler(async (req, res) => {
   }
 
   // Verify the available quantity of equipment for assignment
-  if (input_quantity > equipment.quantity) {
+  if (assign_quantity > equipment.quantity) {
     res.status(400);
-    throw new Error("Not enough equipment available for assignment!");
+    throw new Error("Not enough equipment\navailable for assignment!");
   }
 
   // If equipment is available, set the request to "pending" -> create a new equipment assignment request
   const newRequest = new Request({
     user_id: req.user.user._id,
     equipment_id: equipment._id,
-    quantity: input_quantity,
+    quantity: assign_quantity,
     request_status: UserEquipmentStatus.PENDING,
     assign_date: new Date(),
     unassign_date: null,
@@ -163,7 +205,7 @@ const assignEquipment = asyncHandler(async (req, res) => {
     const admins = await User.find({ role: 'admin' });
 
     // Create notification message
-    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} requested the assignment -\n${input_quantity} of ${equipment.name}.`;
+    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} requested the assignment -\n${assign_quantity} of ${equipment.name}.`;
 
     // Save notification to the database and emit to each admin
     for (const admin of admins) {
@@ -191,12 +233,12 @@ const assignEquipment = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Cancel or Update New equipment request + NOTIFICATION
- * @route PATCH /api/user/equipment/request/:id
+ * @desc Cancel or Update for New equipment request + NOTIFICATION
+ * @route PATCH /api/user/requests/:id
  * @access private
  */
-const cancelEquipmentRequest = asyncHandler(async (req, res) => {
-  const { new_quantity, return_status_request } = req.body;
+const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
+  const { new_assign_quantity, new_unassign_quantity, cancel_assign_request, cancel_unassign_request } = req.body;
   const requestId = req.params.id;
   const request = await Request.findById(requestId);
 
@@ -207,8 +249,10 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
 
   // New quantity request - validation schema
   const updateQuantitySchema = Joi.object({
-    new_quantity: Joi.number().integer().min(1).optional(),
-    return_status_request: Joi.string().valid("canceled").optional()
+    new_assign_quantity: Joi.number().integer().min(1).optional(),
+    new_unassign_quantity: Joi.number().integer().min(1).optional(),
+    cancel_assign_request: Joi.string().valid("canceled").optional(),
+    cancel_unassign_request: Joi.string().valid("canceled").optional()
   });
 
   // Display validation messages using Joi schema
@@ -223,12 +267,6 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
   if (request.user_id.toString() !== req.user.user._id) {
     res.status(403);
     throw new Error("User doesn't have permission to cancel this request!");
-  }
-
-  // Check if the request is in "pending" status
-  if (request.request_status !== UserEquipmentStatus.PENDING) {
-    res.status(400);
-    throw new Error("Request is not pending!");
   }
 
   // Find equipment by ID
@@ -247,78 +285,108 @@ const cancelEquipmentRequest = asyncHandler(async (req, res) => {
   // Fetch all ADMIN users
   const admins = await User.find({ role: 'admin' });
 
-  // Cancel the request
-  if (return_status_request === "canceled") {
-    // Delete the request from the Request collection
-    await Request.findByIdAndDelete(requestId);
+  let notificationMessage = '';
 
-    // Create notification message
-    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} canceled the request for ${equipment.name}.`;
-
-    // Save notification to the database and emit to each admin
-    for (const admin of admins) {
-      const notification = new Notification({
-        user_id: admin._id,
-        sender: "user",
-        message: notificationMessage,
-        createdAt: new Date(),
-      });
-      await notification.save();
-
-      // Emit notification to admin
-      if (req.io) {
-        req.io.to(admin._id.toString()).emit('cancelOrUpdateRequest', notification);
-      } else {
-        console.log("Socket.IO is not available!");
-      }
+  // Obrada zahtjeva za dodjelu
+  if (new_assign_quantity) {
+    if (request.request_status !== UserEquipmentStatus.PENDING) {
+      res.status(400);
+      throw new Error("Request for assign equipment is not pending!");
     }
-
-    res.status(200).json({
-      message: "Equipment request CANCELED and DELETED successfully.",
-      equipment: equipmentDetails,
-    });
-  } else {
-    // Check the available amount of equipment in stock
-    if (new_quantity > equipment.quantity) {
-      return res.status(400).json({ message: "Not enough equipment available for assignment!" });
+    if (new_assign_quantity > equipment.quantity) {
+      res.status(400);
+      throw new Error("Not enough equipment availablefor assignment!");
     }
-
-    // Update sent request
-    request.quantity = new_quantity;
+    request.quantity = new_assign_quantity;
     request.assign_date = new Date();
     request.request_status = UserEquipmentStatus.PENDING;
     request.return_status_request = UserEquipmentStatus.INACTIVE;
-
-    // Save changes to database
     const updatedUserEquipment = await request.save();
 
-
-    // Create notification message
-    const notificationMessage = `${loginUser.first_name} ${loginUser.last_name} updated the request for ${equipment.name} to ${new_quantity}.`;
-
-    // Save notification to the database and emit to each admin
-    for (const admin of admins) {
-      const notification = new Notification({
-        user_id: admin._id,
-        sender: "user",
-        message: notificationMessage,
-        createdAt: new Date(),
-      });
-      await notification.save();
-
-      // Emit notification to admin
-      if (req.io) {
-        req.io.to(admin._id.toString()).emit('cancelOrUpdateRequest', notification);
-      } else {
-        console.log("Socket.IO is not available!");
-      }
-    }
+    notificationMessage = `${loginUser.first_name} ${loginUser.last_name} updated the ASSIGN request for ${equipment.name} to ${new_assign_quantity}`;
 
     res.status(200).json({
-      message: "NEW ASSIGNMENT request has been sent!",
+      message: `Updated the ASSIGN request for ${equipment.name} to ${new_assign_quantity}`,
       updatedUserEquipment,
       equipment: equipmentDetails,
     });
+  } else if (cancel_assign_request === "canceled") {
+    if (request.request_status !== UserEquipmentStatus.PENDING) {
+      res.status(400);
+      throw new Error("Request for ASSIGN equipment is not pending!");
+    }
+    request.request_status = UserEquipmentStatus.CANCELED;
+    request.quantity = 0;
+    const updatedUserEquipment = request;
+    await Request.findByIdAndDelete(requestId);
+
+    notificationMessage = `${loginUser.first_name} ${loginUser.last_name} canceled the ASSIGN request for ${equipment.name}`;
+
+    res.status(200).json({
+      message: `Canceled the ASSIGN request for ${equipment.name}`,
+      updatedUserEquipment,
+      equipment: equipmentDetails,
+    });
+  } else if (new_unassign_quantity) {
+    if (request.return_status_request !== UserEquipmentStatus.PENDING) {
+      res.status(400);
+      throw new Error("Request for UNASSIGN equipment is not pending!");
+    }
+    if (new_unassign_quantity > request.quantity) {
+      res.status(400);
+      throw new Error("There is not that much equipment assigned!");
+    }
+    request.unassign_quantity = new_unassign_quantity;
+    request.unassign_date = new Date();
+    request.request_status = UserEquipmentStatus.ACTIVE;
+    request.return_status_request = UserEquipmentStatus.PENDING;
+    const updatedUserEquipment = await request.save();
+
+    notificationMessage = `${loginUser.first_name} ${loginUser.last_name} updated the UNASSIGN request for ${equipment.name} to ${new_unassign_quantity}`;
+
+    res.status(200).json({
+      message: `Updated the UNASSIGN request for ${equipment.name} to ${new_unassign_quantity}`,
+      updatedUserEquipment,
+      equipment: equipmentDetails,
+    });
+  } else if (cancel_unassign_request === "canceled") {
+    if (request.return_status_request !== UserEquipmentStatus.PENDING) {
+      res.status(400);
+      throw new Error("Request for unassign equipment is not pending!");
+    }
+    request.return_status_request = UserEquipmentStatus.INACTIVE;
+    request.unassign_date = null;
+    request.unassign_quantity = 0;
+    const updatedUserEquipment = await request.save();
+
+    notificationMessage = `${loginUser.first_name} ${loginUser.last_name} canceled the UNASSIGN request for ${equipment.name}`;
+
+    res.status(200).json({
+      message: `Canceled the UNASSIGN request for ${equipment.name}`,
+      updatedUserEquipment,
+      equipment: equipmentDetails,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid status!");
+  }
+
+  // Save notification to the database and emit to each admin
+  for (const admin of admins) {
+    const notification = new Notification({
+      user_id: admin._id,
+      sender: "user",
+      message: notificationMessage,
+      createdAt: new Date(),
+    });
+    await notification.save();
+
+    // Emit notification to admin
+    if (req.io) {
+      req.io.to(admin._id.toString()).emit('cancelOrUpdateRequest', notification);
+    } else {
+      console.log("Socket.IO is not available!");
+    }
   }
 });
 
@@ -415,10 +483,10 @@ const unassignEquipmentRequest = asyncHandler(async (req, res) => {
 
 /**
  * @desc Get history for RETURNED equipment
- * @route GET /api/user/equipmentHistory
+ * @route GET /api/user/history
  * @access private
  */
-const getEquipmentHistory = asyncHandler(async (req, res) => {
+const getHistory = asyncHandler(async (req, res) => {
   // Execute a query to the database to retrieve the returned equipment
   const historyData = await UserHistory.find({
     user_id: req.user.user._id,
@@ -453,11 +521,11 @@ const getEquipmentHistory = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc Delete request from History
- * @route DELETE /api/user/equipmentHistory/:id
+ * @desc Delete one request from History
+ * @route DELETE /api/user/history/:id
  * @access private
  */
-const deleteRequest = asyncHandler(async (req, res) => {
+const deleteHistoryItem = asyncHandler(async (req, res, next) => {
   const history = await UserHistory.findById(req.params.id);
   try {
     if (!history) {
@@ -476,40 +544,21 @@ const deleteRequest = asyncHandler(async (req, res) => {
     }
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
 /**
- * @desc Delete selected requests from history 
- * @route GET /api/user/equipmentHistory/deleteHistory
+ * @desc Delete all requests from history 
+ * @route DELETE /api/user/history/deleteAllHistory
  * @access private
  */
-const deleteSelectHistory = asyncHandler(async (req, res, next) => {
-  const { ids } = req.body;
-
-  if (!Array.isArray(ids) || ids.length === 0) {
-    res.status(400);
-    throw new Error("No selected history records to delete!");
-  }
-
-  // Check if all IDs exist in the database
-  const historyItems = await UserHistory.find({ _id: { $in: ids } });
-
-  // Find IDs that were not found in the database
-  const foundIds = historyItems.map(item => item._id.toString());
-  const notFoundIds = ids.filter(id => !foundIds.includes(id));
-
-  if (notFoundIds.length > 0) {
-    res.status(404);
-    throw new Error(`Some history records were not found: ${notFoundIds.join(', ')}`);
-  }
-
+const deleteAllHistory = asyncHandler(async (req, res, next) => {
+  const loginUserId = req.user.user._id;
   try {
-    // Obrisati sve stavke koje odgovaraju ID-evima
-    await UserHistory.deleteMany({ _id: { $in: ids } });
-
-    res.status(200).json({ message: "Selected records have been successfully DELETED." });
+    // Delete all history items for the current user
+    await UserHistory.deleteMany({ user_id: loginUserId });
+    res.status(200).json({ message: "All history items have been successfully DELETED." });
   } catch (error) {
     next(error);
   }
@@ -517,11 +566,12 @@ const deleteSelectHistory = asyncHandler(async (req, res, next) => {
 
 module.exports = {
   getActiveRequests,
-  getPendingRequests,
-  assignEquipment,
+  getAssignPendingRequests,
+  getUnassignPendingRequests,
+  assignEquipmentRequest,
   unassignEquipmentRequest,
-  cancelEquipmentRequest,
-  getEquipmentHistory,
-  deleteRequest,
-  deleteSelectHistory
+  cancelOrUpdateEquipmentRequest,
+  getHistory,
+  deleteHistoryItem,
+  deleteAllHistory
 };
