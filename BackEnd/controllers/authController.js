@@ -11,70 +11,70 @@ const User = require('../models/userModel');
  * @route POST /api/register 
  * @access public
  */
-const registerUser = asyncHandler(async (req, res) => {
+// const registerUser = asyncHandler(async (req, res) => {
 
-    const { first_name, last_name, email, username, password, position } = req.body;
+//     const { first_name, last_name, email, username, password, position } = req.body;
 
-    // User validation schema
-    const userSchema = Joi.object({
-        first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({ // za koristenje početnih i završnih razmaka trim() dodati ispred pattern
-            'string.pattern.base': '\"first_name\" cannot contain multiple consecutive spaces!',
-        }),
-        last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
-            'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
-        }),
-        email: Joi.string().email({ minDomainSegments: 2 }).required().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).messages({
-            'string.pattern.base': '\"email\" is not valid!',
-        }),
-        username: Joi.string().alphanum().min(3).max(30).required(),
-        password: Joi.string().min(8).required(),
-        position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
-            'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
-        }),
-    });
+//     // User validation schema
+//     const userSchema = Joi.object({
+//         first_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({ // za koristenje početnih i završnih razmaka trim() dodati ispred pattern
+//             'string.pattern.base': '\"first_name\" cannot contain multiple consecutive spaces!',
+//         }),
+//         last_name: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+//             'string.pattern.base': '\"last_name\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+//         }),
+//         email: Joi.string().email({ minDomainSegments: 2 }).required().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).messages({
+//             'string.pattern.base': '\"email\" is not valid!',
+//         }),
+//         username: Joi.string().alphanum().min(3).max(30).required(),
+//         password: Joi.string().min(8).required(),
+//         position: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
+//             'string.pattern.base': '\"position\" cannot start or end with spaces, or contain multiple consecutive spaces!',
+//         }),
+//     });
 
-    // Display validation messages using Joi schema
-    const { error } = userSchema.validate(req.body, { abortEarly: false });
-    if (error) {
-        const errorMessages = error.details.map(detail => detail.message);
-        res.status(400);
-        throw new Error(errorMessages.join(', '));
-    }
+//     // Display validation messages using Joi schema
+//     const { error } = userSchema.validate(req.body, { abortEarly: false });
+//     if (error) {
+//         const errorMessages = error.details.map(detail => detail.message);
+//         res.status(400);
+//         throw new Error(errorMessages.join(', '));
+//     }
 
-    // Check if user exists in the database by unique email or username
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-        res.status(400);
-        throw new Error("User with email or username already created!");
-    }
+//     // Check if user exists in the database by unique email or username
+//     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+//     if (existingUser) {
+//         res.status(400);
+//         throw new Error("User with email or username already created!");
+//     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    console.log("Hashed password: " + hashedPassword);
+//     // Hash the password
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     console.log("Hashed password: " + hashedPassword);
 
-    // Create a new user
-    const user = await User.create({
-        first_name,
-        last_name,
-        email,
-        username,
-        password: hashedPassword,
-        role: "user", // Default role is "user"
-        contact: "",
-        position,
-    });
+//     // Create a new user
+//     const user = await User.create({
+//         first_name,
+//         last_name,
+//         email,
+//         username,
+//         password: hashedPassword,
+//         role: "user", // Default role is "user"
+//         contact: "",
+//         position,
+//     });
 
-    // If user is created, return status 201 and user data
-    if (user) {
-        res
-            .status(201)
-            .json({ message: "User created!", _id: user._id, email: user.email, username: user.username });
-    } else {
-        res.status(400);
-        throw new Error("User data is not valid!");
-    }
-});
+//     // If user is created, return status 201 and user data
+//     if (user) {
+//         res
+//             .status(201)
+//             .json({ message: "User created!", _id: user._id, email: user.email, username: user.username });
+//     } else {
+//         res.status(400);
+//         throw new Error("User data is not valid!");
+//     }
+// });
 
 /** 
  * @desc Login user
@@ -126,7 +126,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Generate JWT token
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "24hr" });
-    res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 3600000 }).status(200).json({ message: "Login successful!", accessToken });
+    res.cookie('jwt', accessToken, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 }).status(200).json({ message: "Login successful!", accessToken });
 });
 
 /** 
@@ -263,4 +263,4 @@ const currentUser = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { registerUser, loginUser, forgotPassword, resetPassword, currentUser };
+module.exports = { /* registerUser, */ loginUser, forgotPassword, resetPassword, currentUser };

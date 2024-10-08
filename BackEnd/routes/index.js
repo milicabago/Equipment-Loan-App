@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 /** Controllers **/
-const { registerUser, loginUser, forgotPassword, resetPassword, currentUser } = require("../controllers/authController");
+const { /* registerUser, */ loginUser, forgotPassword, resetPassword, currentUser } = require("../controllers/authController");
 const { createNotification, getNotifications, deleteNotification, readNotification, deleteAllNotifications } = require("../controllers/notificationController");
 /** Middlewares **/
 const validateToken = require("../middleware/validateTokenHandler");
@@ -9,7 +9,7 @@ const { checkAdmin, checkUser } = require("../middleware/checkRoleHandler");
 
 /** Routes for all types of USERS **/
 router.post("/login", loginUser);
-router.post("/register", registerUser);
+// router.post("/register", registerUser);
 router.post("/forgotPassword", forgotPassword);
 router.patch("/resetPassword/:userId/:token", validateToken, resetPassword);
 

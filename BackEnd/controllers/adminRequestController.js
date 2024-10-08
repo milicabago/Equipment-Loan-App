@@ -176,6 +176,7 @@ const getAllUnassignPendingRequests = asyncHandler(async (req, res) => {
 const deactivateRequest = asyncHandler(async (req, res) => {
     const request = await Request.findById(req.params.id);
     const unassign_quantity = req.body.unassign_quantity;
+    const invalid_quantity = req.body.invalid_quantity || 0;
 
     if (!request) {
         res.status(404);
@@ -183,7 +184,8 @@ const deactivateRequest = asyncHandler(async (req, res) => {
     }
 
     const deactivateRequestSchema = Joi.object({
-        unassign_quantity: Joi.number().integer().min(1).required()
+        unassign_quantity: Joi.number().integer().min(1).required(),
+        invalid_quantity: Joi.number().integer().min(0).optional()
     });
 
     const { error } = deactivateRequestSchema.validate(req.body, { abortEarly: false });
@@ -202,7 +204,12 @@ const deactivateRequest = asyncHandler(async (req, res) => {
 
     if (unassign_quantity > request.quantity) {
         res.status(400);
-        throw new Error("Invalid quantity for unassigning equipment!");
+        throw new Error("Incorrect quantity to unassign equipment!");
+    }
+
+    if (invalid_quantity > unassign_quantity) {
+        res.status(400);
+        throw new Error("Incorrect quantity for non-functional equipment!");
     }
 
     // Check for existing unassign request with status "pending"
@@ -245,6 +252,9 @@ const deactivateRequest = asyncHandler(async (req, res) => {
 
     request.quantity -= unassign_quantity;
 
+    // Calculate valid quantity to be returned to the equipment inventory
+    const valid_quantity = unassign_quantity - invalid_quantity;
+
     // Notification messages
     const notificationMessage = request.quantity === 0
         ? `Equipment ALL RETURNED: ${unassign_quantity} of ${equipment.name}`
@@ -265,7 +275,7 @@ const deactivateRequest = asyncHandler(async (req, res) => {
 
         await Request.deleteOne({ _id: request._id });
 
-        equipment.quantity += unassign_quantity;
+        equipment.quantity += valid_quantity;
         await equipment.save();
 
         // Emit notification for returning all equipment to the specific USER
@@ -280,7 +290,7 @@ const deactivateRequest = asyncHandler(async (req, res) => {
         });
     }
 
-    equipment.quantity += unassign_quantity;
+    equipment.quantity += valid_quantity;
     await equipment.save();
 
     const updatedRequest = await request.save();
@@ -304,7 +314,7 @@ const deactivateRequest = asyncHandler(async (req, res) => {
  * @access private
  */
 const acceptOrDenyRequest = asyncHandler(async (req, res) => {
-    const { request_status, return_status_request } = req.body;
+    const { request_status, return_status_request, invalid_quantity } = req.body;
     const requestId = req.params.id;
 
     // Find the request by ID
@@ -366,8 +376,9 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
         }
     } else if (return_status_request) {
         if (return_status_request === 'active') {
+            const validReturnQuantity = request.unassign_quantity - request.invalid_quantity;
             request.quantity -= request.unassign_quantity;
-            equipment.quantity += request.unassign_quantity;
+            equipment.quantity += validReturnQuantity;
             request.return_status_request = UserEquipmentStatus.INACTIVE;
             await equipment.save();
 
@@ -411,6 +422,7 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
             } else {
                 notificationMessage = `Equipment RETURN processed:\n${request.unassign_quantity} of ${equipment.name}`;
                 request.unassign_quantity = 0;
+                request.invalid_quantity = 0;
                 request.unassign_date = null;
                 await request.save();
 
@@ -425,6 +437,7 @@ const acceptOrDenyRequest = asyncHandler(async (req, res) => {
             notificationMessage = `Request to unassign equipment DENIED:\n${request.unassign_quantity} of ${equipment.name}`;
             let unassignQuantity = request.unassign_quantity;
             request.unassign_quantity = 0;
+            request.invalid_quantity = 0;
             request.unassign_date = null;
             await request.save();
 

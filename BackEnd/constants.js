@@ -7,7 +7,7 @@ exports.constants = {
   SERVER_ERROR: 500,
 };
 
-/** Equipment status constants **/
+/** Requests status constants **/
 exports.UserEquipmentStatus = {
   ACTIVE: "active",
   INACTIVE: "inactive",

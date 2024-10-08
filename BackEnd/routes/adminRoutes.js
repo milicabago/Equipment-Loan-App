@@ -10,7 +10,7 @@ const {
     getAllEquipmentHistory,
     deleteHistoryItem,
     deleteAllHistory } = require("../controllers/adminRequestController");
-const { createUser, getAllUsers, getUser, adminUpdateUserOrAdmin, deleteUser, getUserProfile, updateAdminProfile } = require("../controllers/adminController");
+const { createUser, getAllUsers, getUser, adminUpdateUserOrAdmin, deleteUser, getAdminProfile, updateAdminProfile } = require("../controllers/adminController");
 const { addEquipment, getAllEquipment, getEquipment, updateEquipment, deleteEquipment } = require("../controllers/equipmentController");
 
 /**** Routes managed by ADMIN ****/
@@ -48,7 +48,7 @@ router.delete("/history/deleteAllHistory", deleteAllHistory)
 router.delete("/history/:id", deleteHistoryItem);
 
 /** Routes for profile of ADMIN **/
-router.route("/settings").get(getUserProfile)
+router.route("/settings").get(getAdminProfile)
 router.route("/settings/:id").put(updateAdminProfile) // ADMIN cannot change → ROLE
 
 module.exports = router;

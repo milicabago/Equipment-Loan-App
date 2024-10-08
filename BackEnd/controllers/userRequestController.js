@@ -120,6 +120,7 @@ const getUnassignPendingRequests = asyncHandler(async (req, res, next) => {
         request.equipment_info = {
           name: equipment.name,
           serial_number: equipment.serial_number,
+          quantity: equipment.quantity
         };
       }
     }
@@ -238,7 +239,7 @@ const assignEquipmentRequest = asyncHandler(async (req, res) => {
  * @access private
  */
 const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
-  const { new_assign_quantity, new_unassign_quantity, cancel_assign_request, cancel_unassign_request } = req.body;
+  const { new_assign_quantity, new_unassign_quantity, new_invalid_quantity, cancel_assign_request, cancel_unassign_request } = req.body;
   const requestId = req.params.id;
   const request = await Request.findById(requestId);
 
@@ -251,6 +252,7 @@ const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
   const updateQuantitySchema = Joi.object({
     new_assign_quantity: Joi.number().integer().min(1).optional(),
     new_unassign_quantity: Joi.number().integer().min(1).optional(),
+    new_invalid_quantity: Joi.number().integer().min(0).optional(),
     cancel_assign_request: Joi.string().valid("canceled").optional(),
     cancel_unassign_request: Joi.string().valid("canceled").optional()
   });
@@ -327,7 +329,7 @@ const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
       updatedUserEquipment,
       equipment: equipmentDetails,
     });
-  } else if (new_unassign_quantity) {
+  } else if (new_unassign_quantity || new_invalid_quantity) {
     if (request.return_status_request !== UserEquipmentStatus.PENDING) {
       res.status(400);
       throw new Error("Request for UNASSIGN equipment is not pending!");
@@ -336,7 +338,14 @@ const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("There is not that much equipment assigned!");
     }
+
+    if (new_invalid_quantity > new_unassign_quantity) {
+      res.status(400);
+      throw new Error("Invalid quantity cannot be greater\nthan unassign quantity.");
+    }
+
     request.unassign_quantity = new_unassign_quantity;
+    request.invalid_quantity = new_invalid_quantity;
     request.unassign_date = new Date();
     request.request_status = UserEquipmentStatus.ACTIVE;
     request.return_status_request = UserEquipmentStatus.PENDING;
@@ -356,6 +365,7 @@ const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
     }
     request.return_status_request = UserEquipmentStatus.INACTIVE;
     request.unassign_date = null;
+    request.invalid_quantity = 0;
     request.unassign_quantity = 0;
     const updatedUserEquipment = await request.save();
 
@@ -396,12 +406,13 @@ const cancelOrUpdateEquipmentRequest = asyncHandler(async (req, res) => {
  * @access private
  */
 const unassignEquipmentRequest = asyncHandler(async (req, res) => {
-  const { equipment_id, unassign_quantity } = req.body;
+  const { equipment_id, unassign_quantity, invalid_quantity } = req.body;
 
   // Unassign equipment - Validation schema
   const unassignEquipmentSchema = Joi.object({
     equipment_id: Joi.string().required(),
     unassign_quantity: Joi.number().integer().min(1).required(),
+    invalid_quantity: Joi.number().integer().min(0).optional(),
   });
 
   // Display validation messages using Joi schema
@@ -437,6 +448,12 @@ const unassignEquipmentRequest = asyncHandler(async (req, res) => {
     throw new Error("Please enter a valid quantity\nfor unassigning equipment!");
   }
 
+  // Check if invalid_quantity is greater than unassign_quantity
+  if (invalid_quantity > unassign_quantity) {
+    res.status(400);
+    throw new Error("Invalid quantity cannot be greater\nthan unassign quantity.");
+  }
+
   const existingRequest = await Request.findOne({ user_id: req.user.user._id, equipment_id, return_status_request: UserEquipmentStatus.PENDING });
   if (existingRequest) {
     res.status(400);
@@ -446,6 +463,7 @@ const unassignEquipmentRequest = asyncHandler(async (req, res) => {
   // Update return_status_request to PENDING and set the unassign_quantity
   userEquipment.return_status_request = UserEquipmentStatus.PENDING;
   userEquipment.unassign_quantity = unassign_quantity;
+  userEquipment.invalid_quantity = invalid_quantity;
   userEquipment.unassign_date = new Date();
   await userEquipment.save();
 

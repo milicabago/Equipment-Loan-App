@@ -15,19 +15,9 @@ const EquipmentSchema = new mongoose.Schema(
       required: [true, "Serial number is required"],
       unique: true,
     },
-    condition: {
-      type: Boolean,
-      default: true,
-      required: [true, "Condition is required"],
-    },
     quantity: {
       type: Number,
       required: [true, "Quantity is required"],
-    },
-    invalid_quantity: {
-      type: Number,
-      default: 0,
-      required: false,
     },
     description: {
       type: String,

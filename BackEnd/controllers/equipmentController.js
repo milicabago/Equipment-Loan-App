@@ -62,10 +62,7 @@ const getEquipment = asyncHandler(async (req, res) => {
  */
 const addEquipment = asyncHandler(async (req, res) => {
 
-  const { name, full_name, serial_number, condition, quantity, description } = req.body;
-
-  console.log("Condition: " + req.body.condition);
-
+  const { name, full_name, serial_number, quantity, description } = req.body;
 
   // Equipment validation schema
   const addEquipmentSchema = Joi.object({
@@ -78,7 +75,6 @@ const addEquipment = asyncHandler(async (req, res) => {
     serial_number: Joi.string().required().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"serial_number\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
-    condition: Joi.boolean().required(),
     quantity: Joi.number().integer().min(1).required(),
     description: Joi.string().allow("").optional(),
   });
@@ -104,7 +100,6 @@ const addEquipment = asyncHandler(async (req, res) => {
     full_name,
     serial_number,
     quantity,
-    condition,
     description: description,
   });
 
@@ -137,8 +132,6 @@ const updateEquipment = asyncHandler(async (req, res) => {
     serial_number: Joi.string().optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"serial_number\" cannot start or end with spaces, or contain multiple consecutive spaces!',
     }),
-    condition: Joi.boolean().optional(),
-    invalid_quantity: Joi.number().integer().min(0).optional(),
     quantity: Joi.number().integer().min(0).optional(),
     description: Joi.string().allow("").optional().pattern(/^(\S+\s)*\S+$/).messages({
       'string.pattern.base': '\"description\" cannot start or end with spaces, or contain multiple consecutive spaces!',
@@ -160,48 +153,13 @@ const updateEquipment = asyncHandler(async (req, res) => {
     throw new Error("Equipment with serial number already exists!");
   }
 
-  // Check if invalid_quantity is present in the request
-  if (req.body.invalid_quantity !== undefined) {
-    // Ensure no other fields are being updated
-    const otherFields = ['name', 'full_name', 'serial_number', 'condition', 'quantity', 'description'];
-    const isOtherFieldPresent = otherFields.some(field => req.body[field] !== undefined);
-
-    if (isOtherFieldPresent) {
-      res.status(400);
-      throw new Error("Cannot update equipment info when entered invalid quantity!");
+  // Update other fields
+  const updateFields = ['name', 'full_name', 'serial_number', 'quantity', 'description'];
+  updateFields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      equipment[field] = req.body[field];
     }
-
-    // Check and update invalid_quantity
-    const invalidQuantity = req.body.invalid_quantity;
-    if (invalidQuantity > equipment.quantity) {
-      res.status(400);
-      throw new Error("Wrong quantity entered for non-functional equipment!");
-    }
-
-    if (invalidQuantity === 0) {
-      equipment.invalid_quantity = 0;
-    } else {
-      equipment.quantity -= invalidQuantity;
-      equipment.invalid_quantity += invalidQuantity;
-    }
-
-    if (equipment.quantity === 0) {
-      equipment.condition = false;
-    }
-
-    await equipment.save();
-
-  } else {
-    // Update other fields
-    const updateFields = ['name', 'full_name', 'serial_number', 'condition', 'quantity', 'description'];
-    updateFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        equipment[field] = req.body[field];
-      }
-    });
-
-    await equipment.save();
-  }
+  });
 
   const updatedEquipment = await equipment.save();
 

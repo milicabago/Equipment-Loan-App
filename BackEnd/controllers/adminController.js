@@ -162,6 +162,23 @@ const adminUpdateUserOrAdmin = asyncHandler(async (req, res) => {
     user.role = role;
     user.position = position;
 
+    // Check for active or pending equipment requests if role is changed to admin
+    if (role === "admin") {
+        const activeOrPendingRequests = await UserEquipment.find({
+            user_id: user._id,
+            $or: [
+                { request_status: "active" },
+                { request_status: "pending" },
+                { return_status_request: "pending" }
+            ]
+        });
+
+        if (activeOrPendingRequests.length > 0) {
+            res.status(400);
+            throw new Error("User has active or pending\nequipment requests!");
+        }
+    }
+
     const updatedUser = await user.save();
 
     // Delete all notifications if the role is changed
@@ -225,11 +242,11 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 /** 
- * @desc Get information about the current user profile
+ * @desc Get information about the current admin profile
  * @route GET /api/admin/settings
  * @access private
 */
-const getUserProfile = asyncHandler(async (req, res) => {
+const getAdminProfile = asyncHandler(async (req, res) => {
     if (!req.user) {
         res.status(401);
         throw new Error("User is not authenticated!");
@@ -337,4 +354,4 @@ const updateAdminProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "User updated.", updatedUser });
 });
 
-module.exports = { createUser, getAllUsers, getUser, adminUpdateUserOrAdmin, deleteUser, getUserProfile, updateAdminProfile };
+module.exports = { createUser, getAllUsers, getUser, adminUpdateUserOrAdmin, deleteUser, getAdminProfile, updateAdminProfile };

@@ -24,6 +24,11 @@ const UserEquipmentSchema = new mongoose.Schema(
       default: 0,
       required: [true, "Unassign quantity is required"],
     },
+    invalid_quantity: {
+      type: Number,
+      default: 0,
+      required: [false, "Invalid quantity is required"],
+    },
     request_status: {
       type: String,
       enum: Object.values(UserEquipmentStatus),
