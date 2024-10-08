@@ -57,6 +57,8 @@
   border-bottom: 1px solid var(--button);
   margin-left: 10px;
   font-style: italic;
+  flex-grow: 1; 
+  box-sizing: border-box; 
 }
 .loading {
   position: absolute;

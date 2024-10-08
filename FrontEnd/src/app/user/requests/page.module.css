@@ -236,4 +236,6 @@
     margin-left: 10px;
   }
   
-  
+  .highlightedRow {
+  background-color:  #1a2a40;
+}

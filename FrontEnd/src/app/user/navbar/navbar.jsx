@@ -6,7 +6,7 @@ import styles from '@/app/components/navbar/navbar.module.css';
 import { MdNotifications, MdDelete } from 'react-icons/md';
 import { useCookies } from 'react-cookie';
 import { useLogout } from '@/app/auth/logout/logout';
-
+import { toast } from 'react-hot-toast';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,7 +15,7 @@ const Navbar = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [notifications, setNotifications] = useState([]);
-    const { handleLogout } = useLogout(); 
+    const { handleLogout } = useLogout();
 
     useEffect(() => {
         const token = cookies.accessToken;
@@ -47,7 +47,11 @@ const Navbar = () => {
 
             changes.forEach(change => {
                 if (change.includes("ROLE changed")) {
-                    toast.success("ROLE changed to ADMIN.\n Logout in 10 seconds!", { duration: 9000 });
+                    // toast.success("ROLE changed to ADMIN.\n Logout in 10 seconds!", { duration: 9000 });
+                    toast('ROLE changed to ADMIN.\n Logout in 10 seconds!', {
+                        icon: '⚠️ ',
+                        duration: 9000
+                    });
                     setTimeout(() => {
                         handleLogout();
                         handleDeleteNotification(notification._id);
@@ -101,6 +105,7 @@ const Navbar = () => {
                 toast.error(error.response.data.message, { duration: 3000 });
             });
     };
+
     const handleDeleteAllNotifications = () => {
         const token = cookies.accessToken;
         let config = {
@@ -109,7 +114,7 @@ const Navbar = () => {
             }
         };
 
-        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}notifications`, config)
+        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}deleteAllNotifications`, config)
             .then(response => {
                 if (response.data.message === 'All notifications DELETED.') {
                     setNotifications([]);
@@ -164,9 +169,9 @@ const Navbar = () => {
     return (
         <div className={styles.container}>
             <div className={styles.title}>Equipment Loan Manager</div>
-            
+
             <div className={styles.menu}></div>
-            
+
             <div className={styles.notifications} onClick={toggleNotifications}>
                 <MdNotifications size={30} />
                 {hasUnreadNotifications && (
@@ -179,8 +184,8 @@ const Navbar = () => {
                     {notifications.length > 0 ? (
                         <>
                             {notifications.map(notification => (
-                                <div key={notification._id} 
-                                className={`${styles.notificationItem} ${!notification.read ? styles.unread : ''}`}
+                                <div key={notification._id}
+                                    className={`${styles.notificationItem} ${!notification.read ? styles.unread : ''}`}
                                 >
                                     <p>{notification.message}</p>
                                     <button

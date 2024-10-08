@@ -59,8 +59,8 @@
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
   }
-  
-  .table th:last-child {
+
+  .table th:last-child{
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     text-align: center;
@@ -69,10 +69,12 @@
   .table th {
     background-color: var(--button);
   }
-  .table .quantity, .status{
+  .table .quantity, .assign_date{
     text-align: center;
   }
-  
+  .table th:nth-child(5) {
+    text-align: center;
+}
   .status{
     color: var(--button) !important;
   }
@@ -215,4 +217,48 @@
     text-align: center;
     margin-top: 20px;
     font-style: italic;
+  }.highlightedRow {
+    background-color:  #1a2a40;
   }
+  .search{
+    display: flex;
+    position: relative;
+    justify-content: right;
+    margin-right: auto;
+    margin: 0 25px;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    border:none;
+    width: auto;
+    height: calc(1.5em + 0.75rem + 2px);
+  }
+  .inputs{
+    background-color: transparent;
+    border: none !important;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+    font-size: 16px;
+    text-align: right;  
+    padding-right: 30px;
+  }
+  .inputs:focus {
+    border: 2px solid #4b5dac !important;
+    border-radius: 8px; 
+  }
+  .searchIcon {
+    position: absolute;
+    right: 5px; 
+    top: 45%; 
+    transform: translateY(-50%);
+    cursor: pointer; 
+    font-size: 20px; 
+  }
+  .inputs::placeholder {
+    color: var(--textSoft);
+    font-size: 20px;
+  }
+  .return:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 import styles from '@/app/components/navbar/navbar.module.css';
-import { MdNotifications, MdDelete } from 'react-icons/md'; 
+import { MdNotifications, MdDelete } from 'react-icons/md';
 import { useCookies } from 'react-cookie';
 import { useLogout } from '@/app/auth/logout/logout';
+import { toast } from 'react-hot-toast';
 
 
 const Navbar = () => {
@@ -15,7 +16,7 @@ const Navbar = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [notifications, setNotifications] = useState([]);
-    const { handleLogout } = useLogout(); 
+    const { handleLogout } = useLogout();
 
 
 
@@ -37,7 +38,11 @@ const Navbar = () => {
 
             changes.forEach(change => {
                 if (change.includes("ROLE changed")) {
-                    toast.success("ROLE changed to ADMIN.\n Logout in 10 seconds!", { duration: 9000 });
+                    // toast.success("ROLE changed to ADMIN.\n Logout in 10 seconds!", { duration: 9000 });
+                    toast('ROLE changed to USER.\n Logout in 10 seconds!', {
+                        icon: '⚠️ ',
+                        duration: 9000
+                    });
                     setTimeout(() => {
                         handleLogout();
                         handleDeleteNotification(notification._id);
@@ -95,13 +100,10 @@ const Navbar = () => {
 
     const handleDeleteNotification = (id) => {
         const token = cookies.accessToken;
-        let config = {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        };
 
-        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}notifications/${id}`, config)
+        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}notifications/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
             .then(response => {
                 if (response.data.message === 'Notification DELETED.') {
                     setNotifications((prev) => prev.filter(notification => notification._id !== id));
@@ -146,13 +148,6 @@ const Navbar = () => {
         }
     };
 
-
-
-
-
-  
-    
-
     const handleDeleteAllNotifications = () => {
         const token = cookies.accessToken;
         let config = {
@@ -161,7 +156,7 @@ const Navbar = () => {
             }
         };
 
-        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}notifications`, config)
+        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}deleteAllNotifications`, config)
             .then(response => {
                 if (response.data.message === 'All notifications DELETED.') {
                     setNotifications([]);
@@ -175,10 +170,6 @@ const Navbar = () => {
             });
     };
 
-    
-
-    
-
     const handleNotificationAction = (id, e) => {
         e.stopPropagation();
         handleDeleteNotification(id);
@@ -188,7 +179,7 @@ const Navbar = () => {
     const noNotificationsMessage = "No new notifications.";
 
     return (
-         <div className={styles.container}>
+        <div className={styles.container}>
             <div className={styles.title}>Equipment Loan Manager</div>
             <div className={styles.menu}></div>
 
@@ -203,8 +194,8 @@ const Navbar = () => {
                     {notifications.length > 0 ? (
                         <>
                             {notifications.map(notification => (
-                                <div key={notification._id} 
-                                className={`${styles.notificationItem} ${!notification.read ? styles.unread : ''}`}
+                                <div key={notification._id}
+                                    className={`${styles.notificationItem} ${!notification.read ? styles.unread : ''}`}
                                 >
                                     <p>{notification.message}</p>
                                     <button

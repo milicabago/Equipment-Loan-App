@@ -2,9 +2,10 @@
 import styles from '@/app/components/history/page.module.css';
 import React, { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
-import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import Modal from 'react-modal';
+import toast from 'react-hot-toast';
+import { MdSearch } from 'react-icons/md';
 
 const HistoryPage = () => {
     const [cookies] = useCookies(['accessToken']);
@@ -13,26 +14,16 @@ const HistoryPage = () => {
     const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
     const [historyToDelete, setHistoryToDelete] = useState(null);
     const [isDeleteAll, setIsDeleteAll] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
-        const formattedDate = date.toLocaleDateString('hr-HR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        });
-        const formattedTime = date.toLocaleTimeString('hr-HR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-        });
-        return `${formattedDate} ${formattedTime}`;
+        return `${date.toLocaleDateString('hr-HR')} ${date.toLocaleTimeString('hr-HR')}`;
     };
+
     useEffect(() => {
         Modal.setAppElement('body');
-      }, []);
-    
+    }, []);
 
     useEffect(() => {
         const token = cookies.accessToken;
@@ -41,7 +32,7 @@ const HistoryPage = () => {
                 'Authorization': 'Bearer ' + token
             },
         };
-        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'admin/equipmentHistory', config)
+        axios.get(process.env.NEXT_PUBLIC_BASE_URL + 'admin/history', config)
             .then(response => {
                 console.log('History data:', response.data);
                 const returnedItems = response.data.filter(item => item.return_status_request === 'returned');
@@ -51,10 +42,8 @@ const HistoryPage = () => {
             .catch(error => {
                 console.error('Error fetching equipment history:', error);
                 setLoading(false);
-        });
-    }, [ cookies.accessToken ]);
-    
-
+            });
+    }, [cookies.accessToken]);
 
     const openDeleteModal = (id = null, deleteAll = false) => {
         setHistoryToDelete(id);
@@ -76,24 +65,23 @@ const HistoryPage = () => {
                     'Authorization': 'Bearer ' + token
                 }
             };
-            
+
             if (isDeleteAll) {
-                const idsToDelete = history.map(item => item._id); 
-                await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipmentHistory/deleteMultiple`, { ids: idsToDelete }, config);
-                setHistory([]); 
+                await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/history/deleteAllHistory`, config);
+                setHistory([]);
+                toast.success('All history items have\nbeen successfully deleted!', { duration: 3000 });
             } else {
-                await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipmentHistory/${historyToDelete}`, config);
+                await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/history/${historyToDelete}`, config);
                 setHistory(history.filter(item => item._id !== historyToDelete));
+                toast.success('Item from history\nsuccessfully deleted!', { duration: 3000 });
             }
 
             closeDeleteModal();
         } catch (error) {
             console.error('Error deleting equipment history:', error);
+            toast.error('An error occurred while deleting history!', { duration: 3000 });
         }
     };
-
-
-   
 
     return (
         <div className={styles.container}>
@@ -107,6 +95,17 @@ const HistoryPage = () => {
                         <h1>Equipment History</h1>
                         <button className={styles.deleteAll} onClick={() => openDeleteModal(null, true)}>Delete All</button>
                     </div>
+                    <div className={styles.search}>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={styles.inputs}
+                        />
+                        <MdSearch className={styles.searchIcon} />
+
+                    </div>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -119,8 +118,13 @@ const HistoryPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {history.map(item => (
-                                <tr key={item._id}>
+                        {history.filter(item => 
+                                (item.user_info && `${item.user_info.first_name} ${item.user_info.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                                (item.equipment_info && item.equipment_info.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                            ).map(item => (
+
+                           
+                                <tr key={item._id} className={item._id === historyToDelete ? styles.highlightedRow : ''}>
                                     <td>{item.user_info.first_name} {item.user_info.last_name}</td>
                                     <td>{item.equipment_info ? item.equipment_info.name : 'Unknown'}</td>
                                     <td>{item.unassigned_quantity}</td>
@@ -140,7 +144,7 @@ const HistoryPage = () => {
                 </div>
             )}
 
-<Modal
+            <Modal
                 isOpen={deleteModalIsOpen}
                 onRequestClose={closeDeleteModal}
                 className={styles.modal}
@@ -150,7 +154,7 @@ const HistoryPage = () => {
                 <h2 className={styles.modalTitle}>{isDeleteAll ? 'Delete All History' : 'Delete equipment history'}</h2>
                 <div className={styles.modalContent}>
                     <p className={styles.modalMessage}>
-                        {isDeleteAll 
+                        {isDeleteAll
                             ? 'Are you sure you want to delete all items from the history? This action cannot be undone.'
                             : 'Are you sure you want to delete this item?'}
                     </p>

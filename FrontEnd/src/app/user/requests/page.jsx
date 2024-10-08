@@ -7,158 +7,164 @@ import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 
-
 const Requests = () => {
-
     const [requests, setRequests] = useState([]);
     const [isUser, setIsUser] = useState(false);
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const [loading, setLoading] = useState(true);
-    const [requestToRead, setRequestToRead] = useState(null);
-    const [readModalIsOpen, setReadModalIsOpen] = useState(false);
-    const [requestToReturn, setRequestsToReturn] = useState(null);
-    const [returnModalIsOpen, setReturnModalIsOpen] = useState(false);
-    const [returnQuantity, setReturnQuantity] = useState(1);
-    const [currentQuantity, setCurrentQuantity] = useState();
     const [equipmentToCancel, setEquipmentToCancel] = useState(null);
     const [cancelModalIsOpen, setCancelModalIsOpen] = useState(false);
-    const [equipmentQuantity, setEquipmentQuantity] = useState(1);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [equipmentToEdit, setEquipmentToEdit] = useState(null);
     const [editModalIsOpen, setEditModalIsOpen] = useState(false);
     const [newQuantity, setNewQuantity] = useState(1);
+    const [newInvalidQuantity, setNewInvalidQuantity] = useState(0); 
     const [returnPendingRequests, setReturnPendingRequests] = useState([]);
-
+    const [isUnassignRequest, setIsUnassignRequest] = useState(false);
 
     const formatDate = (dateTimeString) => {
         const date = new Date(dateTimeString);
-        const formattedDate = date.toLocaleDateString('hr-HR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        });
-        const formattedTime = date.toLocaleTimeString('hr-HR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-        });
-        return `${formattedDate} ${formattedTime}`;
+        return `${date.toLocaleDateString('hr-HR')} ${date.toLocaleTimeString('hr-HR')}`;
     };
+
     useEffect(() => {
         Modal.setAppElement('body');
-      }, []);
+    }, []);
 
+    const fetchRequests = async (url, setState) => {
+        const token = cookies.accessToken;
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+    
+        try {
+            const response = await axios.get(url, config);
+            console.log(`${url} Response:`, response.data);
+            setState(response.data);
+        } catch (error) {
+            console.error(`Error fetching ${url}:`, error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
     useEffect(() => {
         const token = cookies.accessToken;
         if (token) {
             const decodedToken = jwtDecode(token);
-            const userId = decodedToken.sub;
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-            setIsUser({
-                firstName: decodedToken.firstName,
-                lastName: decodedToken.lastName
-            });
-            axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/", config)
-            .then((response) => {
-                setRequests(response.data);
-                    const pending = response.data.filter(request => request.request_status === 'pending');
-                    const returnPending = response.data.filter(request => request.return_status_request === 'pending');
-                    setPendingRequests(pending);
-                    setReturnPendingRequests(returnPending);
-                    setLoading(false);
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-                setLoading(false);
-            }); 
-            axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/equipment/pendingRequests" , config)
-            .then((response) => {
-                setPendingRequests(response.data);
-                console.log("Pending Requests:", response.data);
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
+            setIsUser({ firstName: decodedToken.firstName, lastName: decodedToken.lastName });
             
+            fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/assignPendingRequests`, setPendingRequests);
+            fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/unassignPendingRequests`, setReturnPendingRequests);
         }
     }, [cookies.accessToken]);
+    
 
     const cancelRequest = async (requestId) => {
         try {
             let token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('accessToken'))
-            .split('=')[1];
+                .split('; ')
+                .find(row => row.startsWith('accessToken'))
+                .split('=')[1];
+            
             const response = await axios.patch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}user/equipment/request/${requestId}`,
-                { return_status_request: "canceled" }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                `${process.env.NEXT_PUBLIC_BASE_URL}user/requests/${requestId}`,
+                isUnassignRequest ? { cancel_unassign_request: "canceled" } : { cancel_assign_request: "canceled" }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
-            );
+            });
+    
             toast.success(response.data.message, { duration: 3000 });
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+            
+            // Uklanjanje otkazanog zahtjeva iz stanja
+            if (isUnassignRequest) {
+                setReturnPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
+            } else {
+                setPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
+            }
+    
+            closeCancelModal();
         } catch (error) {
-            toast.error(error.response.data.message || "Error" );
+            toast.error(error.response.data.message || "Error");
         }
     };
-
+    
 
     const editRequest = async (requestId) => {
         try {
             let token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('accessToken'))
-            .split('=')[1];
+                .split('; ')
+                .find(row => row.startsWith('accessToken'))
+                .split('=')[1];
+    
+            const equipmentResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}user/equipment/${equipmentToEdit.equipment_id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            const equipment = equipmentResponse.data;
+    
+            if (isUnassignRequest) {
+                if (newQuantity > equipmentToEdit.quantity) {
+                    toast.error('There is not that much equipment assigned!');
+                    return;
+                }
+            } else {
+                if (newQuantity > equipment.quantity) {
+                    toast.error('Not enough equipment available for assignment!');
+                    return;
+                }
+            }
+    
             if (!Number.isInteger(newQuantity) || newQuantity <= 0) {
                 toast.error('Invalid quantity!');
                 return;
             }
+    
+            const payload = isUnassignRequest
+                ? { new_unassign_quantity: newQuantity, new_invalid_quantity: newInvalidQuantity }
+                : { new_assign_quantity: newQuantity };
+    
             const response = await axios.patch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}user/equipment/request/${requestId}`,
-                { new_quantity: newQuantity }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                `${process.env.NEXT_PUBLIC_BASE_URL}user/requests/${requestId}`,
+                payload, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
-            );
-            toast.success('Quantity updated successfully!', { duration: 3000 });
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-            setRequests(prevRequests => prevRequests.map(request => {
-                if (request._id === requestId) {
-                    console.log("Updating request:", request._id, "with new quantity:", newQuantity);
-                    return { ...request, quantity: newQuantity };
-                }
-                return request;
-            }));
+            });
+    
+            toast.success(response.data.message, { duration: 3000 });
+    
+            // Ponovno učitavanje zahtjeva
+            fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/assignPendingRequests`, setPendingRequests);
+            fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/unassignPendingRequests`, setReturnPendingRequests);
+    
             closeEditModal();
         } catch (error) {
-            toast.error(error.response.data.message || "Error updating quantity" );
+            toast.error(error.response.data.message || "Error updating quantity!");
         }
     };
+    
 
-    const openCancelModal = (equipment) => {
+    const openCancelModal = (equipment, isUnassign = false) => {
         setEquipmentToCancel(equipment);
+        setIsUnassignRequest(isUnassign);
         setCancelModalIsOpen(true);
     };
-        const closeCancelModal = () => {
+    const closeCancelModal = () => {
         setEquipmentToCancel(null);
         setCancelModalIsOpen(false);
     };
 
-
-    const openEditModal = (equipment) => {
+    const openEditModal = (equipment, isUnassign = false) => {
         setEquipmentToEdit(equipment);
-        setNewQuantity(equipment.quantity);
+        setNewQuantity(isUnassign ? equipment.unassign_quantity : equipment.quantity);
+        setNewInvalidQuantity(isUnassign ? equipment.invalid_quantity : 0); 
+        setIsUnassignRequest(isUnassign);
         setEditModalIsOpen(true);
     };
     const closeEditModal = () => {
@@ -166,9 +172,20 @@ const Requests = () => {
         setEditModalIsOpen(false);
     };
     const isQuantityUnchanged = () => {
-        return equipmentToEdit && newQuantity === equipmentToEdit.quantity;
+        if (isUnassignRequest) {
+            return (
+                equipmentToEdit &&
+                newQuantity === equipmentToEdit.unassign_quantity &&
+                newInvalidQuantity === equipmentToEdit.invalid_quantity
+            );
+        } else {
+            return (
+                equipmentToEdit &&
+                newQuantity === equipmentToEdit.quantity
+            );
+        }
     };
-    
+
     return (
         <div className={styles.container}>
             {loading ? (
@@ -190,21 +207,25 @@ const Requests = () => {
                                 <thead>
                                     <tr>
                                         <th>EQUIPMENT</th>
-                                        <th>QUANTITY</th>
+                                        <th>MODEL</th>
+                                        <th>QUANTITY FOR ASSIGN</th>
                                         <th>ASSIGN DATE</th>
-                                        <th>STATUS</th>
                                         <th>ACTIONS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {pendingRequests.map(request => (
-                                        <tr key={request._id}>
+                                        <tr key={request._id} className={
+                                            (equipmentToEdit && request._id === equipmentToEdit._id) || 
+                                            (equipmentToCancel && request._id === equipmentToCancel._id) 
+                                            ? styles.highlightedRow 
+                                            : ''
+                                        }
+                                        >                    
                                             <td className={styles.name}>{request.equipment_info.name}</td>
+                                            <td className={styles.model}>{request.equipment_info.serial_number}</td>
                                             <td className={styles.quantity}>{request.quantity}</td>
-                                            <td className={styles.assign_date}>{formatDate(request.updatedAt)}</td>
-                                            <td className={`${styles.request_status} ${request.request_status === 'pending' ? styles.active : ''}`}>
-                                                {request.request_status === 'pending' ? 'Pending' : request.request_status}
-                                            </td>
+                                            <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
                                             <td className={styles.button}>
                                                 <button className={styles.return} onClick={() => openEditModal(request)}>Edit</button>
                                                 <button className={styles.cancel} onClick={() => openCancelModal(request)}>Cancel</button>
@@ -213,47 +234,52 @@ const Requests = () => {
                                     ))}
                                 </tbody>
                             </table>
-                            </>
-                        )}
-                        {returnPendingRequests.length > 0 && (
-                            <>
-                                    <div className={styles.title}>
-                                        <h1> UnassignPending Requests</h1>
-                                    </div>
-                                    <table className={styles.table}>
-                                        <thead>
-                                            <tr>
-                                                <th>EQUIPMENT</th>
-                                                <th>QUANTITY</th>
-                                                <th>ASSIGN DATE</th>
-                                                <th>RETURN STATUS</th>
-                                                <th>ACTIONS</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {returnPendingRequests.map(request => (
-                                                <tr key={request._id}>
-                                                    <td className={styles.name}>{request.equipment_info.name}</td>
-                                                    <td className={styles.quantity}>{request.quantity}</td>
-                                                    <td className={styles.assign_date}>{formatDate(request.updatedAt)}</td>
-                                                    <td className={`${styles.request_status} ${request.return_status_request === 'pending' ? styles.active : ''}`}>
-                                                        {request.return_status_request === 'pending' ? 'Pending' : request.return_status_request}
-                                                    </td>
-                                                    <td className={styles.button}>
-                                                        <button className={styles.return} onClick={() => openEditModal(request)}>Edit</button>
-                                                        <button className={styles.cancel} onClick={() => openCancelModal(request)}>Cancel</button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                        </>
+                    )}
+                    {returnPendingRequests.length > 0 && (
+                        <>
+                            <div className={styles.title}>
+                                <h1>Unassign Pending Requests</h1>
+                            </div>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>EQUIPMENT</th>
+                                        <th>MODEL</th>
+                                        <th>VALID / INVALID QUANTITY</th>
+                                        <th>UNASSIGN DATE</th>
+                                        <th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {returnPendingRequests.map(request => (
+                                        <tr key={request._id} className={
+                                            (equipmentToEdit && request._id === equipmentToEdit._id) || 
+                                            (equipmentToCancel && request._id === equipmentToCancel._id) 
+                                            ? styles.highlightedRow 
+                                            : ''
+                                        }
+                                        >                  
+                                            <td className={styles.name}>{request.equipment_info.name}</td>
+                                            <td className={styles.model}>{request.equipment_info.serial_number}</td>
+                                            <td className={styles.quantity}>
+                                                {request.unassign_quantity} / {request.invalid_quantity}
+                                            </td>
+                                            <td className={styles.assign_date}>{formatDate(request.unassign_date)}</td>
+                                            <td className={styles.button}>
+                                                <button className={styles.return} onClick={() => openEditModal(request, true)}>Edit</button>
+                                                <button className={styles.cancel} onClick={() => openCancelModal(request, true)}>Cancel</button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </>
-                       
                     )}
-                    </div>
-                    )}
-                                
-                    <Modal
+                </div>
+            )}
+
+            <Modal
                 isOpen={cancelModalIsOpen}
                 onRequestClose={closeCancelModal}
                 className={styles.modal}
@@ -262,7 +288,9 @@ const Requests = () => {
                 <h2 className={styles.modalTitle}>Cancel Assigment</h2>
                 {equipmentToCancel && (
                     <div>
-                        <p className={styles.question}> Are you sure you want to cancel this request?</p>
+                        <p className={styles.question}>
+                            {isUnassignRequest ? 'Are you sure you want to cancel this unassign request?' : 'Are you sure you want to cancel this assign request?'}
+                        </p>
                         <div className={styles.modalButtons}>
                             <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Confirm</button>
                             <button onClick={closeCancelModal}>Dismiss</button>
@@ -270,7 +298,7 @@ const Requests = () => {
                     </div>
                 )}
             </Modal>
-            
+
             <Modal
                 isOpen={editModalIsOpen}
                 onRequestClose={closeEditModal}
@@ -280,28 +308,47 @@ const Requests = () => {
             >
                 {equipmentToEdit && (
                     <div>
-                        <h2 className={styles.modalTitle}>Edit Equipment Quantity</h2>
-                        <p className={styles.question}>Current Quantity: {equipmentToEdit.quantity}</p>
+                        <h2 className={styles.modalTitle}>Edit Request Quantity</h2>
+                        {equipmentToEdit && !isUnassignRequest && (
+                            <p className={styles.question}>
+                                Available Equipment: {equipmentToEdit.equipment_info?.quantity || 0}
+                            </p>
+                        )}
+                        {isUnassignRequest && (
+                            <p className={styles.question}>
+                                Total Assigned Equipment: {equipmentToEdit.quantity}
+                            </p>
+                        )}
+                        <p className={styles.question}>Current Quantity: {isUnassignRequest ? equipmentToEdit.unassign_quantity : equipmentToEdit.quantity}</p>
                         <p className={styles.question}>Enter new quantity:</p>
-                        <input 
+                        <input
                             className={styles.input}
-                            type="number" 
-                            value={newQuantity} 
+                            type="number"
+                            value={newQuantity}
                             onChange={(e) => setNewQuantity(parseInt(e.target.value))}
                             min="1"
                         />
+                        {isUnassignRequest && (
+                            <>  
+                                <p className={styles.question}>Enter new invalid quantity:</p>
+                                <input
+                                    className={styles.input}
+                                    type="number"
+                                    value={newInvalidQuantity}
+                                    onChange={(e) => setNewInvalidQuantity(parseInt(e.target.value))}
+                                    min="0"
+                                />
+                            </>
+                        )}
                         <div className={styles.modalButtons}>
-                            <button onClick={() => editRequest(equipmentToEdit._id)} disabled={isQuantityUnchanged()}>Save Changes</button>                            
+                            <button onClick={() => editRequest(equipmentToEdit._id)} disabled={isQuantityUnchanged()}>Save Changes</button>
                             <button onClick={closeEditModal}>Dismiss</button>
                         </div>
                     </div>
                 )}
             </Modal>
-                    
         </div>
-
     );
 };
 
 export default Requests;
-

@@ -61,6 +61,9 @@
     font-size: 30px;
 
   }
+  .icon:hover {
+    color: #007bff;
+  }
   .table {
     width: 100%;
     background-color: none;
@@ -285,4 +288,31 @@
     margin: 0 10px;
   }
   
+  .iconWrapper {
+    position: relative;
+    display: inline-block;
+  }
   
+  .tooltip {
+    visibility: hidden;
+    color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 25%; 
+    left: 100%;
+    transform: translateX(-150%);
+    white-space: nowrap;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .iconWrapper:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+  .highlightedRow {
+    background-color:  #1a2a40;
+  }

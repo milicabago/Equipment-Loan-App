@@ -56,6 +56,10 @@
 .filterIcon {
   font-size: 30px;
 }
+.filterIcon:hover {
+  color: #007bff;
+}
+
 .addIcon {
   font-size: 30px;
   margin-right: calc(1em + 0.50rem + 2px);
@@ -89,9 +93,7 @@
 .table th {
   background-color: var(--button);
 }
-.table .quantity {
-  text-align: center;
-}
+
 .profile {
   display: flex;
   align-items: center;
@@ -150,7 +152,9 @@
 }
 .delete:hover,
 .edit:hover,
-.seeMore:hover {
+.seeMore:hover,
+.assign:hover,
+.read:hover {
   background-color: black;
 }
 .modal {
@@ -309,7 +313,10 @@
 }
 .dimmed{
   opacity: 0.5;
-  pointer-events: none; 
+ /*pointer-events: none;*/ 
+}
+.darked{
+  opacity: 0.5;
 }
 .input{
   border: none;
@@ -357,4 +364,38 @@
 .checkboxContainer input[type="checkbox"] {
   margin-right: 10px;
   transform: scale(1.5);
+}
+
+.iconWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  visibility: hidden;
+  color: #fff;
+  text-align: center;
+  padding: 5px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 25%; 
+  left: 100%;
+  transform: translateX(-150%);
+  white-space: nowrap;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.iconWrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+.table th.narrow,
+.table td.narrow {
+    width: 80px; 
+    text-align: center; 
+}
+.highlightedRow {
+  background-color:  #1a2a40;
 }
