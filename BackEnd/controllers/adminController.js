@@ -235,7 +235,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
     // Delete equipment from history for the selected user
     await UserHistory.deleteMany({ user_id: user._id });
-    await AdminHistory.deleteMany({ user_id: user._id });
+    await AdminHistory.deleteMany({ admin_id: user._id });
 
     const deleteUser = await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "User has been deleted!", deleteUser });

@@ -121,7 +121,6 @@ const getUnassignPendingRequests = asyncHandler(async (req, res, next) => {
         request.equipment_info = {
           name: equipment.name,
           serial_number: equipment.serial_number,
-          quantity: equipment.quantity
         };
       }
     }
