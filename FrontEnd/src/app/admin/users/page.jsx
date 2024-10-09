@@ -22,6 +22,8 @@ const UsersPage = () => {
   const [editedUserData, setEditedUserData] = useState({});
   const [originalUserData, setOriginalUserData] = useState(null);
   const router = useRouter();
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [socket, setSocket] = useState(null);
@@ -48,7 +50,7 @@ const UsersPage = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(); 
   }, [cookies.accessToken]);
 
   useEffect(() => {
@@ -71,29 +73,44 @@ const UsersPage = () => {
 
   const handleSave = async () => {
     try {
-      if (JSON.stringify(editedUserData) === JSON.stringify(originalUserData)) {
-        toast.error("No changes have been made.", { duration: 3000 });
-        return;
-    }
-      let token = document.cookie.split('; ').find(row => row.startsWith('accessToken=')).split('=')[1];
-      const { username, role, position } = editedUserData;
-      const dataToUpdate = { username, role, position };
-      const response = await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${userToEdit._id}`, dataToUpdate, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        if (JSON.stringify(editedUserData) === JSON.stringify(originalUserData)) {
+            toast.error("No changes have been made.", { duration: 3000 });
+            return;
         }
-      });
-      if (response.status === 200) {
-        toast.success("User updated successfully.", { duration: 3000 });
-        fetchUsers();  
-      } else {
-        toast.error("Failed to update user.");
-      }
+        let token = document.cookie.split('; ').find(row => row.startsWith('accessToken=')).split('=')[1];
+        const { username, role, position } = editedUserData;
+        const dataToUpdate = { username, role, position };
+        const hasRoleChanged = originalUserData && originalUserData.role !== role;
+
+        const response = await axios.patch(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${userToEdit._id}`, dataToUpdate, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 200) {
+            toast.success("User updated successfully.", { duration: 3000 });
+  
+            if (hasRoleChanged) {
+                setTimeout(() => {
+                    toast('The user\'s role has been changed!', {
+                        icon: '⚠️ ',
+                        duration: 3000
+                    });
+                }, 2000);
+            }
+            closeEditModal();
+            fetchUsers();
+        } else {
+            toast.error("Failed to update user.");
+        }
     } catch (error) {
-      console.error("Error updating user:", error);
-      toast.error(error.response.data.message, { duration: 3000 });
+        console.error("Error updating user:", error);
+        toast.error(error.response.data.message, { duration: 3000 });
     }
-  };
+};
+
+  
 
   const deleteUser = async (userId) => {
     const token = cookies.accessToken;
@@ -106,17 +123,15 @@ const UsersPage = () => {
       const response = await axios.delete(process.env.NEXT_PUBLIC_BASE_URL + `admin/users/${userId}`, config);
       console.log("User deleted:", response.data);
       toast.success("User deleted successfully.", { duration: 3000 });
-      fetchUsers(); 
+      fetchUsers();
       setDeleteModalIsOpen(false);
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.response.data.message, { duration: 3000 });
       setDeleteModalIsOpen(false);
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
     }
   };
+  
 
   const readUser = async (id) => {
     try {

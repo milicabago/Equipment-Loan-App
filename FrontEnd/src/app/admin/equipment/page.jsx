@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { useRouter } from "next/navigation";
-import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 import { MdSearch, MdFilterList, MdPlaylistAdd } from "react-icons/md";
@@ -17,10 +16,7 @@ const EquipmentPage = () => {
     const [filterValues, setFilterValues] = useState({ name: '', quantity: [1, 100] });
     const [equipment, setEquipment] = useState([]);
     const [equipmentNames, setEquipmentNames] = useState([]);
-    const [equipmentModels, setEquipmentModels] = useState([]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [loggedInUser, setLoggedInUser] = useState(null);
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [cookies] = useCookies(['accessToken']);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -53,19 +49,7 @@ const EquipmentPage = () => {
     const handleSliderChange = (value) => {
         setFilterValues({ ...filterValues, quantity: value });
     };
-
-
-    const fetchModelsForName = async (name) => {
-        try {
-            const token = cookies.accessToken;
-            const config = { headers: { 'Authorization': `Bearer ${token}` } };
-            const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment/models?name=${name}`, config);
-            setEquipmentModels(response.data.models);
-        } catch (error) {
-            console.error("Error fetching models for name:", error);
-        }
-    };
-
+    
     useEffect(() => {
         const filteredByFilterValues = equipment.filter(item =>
             (filterValues.name.length === 0 || filterValues.name.includes(item.name)) &&
@@ -104,41 +88,25 @@ const EquipmentPage = () => {
     const openFilterModal = () => setFilterModalIsOpen(true);
     const closeFilterModal = () => setFilterModalIsOpen(false);
 
-    const readEquipment = async (equipmentId) => {
-        try {
-            const token = cookies.accessToken;
-            const config = {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            };
-            const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `admin/equipment${equipmentId}`, config);
-            setEquipmentToRead(response.data);
-            setReadModalIsOpen(true);
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    };
-
-    const deleteEquipment = (itemId) => {
+    const deleteEquipment = async (itemId) => {
         const token = cookies.accessToken;
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         };
-        axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config)
-        .then((response) => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config);
+            const equipmentData = response.data;
+            await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config);
             setEquipment(equipment.filter(item => item._id !== itemId));
             setDeleteModalIsOpen(false);
             toast.success("Equipment deleted successfully!");
-        })
-        .catch((error) => {
+        } catch (error) {
             toast.error(error.response.data.message, { duration: 3000 });
-        });
+        }
     };
-
-
+    
     const handleEdit = (field, value) => {
         setEditedEquipmentData({ ...editedEquipmentData, [field]: value });
     };
@@ -261,7 +229,7 @@ const EquipmentPage = () => {
                     <thead>
                         <tr>
                             <th>NAME</th> 
-                            <th>MODEL</th>
+                            <th>SERIAL NUMBER</th>
                             <th className={styles.narrow}>AVAILABLE QUANTITY</th>
                             <th className={styles.narrow}>ASSIGNED QUANTITY</th>
                             <th>ACTIONS</th>
@@ -277,8 +245,12 @@ const EquipmentPage = () => {
                                 : ''
                             }
                             >            
-                                <td className={styles.name}>{item.name}</td>
-                                <td className={styles.model}>{item.full_name}</td>
+                                <td className={styles.nameColumn}>
+                                    <div className={styles.name}>{item.name}</div>
+                                    <div className={styles.model}>{item.full_name}</div>
+                                </td>
+
+                                <td className={styles.narrow}>{item.serial_number}</td>
                                 <td className={styles.narrow}>{item.quantity}</td>
                                 <td className={styles.narrow}>{item.assigned_quantity}</td>
                                 <td>
@@ -378,7 +350,8 @@ const EquipmentPage = () => {
                         <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
                         <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
                         <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
-                        <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Available Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Assigned quantity: </span><span className={styles.value}>{equipmentToRead.assigned_quantity}</span></p>
                         <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>)}</span></p>
                     </div>
                 )}

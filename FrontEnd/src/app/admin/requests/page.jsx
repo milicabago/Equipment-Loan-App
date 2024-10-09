@@ -38,11 +38,7 @@ const RequestPage = () => {
         };
     }, [setSocket]);
 
-    useEffect(() => {
-        fetchRequests(); 
-    }, [cookies.accessToken]);
-
-    const fetchRequests = async () => {
+    const fetchAssignRequests = async () => {
         const token = cookies.accessToken;
         if (token) {
             const config = {
@@ -53,17 +49,40 @@ const RequestPage = () => {
             try {
                 const assignResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/assignPendingRequests`, config);
                 setAssignRequests(assignResponse.data);
-                console.log(assignResponse.data);
-
-                const unassignResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/unassignPendingRequests`, config);
-                setUnassignRequests(unassignResponse.data);
+                console.log("Assign Requests:", assignResponse.data); // Ispisati odgovore
+                setLoading(false);
             } catch (error) {
-                console.error("Error fetching requests:", error);
-            } finally {
+                console.error("Error fetching assign requests:", error);
                 setLoading(false);
             }
         }
     };
+    
+    const fetchUnassignRequests = async () => {
+        const token = cookies.accessToken;
+        if (token) {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            };
+            try {
+                const unassignResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/unassignPendingRequests`, config);
+                setUnassignRequests(unassignResponse.data);
+                console.log("Unassign Requests:", unassignResponse.data); // Ispisati odgovore
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching unassign requests:", error);
+                setLoading(false);
+            }
+        }
+    };
+    
+    useEffect(() => {
+        fetchAssignRequests(); 
+        fetchUnassignRequests(); 
+    }, [cookies.accessToken]);
+    
 
     const acceptRequests = async (requestId, isAssign) => {
         try {
@@ -90,7 +109,6 @@ const RequestPage = () => {
             fetchRequests(); 
         } catch (error) {
             console.error("Error accepting request:", error);
-            toast.error(error.response.data.message, { duration: 3000 });
         }
     };
 
@@ -119,7 +137,6 @@ const RequestPage = () => {
             fetchRequests();
         } catch (error) {
             console.error("Error denying request:", error);
-            toast.error(error.response.data.message, { duration: 3000 });
         }
     };
 
@@ -153,7 +170,6 @@ const RequestPage = () => {
         setDenyModalIsOpen(false);
     };
     
-
     return (
         <div className={styles.container}>
         {loading ? (
@@ -281,6 +297,7 @@ const RequestPage = () => {
                         <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user_info.first_name} {requestToRead.user_info.last_name}</span></p>
                         <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user_info.username}</span></p>
                         <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
+                        <p><span className={styles.label}>Model:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.full_name : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
                         {requestToRead.unassign_date ? (
                             <>

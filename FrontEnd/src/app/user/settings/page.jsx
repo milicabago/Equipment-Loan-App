@@ -107,25 +107,54 @@ const SettingsPage = () => {
             if (isPasswordChanged) {
                 editedUserData.password = password;
             }
+            if (isPasswordChanged && password === user.password) {
+                toast.error(error.response.data.message); 
+                return;
+            }
             const response = await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `user/settings/${userId}`, editedUserData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             if (response.status === 200) {
-                if (passwordChanged || emailChanged) {
-                    toast.success("Profile updated successfully.", { duration: 3000 });
+                toast.success("Profile updated successfully.", { duration: 3000 }); 
+                setUser(response.data.updatedUser); 
+
+                if (isPasswordChanged && isEmailChanged) {
                     setTimeout(() => {
-                        toast.success("Password has been changed. Please log in again.", { duration: 3000 });
+                        toast('Password and email have been changed!', {
+                            icon: '⚠️ ',
+                            duration: 3000
+                        });
+                    }, 2000);  
+                } else if (isPasswordChanged) {
+                    setTimeout(() => {
+                        toast('Password has been changed!', {
+                            icon: '⚠️ ',
+                            duration: 3000
+                        });
+                    }, 2000); 
+                } else if (isEmailChanged) {
+                    setTimeout(() => {
+                        toast('Email has been changed!', {
+                            icon: '⚠️ ',
+                            duration: 3000
+                        });
                     }, 2000);
+                }
+                if (isPasswordChanged || isEmailChanged) {
+                    setTimeout(() => {
+                        toast('Logging out in 5 seconds...', {
+                            icon: '🔄 ',
+                            duration: 3000
+                        });
+                    }, 4000);            
                     setTimeout(() => {
                         handleLogout();
-                    }, 5000);
+                    }, 6000);
                 } else {
-                    toast.success("Profile updated successfully." , { duration: 2000 });
                     fetchUserData();
                 }
-                setUser(response.data.updatedUser);
             } else {
                 toast.error("Failed to update profile.");
             }
@@ -134,6 +163,7 @@ const SettingsPage = () => {
             toast.error(error.response.data.message , { duration: 3000 });
         }
     };
+    
    
     return (
         <div className={styles.container}>

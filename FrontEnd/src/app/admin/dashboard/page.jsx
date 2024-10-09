@@ -61,6 +61,7 @@ const Dashboard = () => {
     }, [cookies.accessToken]);
 
     const returnRequests = async (requestId) => {
+        e.preventDefault();
         try {
             let token = document.cookie
                 .split('; ')
@@ -149,7 +150,6 @@ const Dashboard = () => {
                             <tr>
                                 <th>USER</th>
                                 <th>EQUIPMENT</th>
-                                <th>MODEL</th>
                                 <th>QUANTITY</th>
                                 <th>ASSIGN DATE</th>
                                 <th>ACTIONS</th>
@@ -167,8 +167,10 @@ const Dashboard = () => {
                                     : ''
                                 }>
                                     <td className={styles.user}>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
-                                    <td className={styles.equipment}>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
-                                    <td className={styles.model}>{request.equipment_info ? request.equipment_info.serial_number : 'Unknown'}</td>
+                                    <td className={styles.nameColumn}>
+                                        <div className={styles.name}>{request.equipment_info.name}</div>
+                                        <div className={styles.model}>{request.equipment_info.full_name}</div>
+                                </td>
                                     <td className={styles.quantity}>{request.quantity}</td>
                                     <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
                                     <td>
@@ -196,6 +198,7 @@ const Dashboard = () => {
                         <p><span className={styles.label}>User:</span> <span className={styles.value}>{requestToRead.user_info ? `${requestToRead.user_info.first_name} ${requestToRead.user_info.last_name}` : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Username:</span> <span className={styles.value}>{requestToRead.user_info ? requestToRead.user_info.username : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
+                        <p><span className={styles.label}>Model:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.full_name : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
                         <p><span className={styles.label}>Request Sent:</span> <span className={styles.value}>{formatDate(requestToRead.createdAt)}</span></p>

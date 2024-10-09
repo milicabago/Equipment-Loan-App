@@ -68,7 +68,6 @@ const Requests = () => {
                 .split('; ')
                 .find(row => row.startsWith('accessToken'))
                 .split('=')[1];
-            
             const response = await axios.patch(
                 `${process.env.NEXT_PUBLIC_BASE_URL}user/requests/${requestId}`,
                 isUnassignRequest ? { cancel_unassign_request: "canceled" } : { cancel_assign_request: "canceled" }, {
@@ -76,22 +75,20 @@ const Requests = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
-    
+
             toast.success(response.data.message, { duration: 3000 });
             
-            // Uklanjanje otkazanog zahtjeva iz stanja
             if (isUnassignRequest) {
                 setReturnPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
             } else {
                 setPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
             }
-    
+
             closeCancelModal();
         } catch (error) {
             toast.error(error.response.data.message || "Error");
         }
     };
-    
 
     const editRequest = async (requestId) => {
         try {
@@ -105,7 +102,6 @@ const Requests = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
-    
             const equipment = equipmentResponse.data;
     
             if (isUnassignRequest) {
@@ -119,12 +115,10 @@ const Requests = () => {
                     return;
                 }
             }
-    
             if (!Number.isInteger(newQuantity) || newQuantity <= 0) {
                 toast.error('Invalid quantity!');
                 return;
             }
-    
             const payload = isUnassignRequest
                 ? { new_unassign_quantity: newQuantity, new_invalid_quantity: newInvalidQuantity }
                 : { new_assign_quantity: newQuantity };
@@ -136,13 +130,10 @@ const Requests = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
-    
             toast.success(response.data.message, { duration: 3000 });
     
-            // Ponovno učitavanje zahtjeva
             fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/assignPendingRequests`, setPendingRequests);
             fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/unassignPendingRequests`, setReturnPendingRequests);
-    
             closeEditModal();
         } catch (error) {
             toast.error(error.response.data.message || "Error updating quantity!");
@@ -223,7 +214,7 @@ const Requests = () => {
                                         }
                                         >                    
                                             <td className={styles.name}>{request.equipment_info.name}</td>
-                                            <td className={styles.model}>{request.equipment_info.serial_number}</td>
+                                            <td className={styles.model}>{request.equipment_info.full_name}</td>
                                             <td className={styles.quantity}>{request.quantity}</td>
                                             <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
                                             <td className={styles.button}>
@@ -261,7 +252,7 @@ const Requests = () => {
                                         }
                                         >                  
                                             <td className={styles.name}>{request.equipment_info.name}</td>
-                                            <td className={styles.model}>{request.equipment_info.serial_number}</td>
+                                            <td className={styles.model}>{request.equipment_info.full_name}</td>
                                             <td className={styles.quantity}>
                                                 {request.unassign_quantity} / {request.invalid_quantity}
                                             </td>

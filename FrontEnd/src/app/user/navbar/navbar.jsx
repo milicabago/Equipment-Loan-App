@@ -23,7 +23,6 @@ const Navbar = () => {
 
         if (!userId || !token) return;
 
-        // Initialize socket connection only once
         const newSocket = io('http://localhost:5001', { query: { user_id: userId } });
         setSocket(newSocket);
 
@@ -47,7 +46,6 @@ const Navbar = () => {
 
             changes.forEach(change => {
                 if (change.includes("ROLE changed")) {
-                    // toast.success("ROLE changed to ADMIN.\n Logout in 10 seconds!", { duration: 9000 });
                     toast('ROLE changed to ADMIN.\n Logout in 10 seconds!', {
                         icon: '⚠️ ',
                         duration: 9000
@@ -64,7 +62,6 @@ const Navbar = () => {
             });
         });
 
-        // Fetch existing notifications
         axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}allNotifications`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -80,7 +77,6 @@ const Navbar = () => {
             })
             .catch(error => console.error('Error fetching notifications:', error));
 
-        // Clean up socket connection on component unmount
         return () => {
             newSocket.close();
         };
@@ -153,8 +149,8 @@ const Navbar = () => {
         const newShowNotifications = !showNotifications;
         setShowNotifications(newShowNotifications);
         if (newShowNotifications) {
-            setUnreadCount(0); // Reset unread count when notifications are opened
-            markNotificationsAsRead(); // Mark all notifications as read
+            setUnreadCount(); 
+            markNotificationsAsRead(); 
         }
     };
 
@@ -181,7 +177,7 @@ const Navbar = () => {
 
             {showNotifications && (
                 <div className={styles.dropdownMenu}>
-                    {notifications.length > 0 ? (
+                    {notifications.length > 1 ? (
                         <>
                             {notifications.map(notification => (
                                 <div key={notification._id}

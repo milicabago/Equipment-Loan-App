@@ -82,7 +82,12 @@
     background-color: black;
     padding: 30px;
 }
-
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
 .form p{
     color: #5f91f5;
 }

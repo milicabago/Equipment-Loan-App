@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import jwtDecode from 'jwt-decode';
 
 export const useLogout = () => {
-    const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+    const [cookies, , removeCookie] = useCookies(['accessToken']);
     const router = useRouter();
 
     const handleLogout = () => {

@@ -27,7 +27,6 @@ const Dashboard = () => {
         const token = cookies.accessToken; 
         if (!token) return;
     
-        setLoading(true); 
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}user/`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -39,6 +38,7 @@ const Dashboard = () => {
             setLoading(false);
         }
     }, [cookies.accessToken]);
+    
     
     useEffect(() => {
         Modal.setAppElement('body'); 
@@ -93,65 +93,62 @@ const Dashboard = () => {
 
     return (
         <div className={styles.container}>
-            {loading ? (
-                <div className={styles.loading}>
-                    <div className={styles.spinner}></div>
+             {loading ? (
+                    <div className={styles.loading}>
+                    <div className={styles.spinner}>
                 </div>
+            </div>
             ) : requests.length === 0 ? (
                 <div>
                     <h1 className={styles.empty}>No assigned equipment at the moment.</h1>
                 </div>
             ) : (
                 <div>
-                    {requests.length > 0 && (
-                        <>
-                            <div className={styles.title}>
-                                <h1>Assigned Equipment</h1>
-                            </div>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th>EQUIPMENT</th>
-                                        <th>ASSIGNED QUANTITY</th>
-                                        <th>RETURN QUANTITY</th>
-                                        <th>ASSIGN DATE</th>
-                                        <th>STATUS</th>
-                                        <th>ACTIONS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {requests.map(request => (
-                                        <tr key={request._id} className={
-                                            (requestToRead && request._id === requestToRead._id) || 
-                                            (requestToReturn && request._id === requestToReturn._id) 
-                                            ? styles.highlightedRow 
-                                            : ''
-                                        }
-                                        >                                            
-                                            <td className={styles.name}>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
-                                            <td className={styles.quantity}>{request.quantity}</td>
-                                            <td className={styles.quantity}>{request.unassign_quantity}</td>
-                                            <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
-                                            <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>
-                                                {request.return_status_request === 'pending' ? 'Pending' : 
-                                                (request.request_status === 'active' ? 'Active' : request.request_status)}
-                                            </td>
-                                            <td>
-                                                <button 
-                                                    className={styles.return} 
-                                                    onClick={() => openReturnModal(request)} 
-                                                    disabled={request.return_status_request === 'pending'}
-                                                >
-                                                    Return
-                                                </button>
-                                                <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </>
-                    )}
+                    <div className={styles.title}>
+                        <h1>Assigned Equipment</h1>
+                    </div>
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th>EQUIPMENT</th>
+                                <th>ASSIGNED QUANTITY</th>
+                                <th>RETURN QUANTITY</th>
+                                <th>ASSIGN DATE</th>
+                                <th>STATUS</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {requests.map(request => (
+                                <tr key={request._id} className={
+                                    (requestToRead && request._id === requestToRead._id) || 
+                                    (requestToReturn && request._id === requestToReturn._id) 
+                                    ? styles.highlightedRow 
+                                    : ''
+                                }
+                                >                                            
+                                    <td className={styles.name}>{request.equipment_info ? request.equipment_info.name : 'Unknown'}</td>
+                                    <td className={styles.quantity}>{request.quantity}</td>
+                                    <td className={styles.quantity}>{request.unassign_quantity}</td>
+                                    <td className={styles.assign_date}>{formatDate(request.assign_date)}</td>
+                                    <td className={`${styles.status} ${request.request_status === 'active' ? styles.active : ''}`}>
+                                        {request.return_status_request === 'pending' ? 'Pending' : 
+                                        (request.request_status === 'active' ? 'Active' : request.request_status)}
+                                    </td>
+                                    <td>
+                                        <button 
+                                            className={styles.return} 
+                                            onClick={() => openReturnModal(request)} 
+                                            disabled={request.return_status_request === 'pending'}
+                                        >
+                                            Return
+                                        </button>
+                                        <button className={styles.seeMore} onClick={() => openReadModal(request)}>See More</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
             <Modal
@@ -166,6 +163,7 @@ const Dashboard = () => {
                 {requestToRead && (
                     <div className={styles.modalContent}>
                         <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
+                        <p><span className={styles.label}>Model:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.full_name : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
                         <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
                         <p><span className={styles.label}>Request Sent:</span> <span className={styles.value}>{formatDate(requestToRead.createdAt)}</span></p>

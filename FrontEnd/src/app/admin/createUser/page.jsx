@@ -14,7 +14,7 @@ const schema = yup.object().shape({
     email: yup.string().email().required("Email is required!").matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '"Email" is not valid!'),
     username: yup.string().required("Username is required!").min(3).max(30).matches(/^[a-zA-Z0-9]+$/, '"Username" can only contain letters and numbers!'),
     role: yup.string().required("Role is required!").oneOf(["admin", "user"], 'Invalid "role" value!'),
-    contact: yup.string().matches(/^(\+\d{1,3})?\d{9,15}$/, 'Contact must be a valid phone number').notRequired(),
+    contact: yup.string().optional().matches(/^$|^(\+\d{1,3})?\d{9,15}$/, 'Contact must be a valid phone number'),
     position: yup.string().required("Position is required!").matches(/^(\S+\s)*\S+$/),
     password: yup.string().min(8, "The password must contain 8 characters.").required("Password is required!"),
     confirm_password: yup.string().oneOf([yup.ref("password"), null], "Passwords don't match").required("Please confirm your password")
@@ -38,20 +38,24 @@ const CreateUserPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            console.log(errors);
             let token = document.cookie
                 .split('; ')
                 .find(row => row.startsWith('accessToken'))
                 .split('=')[1];
-                await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, {
+                const userData = {
                     first_name: data.first_name,
                     last_name: data.last_name,
                     username: data.username,
-                    contact: data.contact,
                     email: data.email,
                     password: data.password,
                     role: data.role,
                     position: data.position,
-                }, {
+                };
+                    if (data.contact) {
+                    userData.contact = data.contact;
+                }
+                await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, userData, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

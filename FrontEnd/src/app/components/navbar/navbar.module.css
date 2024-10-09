@@ -40,8 +40,31 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 10px;
     z-index: 1000;
-    width: 250px;  
+    width: 250px;
+    max-height: 600px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
+
+.dropdownMenu::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.6); 
+    border-radius: 10px; 
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.9); 
+}
+
+.dropdownMenu::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.2); 
+    border-radius: 10px;
+}
+
+
 .notificationItem {
     display: flex;
     justify-content: space-between;

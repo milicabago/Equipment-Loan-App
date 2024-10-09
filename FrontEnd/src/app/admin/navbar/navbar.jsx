@@ -8,7 +8,6 @@ import { useCookies } from 'react-cookie';
 import { useLogout } from '@/app/auth/logout/logout';
 import { toast } from 'react-hot-toast';
 
-
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [cookies, setCookie] = useCookies(['accessToken']);
@@ -18,15 +17,12 @@ const Navbar = () => {
     const [notifications, setNotifications] = useState([]);
     const { handleLogout } = useLogout();
 
-
-
     useEffect(() => {
         const token = cookies.accessToken;
         const userId = localStorage.getItem('userId');
 
         if (!userId || !token) return;
 
-        // Initialize socket connection only once
         const newSocket = io('http://localhost:5001', { query: { user_id: userId } });
         setSocket(newSocket);
 
@@ -38,7 +34,6 @@ const Navbar = () => {
 
             changes.forEach(change => {
                 if (change.includes("ROLE changed")) {
-                    // toast.success("ROLE changed to ADMIN.\n Logout in 10 seconds!", { duration: 9000 });
                     toast('ROLE changed to USER.\n Logout in 10 seconds!', {
                         icon: '⚠️ ',
                         duration: 9000
@@ -55,14 +50,12 @@ const Navbar = () => {
             });
         });
 
-        // Add new event listener for unassignRequest
         newSocket.on('unassignRequest', (notification) => {
             setNotifications((prev) => [...prev, notification]);
             setUnreadCount((prev) => prev + 1);
             toast.success(notification.message, { duration: 5000 });
         });
 
-        // Add new event listener for cancelOrUpdateRequest
         newSocket.on('cancelOrUpdateRequest', (notification) => {
             setNotifications((prev) => [...prev, notification]);
             setUnreadCount((prev) => prev + 1);
@@ -75,7 +68,6 @@ const Navbar = () => {
             toast.success("New equipment assignment request received.", { duration: 5000 });
         });
 
-        // Fetch existing notifications
         axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}allNotifications`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -92,7 +84,6 @@ const Navbar = () => {
             })
             .catch(error => console.error('Error fetching notifications:', error));
 
-        // Clean up socket connection on component unmount
         return () => {
             newSocket.close();
         };
@@ -132,7 +123,6 @@ const Navbar = () => {
                         });
                 }
             }
-
             setNotifications((prev) => prev.map(n => ({ ...n, read: true })));
         } catch (error) {
             console.error('Error marking notifications as read:', error);
@@ -143,8 +133,8 @@ const Navbar = () => {
         const newShowNotifications = !showNotifications;
         setShowNotifications(newShowNotifications);
         if (newShowNotifications) {
-            setUnreadCount(0); // Reset unread count when notifications are opened
-            markNotificationsAsRead(); // Mark all notifications as read
+            setUnreadCount(0); 
+            markNotificationsAsRead(); 
         }
     };
 
@@ -191,7 +181,7 @@ const Navbar = () => {
             </div>
             {showNotifications && (
                 <div className={styles.dropdownMenu}>
-                    {notifications.length > 0 ? (
+                    {notifications.length > 1 ? (
                         <>
                             {notifications.map(notification => (
                                 <div key={notification._id}

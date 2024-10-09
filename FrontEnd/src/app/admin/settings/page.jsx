@@ -77,7 +77,6 @@ const SettingsPage = () => {
     }, [passwordEntered, editUser?.password, user?.password, emailEntered, editUser?.email, user?.email]);
 
 
-
     const handleSave = async () => {
         try {
             let token = document.cookie
@@ -85,14 +84,12 @@ const SettingsPage = () => {
                 .find(row => row.startsWith('accessToken'))
                 .split('=')[1];
             const { first_name, last_name, email, contact, username, password, position, confirm_password } = editUser;
-
             const isPasswordChanged = passwordEntered && (password !== user.password);
             setPasswordChanged(isPasswordChanged);
             
             const isEmailChanged = emailEntered && (email !== user.email);
             setEmailChanged(isEmailChanged);
-            
-
+    
             if (isPasswordChanged && (!password || !confirm_password)) {
                 toast.error("Please confirm password.");
                 return;
@@ -101,7 +98,10 @@ const SettingsPage = () => {
                 toast.error("Passwords do not match. Please make sure both passwords match.");
                 return;
             }
-
+            if (isPasswordChanged && password === user.password) {
+                toast.error(error.response.data.message); 
+                return;
+            }
             const editedUserData = {
                 first_name,
                 last_name,
@@ -119,20 +119,44 @@ const SettingsPage = () => {
                 }
             });
             if (response.status === 200) {
-                if (passwordChanged || emailChanged) {
-                    toast.success("Profile updated successfully.", { duration: 3000 });
+                toast.success("Profile updated successfully.", { duration: 3000 }); 
+                setUser(response.data.updatedUser); 
+
+                if (isPasswordChanged && isEmailChanged) {
                     setTimeout(() => {
-                        toast.success("Password has been changed. \n Please log in again.", { duration: 3000 });
+                        toast('Password and email have been changed!', {
+                            icon: '⚠️ ',
+                            duration: 3000
+                        });
+                    }, 2000);  
+                } else if (isPasswordChanged) {
+                    setTimeout(() => {
+                        toast('Password has been changed!', {
+                            icon: '⚠️ ',
+                            duration: 3000
+                        });
+                    }, 2000); 
+                } else if (isEmailChanged) {
+                    setTimeout(() => {
+                        toast('Email has been changed!', {
+                            icon: '⚠️ ',
+                            duration: 3000
+                        });
                     }, 2000);
+                }
+                if (isPasswordChanged || isEmailChanged) {
+                    setTimeout(() => {
+                        toast('Logging out in 5 seconds...', {
+                            icon: '🔄 ',
+                            duration: 3000
+                        });
+                    }, 4000);            
                     setTimeout(() => {
                         handleLogout();
-                    }, 5000);
-                    
+                    }, 6000);
                 } else {
-                    toast.success("Profile updated successfully." , { duration: 2000 });
                     fetchUserData();
                 }
-                setUser(response.data.updatedUser);
             } else {
                 toast.error("Failed to update profile.");
             }
@@ -141,6 +165,7 @@ const SettingsPage = () => {
             toast.error(error.response.data.message , { duration: 3000 });
         }
     };
+    
     
     return (
         <div className={styles.container}>

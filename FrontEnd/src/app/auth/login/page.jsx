@@ -123,14 +123,9 @@ const LoginPage = (data) => {
                     </div>
                 </label>
 
-                <div className={styles.btn}>
-                      
-                    <div className={styles.box}>
-                        <a onClick={handleForgotPassword} className={styles.forgot}>Forgot Password?</a>
-                    </div>
-                    
+                <div className={styles.button}>
                     <button type="submit">Login</button>
-                    <p className={styles.p}>Don`t have an account? {""} <a onClick={handleSignUp} className={styles.signUp}>Register here</a></p>
+                    <p className={styles.p}>Forgot Password? {""} <a onClick={handleForgotPassword} className={styles.forgot}>Reset here to reset</a></p>
                 </div>   
             </form> 
             </div>
