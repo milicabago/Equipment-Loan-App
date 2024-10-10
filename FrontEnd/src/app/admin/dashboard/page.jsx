@@ -60,7 +60,7 @@ const Dashboard = () => {
         fetchAssignments(); 
     }, [cookies.accessToken]);
 
-    const returnRequests = async (requestId) => {
+    const returnRequests = async (e, requestId) => {
         e.preventDefault();
         try {
             let token = document.cookie
@@ -241,8 +241,8 @@ const Dashboard = () => {
                         />
                         <p className={styles.question}> Are you sure you want to return this equipment?</p>
                         <div className={styles.modalButtons}>
-                            <button onClick={() => { returnRequests(requestToReturn._id); handleReturnEquipment(requestToReturn) }}>Confirm</button>
-                            <button onClick={closeReturnModal}>Dismiss</button>
+                        <button onClick={(e) => { returnRequests(e, requestToReturn._id); handleReturnEquipment(requestToReturn) }}>Confirm</button>
+                        <button onClick={closeReturnModal}>Dismiss</button>
                         </div>
                     </div>
                 )}
