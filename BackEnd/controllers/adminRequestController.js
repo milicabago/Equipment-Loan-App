@@ -216,6 +216,7 @@ const deactivateRequest = asyncHandler(async (req, res) => {
     // Check for existing unassign request with status "pending"
     const existingPendingRequest = await Request.findOne({
         user_id: request.user_id,
+        equipment_id: request.equipment_id,
         return_status_request: "pending"
     });
 
