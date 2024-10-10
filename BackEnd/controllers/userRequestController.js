@@ -20,7 +20,7 @@ const getActiveRequests = asyncHandler(async (req, res) => {
   const userId = req.user.user._id;
 
   // Iterate through all USER requests
-  const requests = await Request.find({ user_id: userId, request_status: UserEquipmentStatus.ACTIVE }).sort({ assign_date: 1 });
+  const requests = await Request.find({ user_id: userId, request_status: UserEquipmentStatus.ACTIVE }).sort({ assign_date: -1 });
 
   // Check if requests are found
   if (!requests || requests.length === 0) {
@@ -65,7 +65,7 @@ const getAssignPendingRequests = asyncHandler(async (req, res, next) => {
     const requests = await Request.find({
       user_id: userId,
       request_status: UserEquipmentStatus.PENDING
-    }).sort({ assign_date: 1 });
+    }).sort({ assign_date: -1 });
 
     if (!requests || requests.length === 0) {
       res.status(404);
@@ -109,7 +109,7 @@ const getUnassignPendingRequests = asyncHandler(async (req, res, next) => {
     const requests = await Request.find({
       user_id: userId,
       return_status_request: UserEquipmentStatus.PENDING
-    }).sort({ assign_date: 1 });
+    }).sort({ unassign_date: -1 });
 
     if (!requests || requests.length === 0) {
       res.status(404);

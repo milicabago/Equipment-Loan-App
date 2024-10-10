@@ -20,7 +20,7 @@ const { UserEquipmentStatus } = require("../constants");
 const getAllActiveRequests = asyncHandler(async (req, res) => {
 
     // Find all active requests - each user's assigned equipment
-    const requests = await Request.find({ request_status: UserEquipmentStatus.ACTIVE }).sort({ assign_date: 1 });
+    const requests = await Request.find({ request_status: UserEquipmentStatus.ACTIVE }).sort({ assign_date: -1 });
 
     // Check if requests are found
     if (!requests || requests.length === 0) {
@@ -70,7 +70,7 @@ const getAllActiveRequests = asyncHandler(async (req, res) => {
  */
 const getAllAssignPendingRequests = asyncHandler(async (req, res) => {
     // Find all requests that are in status "pending"
-    const requests = await Request.find({ request_status: UserEquipmentStatus.PENDING }).sort({ assign_date: 1 });
+    const requests = await Request.find({ request_status: UserEquipmentStatus.PENDING }).sort({ assign_date: -1 });
 
 
     // Check if requests are found
@@ -123,7 +123,7 @@ const getAllAssignPendingRequests = asyncHandler(async (req, res) => {
  */
 const getAllUnassignPendingRequests = asyncHandler(async (req, res) => {
     // Find all requests that are in status "pending"
-    const requests = await Request.find({ return_status_request: UserEquipmentStatus.PENDING }).sort({ assign_date: 1 });
+    const requests = await Request.find({ return_status_request: UserEquipmentStatus.PENDING }).sort({ unassign_date: -1 });
 
 
     // Check if requests are found
