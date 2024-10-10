@@ -36,7 +36,8 @@ const getActiveRequests = asyncHandler(async (req, res) => {
     if (equipment) {
       request.equipment_info = {
         name: equipment.name,
-        serial_number: equipment.serial_number
+        serial_number: equipment.serial_number,
+        full_name: equipment.full_name,
       };
     }
   }
@@ -78,6 +79,7 @@ const getAssignPendingRequests = asyncHandler(async (req, res, next) => {
         request.equipment_info = {
           name: equipment.name,
           serial_number: equipment.serial_number,
+          full_name: equipment.full_name,
           quantity: equipment.quantity
         };
       }
@@ -121,6 +123,7 @@ const getUnassignPendingRequests = asyncHandler(async (req, res, next) => {
         request.equipment_info = {
           name: equipment.name,
           serial_number: equipment.serial_number,
+          full_name: equipment.full_name,
         };
       }
     }
