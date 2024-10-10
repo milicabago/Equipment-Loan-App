@@ -128,7 +128,7 @@ const UsersPage = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.response.data.message, { duration: 3000 });
-      setDeleteModalIsOpen(false);
+      setDeleteModalIsOpen(true);
     }
   };
   
