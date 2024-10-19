@@ -7,6 +7,7 @@ import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useCookies } from'react-cookie';
     
 const schema = yup.object().shape({
     first_name: yup.string().required("First name is required!").matches(/^(\S+\s)*\S+$/, 'Too many spaces entered!'),
@@ -22,7 +23,7 @@ const schema = yup.object().shape({
 });
 
 const CreateUserPage = () => {
-    const [createdUser, setCreatedUser] = useState(null);
+    const [cookies] = useCookies(['accessToken']);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const togglePasswordVisibility = () => {
@@ -37,34 +38,31 @@ const CreateUserPage = () => {
     });
 
     const onSubmit = async (data) => {
+        const token = cookies.accessToken;
         try {
-            console.log(errors);
-            let token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('accessToken'))
-                .split('=')[1];
-                const userData = {
-                    first_name: data.first_name,
-                    last_name: data.last_name,
-                    username: data.username,
-                    email: data.email,
-                    password: data.password,
-                    role: data.role,
-                    position: data.position,
-                };
-                    if (data.contact) {
-                    userData.contact = data.contact;
+            const config ={
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-                await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, userData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                toast.success('User has been successfully created.', { duration: 3000 });
-                setCreatedUser(data);
-                setTimeout(() => {
-                    reset();
-                    }, 3000);
+            }
+            const userData = {
+                first_name: data.first_name,
+                last_name: data.last_name,
+                username: data.username,
+                email: data.email,
+                password: data.password,
+                role: data.role,
+                position: data.position,
+            };
+            if (data.contact) {
+                userData.contact = data.contact;
+            }
+            await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}admin/createUser`, userData, config, {
+            });
+            toast.success('User has been successfully created.', { duration: 3000 });
+            setTimeout(() => {
+                reset();
+                }, 3000);
         } catch (error) {
             toast.error(error.response.data.message , { duration: 3000 });
         }
@@ -76,7 +74,6 @@ const CreateUserPage = () => {
             <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>User Personal Information</span>
-                        <span className={styles.desc}> </span> 
                     </div>
                     <label className={styles.firstname}>First Name:
                         <p>{errors.first_name?.message}</p>
@@ -132,7 +129,7 @@ const CreateUserPage = () => {
                     </label>
                     <label className={styles.role}>Role:
                         <select {...register("role")} className={styles.select} defaultValue="user">
-                                <option className={styles.admin} value="admin">Administrator</option>
+                                <option className={styles.user} value="admin">Administrator</option>
                                 <option className={styles.user} value="user">User</option>
                             </select>
                     </label> 

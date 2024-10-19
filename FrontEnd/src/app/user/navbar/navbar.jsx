@@ -9,7 +9,6 @@ import { useLogout } from '@/app/auth/logout/logout';
 import { toast } from 'react-hot-toast';
 
 const Navbar = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [cookies, setCookie] = useCookies(['accessToken']);
     const [socket, setSocket] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -165,7 +164,6 @@ const Navbar = () => {
     return (
         <div className={styles.container}>
             <div className={styles.title}>Equipment Loan Manager</div>
-
             <div className={styles.menu}></div>
 
             <div className={styles.notifications} onClick={toggleNotifications}>
@@ -185,7 +183,7 @@ const Navbar = () => {
                                 >
                                     <p>{notification.message}</p>
                                     <button
-                                        className={styles.deleteButton}
+                                        className={styles.delete}
                                         onClick={(e) => handleNotificationAction(notification._id, e)}
                                     >
                                         <MdDelete />
@@ -193,7 +191,7 @@ const Navbar = () => {
                                 </div>
                             ))}
                             <button
-                                className={styles.deleteAllButton}
+                                className={styles.deleteAll}
                                 onClick={handleDeleteAllNotifications}
                             >
                                 Clear notifications

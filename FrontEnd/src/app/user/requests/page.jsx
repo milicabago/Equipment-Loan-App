@@ -1,6 +1,6 @@
 "use client"
 import styles from './page.module.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
@@ -31,14 +31,13 @@ const Requests = () => {
         Modal.setAppElement('body');
     }, []);
 
-    const fetchRequests = async (url, setState) => {
+    const fetchRequests = useCallback(async (url, setState) => {
         const token = cookies.accessToken;
         const config = {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         };
-    
         try {
             const response = await axios.get(url, config);
             console.log(`${url} Response:`, response.data);
@@ -48,7 +47,7 @@ const Requests = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [cookies.accessToken]);
     
     useEffect(() => {
         const token = cookies.accessToken;
@@ -59,37 +58,23 @@ const Requests = () => {
             fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/assignPendingRequests`, setPendingRequests);
             fetchRequests(`${process.env.NEXT_PUBLIC_BASE_URL}user/requests/unassignPendingRequests`, setReturnPendingRequests);
         }
-    }, [cookies.accessToken]);
-    
+    }, [cookies.accessToken, fetchRequests]);
 
-    const cancelRequest = async (requestId) => {
-        try {
-            let token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('accessToken'))
-                .split('=')[1];
-            const response = await axios.patch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}user/requests/${requestId}`,
-                isUnassignRequest ? { cancel_unassign_request: "canceled" } : { cancel_assign_request: "canceled" }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            toast.success(response.data.message, { duration: 3000 });
-            
-            if (isUnassignRequest) {
-                setReturnPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
-            } else {
-                setPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
-            }
-
-            closeCancelModal();
-        } catch (error) {
-            toast.error(error.response.data.message || "Error");
+    const isQuantityUnchanged = () => {
+        if (isUnassignRequest) {
+            return (
+                equipmentToEdit &&
+                newQuantity === equipmentToEdit.unassign_quantity &&
+                newInvalidQuantity === equipmentToEdit.invalid_quantity
+            );
+        } else {
+            return (
+                equipmentToEdit &&
+                newQuantity === equipmentToEdit.quantity
+            );
         }
     };
-
+    
     const editRequest = async (requestId) => {
         try {
             let token = document.cookie
@@ -139,16 +124,31 @@ const Requests = () => {
             toast.error(error.response.data.message || "Error updating quantity!");
         }
     };
-    
 
-    const openCancelModal = (equipment, isUnassign = false) => {
-        setEquipmentToCancel(equipment);
-        setIsUnassignRequest(isUnassign);
-        setCancelModalIsOpen(true);
-    };
-    const closeCancelModal = () => {
-        setEquipmentToCancel(null);
-        setCancelModalIsOpen(false);
+    const cancelRequest = async (requestId) => {
+        try {
+            let token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('accessToken'))
+                .split('=')[1];
+            const response = await axios.patch(
+                `${process.env.NEXT_PUBLIC_BASE_URL}user/requests/${requestId}`,
+                isUnassignRequest ? { cancel_unassign_request: "canceled" } : { cancel_assign_request: "canceled" }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            toast.success(response.data.message, { duration: 3000 });
+            
+            if (isUnassignRequest) {
+                setReturnPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
+            } else {
+                setPendingRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
+            }
+            closeCancelModal();
+        } catch (error) {
+            toast.error(error.response.data.message || "Error");
+        }
     };
 
     const openEditModal = (equipment, isUnassign = false) => {
@@ -162,19 +162,15 @@ const Requests = () => {
         setEquipmentToEdit(null);
         setEditModalIsOpen(false);
     };
-    const isQuantityUnchanged = () => {
-        if (isUnassignRequest) {
-            return (
-                equipmentToEdit &&
-                newQuantity === equipmentToEdit.unassign_quantity &&
-                newInvalidQuantity === equipmentToEdit.invalid_quantity
-            );
-        } else {
-            return (
-                equipmentToEdit &&
-                newQuantity === equipmentToEdit.quantity
-            );
-        }
+
+    const openCancelModal = (equipment, isUnassign = false) => {
+        setEquipmentToCancel(equipment);
+        setIsUnassignRequest(isUnassign);
+        setCancelModalIsOpen(true);
+    };
+    const closeCancelModal = () => {
+        setEquipmentToCancel(null);
+        setCancelModalIsOpen(false);
     };
 
     return (
@@ -271,26 +267,6 @@ const Requests = () => {
             )}
 
             <Modal
-                isOpen={cancelModalIsOpen}
-                onRequestClose={closeCancelModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Cancel Assigment Modal" >
-                <h2 className={styles.modalTitle}>Cancel Assigment</h2>
-                {equipmentToCancel && (
-                    <div>
-                        <p className={styles.question}>
-                            {isUnassignRequest ? 'Are you sure you want to cancel this unassign request?' : 'Are you sure you want to cancel this assign request?'}
-                        </p>
-                        <div className={styles.modalButtons}>
-                            <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Confirm</button>
-                            <button onClick={closeCancelModal}>Dismiss</button>
-                        </div>
-                    </div>
-                )}
-            </Modal>
-
-            <Modal
                 isOpen={editModalIsOpen}
                 onRequestClose={closeEditModal}
                 contentLabel="Edit Equipment"
@@ -334,6 +310,26 @@ const Requests = () => {
                         <div className={styles.modalButtons}>
                             <button onClick={() => editRequest(equipmentToEdit._id)} disabled={isQuantityUnchanged()}>Save Changes</button>
                             <button onClick={closeEditModal}>Dismiss</button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            <Modal
+                isOpen={cancelModalIsOpen}
+                onRequestClose={closeCancelModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Cancel Assigment Modal" >
+                <h2 className={styles.modalTitle}>Cancel Assigment</h2>
+                {equipmentToCancel && (
+                    <div>
+                        <p className={styles.question}>
+                            {isUnassignRequest ? 'Are you sure you want to cancel this unassign request?' : 'Are you sure you want to cancel this assign request?'}
+                        </p>
+                        <div className={styles.modalButtons}>
+                            <button className={styles.accept} onClick={() => cancelRequest(equipmentToCancel._id)}>Confirm</button>
+                            <button onClick={closeCancelModal}>Dismiss</button>
                         </div>
                     </div>
                 )}

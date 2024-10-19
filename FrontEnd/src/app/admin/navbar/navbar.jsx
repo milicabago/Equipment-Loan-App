@@ -9,11 +9,10 @@ import { useLogout } from '@/app/auth/logout/logout';
 import { toast } from 'react-hot-toast';
 
 const Navbar = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [cookies, setCookie] = useCookies(['accessToken']);
     const [socket, setSocket] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadCount, setUnreadCount] = useState(2);
     const [notifications, setNotifications] = useState([]);
     const { handleLogout } = useLogout();
 
@@ -72,7 +71,7 @@ const Navbar = () => {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(response => {
-                console.log('Fetched notifications:', response.data); // Debug log
+                console.log('Fetched notifications:', response.data); 
                 if (Array.isArray(response.data)) {
                     const filteredNotifications = response.data.filter(notification => notification.sender === 'admin' || notification.sender === 'user');
                     setNotifications(filteredNotifications);
@@ -133,8 +132,8 @@ const Navbar = () => {
         const newShowNotifications = !showNotifications;
         setShowNotifications(newShowNotifications);
         if (newShowNotifications) {
-            setUnreadCount(0); 
-            markNotificationsAsRead(); 
+            setUnreadCount(); 
+            markNotificationsAsRead(2); 
         }
     };
 
@@ -150,7 +149,7 @@ const Navbar = () => {
             .then(response => {
                 if (response.data.message === 'All notifications DELETED.') {
                     setNotifications([]);
-                    setUnreadCount(0);
+                    setUnreadCount(2);
                 } else {
                     console.error('Error deleting all notifications:', response.data.error);
                 }
@@ -189,7 +188,7 @@ const Navbar = () => {
                                 >
                                     <p>{notification.message}</p>
                                     <button
-                                        className={styles.deleteButton}
+                                        className={styles.delete}
                                         onClick={(e) => handleNotificationAction(notification._id, e)}
                                     >
                                         <MdDelete />
@@ -197,7 +196,7 @@ const Navbar = () => {
                                 </div>
                             ))}
                             <button
-                                className={styles.deleteAllButton}
+                                className={styles.deleteAll}
                                 onClick={handleDeleteAllNotifications}
                             >
                                 Clear notifications

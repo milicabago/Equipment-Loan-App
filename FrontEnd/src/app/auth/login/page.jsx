@@ -12,8 +12,7 @@ import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 
-const LoginPage = (data) => {
-    const [role, setRole] = useState(null);
+const LoginPage = () => {
     const router = useRouter();
     const [cookies, setCookie, removeCookie]  = useCookies(['accessToken']);
     const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +25,7 @@ const LoginPage = (data) => {
         password: yup.string().min(8).required("Password is required"),
     });
 
-    const{ register, handleSubmit, formState: { errors } } = useForm({
+    const{ register, handleSubmit, formState: {} } = useForm({
         resolver: yupResolver(schema)
     });
 
@@ -34,10 +33,11 @@ const LoginPage = (data) => {
         window.history.pushState(null, '', window.location.href);
         window.history.forward();
     };
+    
     useEffect(() => {
         removeCookie('accessToken');
         localStorage.clear();
-    }, []);
+    }, [removeCookie]);
 
     useEffect(() => {
         const token = cookies.accessToken; 
@@ -50,7 +50,6 @@ const LoginPage = (data) => {
             } catch (error) {
             console.log(error);
             }
-
             if (userRole === 'admin') {
             router.push('/admin');
             } else if (userRole === 'user') {
@@ -62,11 +61,7 @@ const LoginPage = (data) => {
     const handleForgotPassword = () => {
         router.push("/auth/forgotPassword");
     };
-    const handleSignUp = () => {
-        router.push("/auth/register");
-    };
-    
-
+   
     const onSubmit = (data) => {
         axios
             .post(process.env.NEXT_PUBLIC_BASE_URL + "login", data)
@@ -89,10 +84,9 @@ const LoginPage = (data) => {
                 clearHistory();
             })
             .catch((error) => {
-                toast.error("Invalid email or password.", {duration: 3000});
+                toast.error(error.response.data.message , {duration: 3000});
             });
         };
-
 
     return(
         <div className={styles.container}>
@@ -106,9 +100,8 @@ const LoginPage = (data) => {
             <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                 <div className={styles.start}>
                     <span className={styles.title}>Equipment Loan</span>
-                    <span className={styles.desc} >Please login to your account.</span> 
+                    <span className={styles.description} >Please login to your account.</span> 
                 </div>
-                
 
                 <label className={styles.email}>Email:
                 <input type="text" className={styles.autofill} placeholder="Enter your email" {...register("email")} autoComplete="off" /></label>  

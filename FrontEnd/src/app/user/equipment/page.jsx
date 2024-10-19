@@ -43,10 +43,6 @@ const EquipmentPage = () => {
         fetchEquipment();
     }, [cookies.accessToken]);
 
-    const handleSliderChange = (value) => {
-        setFilterValues({ ...filterValues, quantity: value });
-    };
-
     useEffect(() => {
         const filteredByFilterValues = equipment.filter(item =>
             (filterValues.name.length === 0 || filterValues.name.includes(item.name)) &&
@@ -73,6 +69,10 @@ const EquipmentPage = () => {
         }
     };
 
+    const handleSliderChange = (value) => {
+        setFilterValues({ ...filterValues, quantity: value });
+    };
+
     const resetFilters = () => {
         setFilterValues({ name: [], quantity: [1, 100] });
     };
@@ -83,6 +83,14 @@ const EquipmentPage = () => {
 
     const openFilterModal = () => setFilterModalIsOpen(true);
     const closeFilterModal = () => setFilterModalIsOpen(false);
+
+    useEffect(() => {
+        const filtered = equipment.filter(item =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredEquipment(filtered);
+    }, [searchTerm, equipment]);
 
     const assignEquipment = async (equipmentId) => {
         try {
@@ -109,16 +117,6 @@ const EquipmentPage = () => {
             toast.error(error.response.data.message);
         }
     };
-    
-
-    const openReadModal = (equipment) => {
-        setEquipmentToRead(equipment);
-        setReadModalIsOpen(true);
-    };
-    const closeReadModal = () => {
-        setEquipmentToRead(null);
-        setReadModalIsOpen(false);
-    };
 
     const openAssignModal = (equipment) => {
         setAssignQuantity(1);
@@ -129,14 +127,15 @@ const EquipmentPage = () => {
         setEquipmentToAssign(null);
         setAssignModalIsOpen(false);
     };
-
-    useEffect(() => {
-        const filtered = equipment.filter(item =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.full_name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredEquipment(filtered);
-    }, [searchTerm, equipment]);
+    
+    const openReadModal = (equipment) => {
+        setEquipmentToRead(equipment);
+        setReadModalIsOpen(true);
+    };
+    const closeReadModal = () => {
+        setEquipmentToRead(null);
+        setReadModalIsOpen(false);
+    };
 
     return (
         <div className={styles.container}>
@@ -194,7 +193,7 @@ const EquipmentPage = () => {
                                         >
                                             Assign
                                         </button>
-                                        <button className={styles.read} onClick={() => openReadModal(item)}>See More</button>
+                                        <button className={styles.seeMore} onClick={() => openReadModal(item)}>See More</button>
                                     </td>
                                 </tr>
                             ))}
@@ -256,27 +255,6 @@ const EquipmentPage = () => {
             </Modal>
 
             <Modal
-                isOpen={readModalIsOpen}
-                onRequestClose={closeReadModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Read Equipment Modal"
-            >
-                <h2 className={styles.modalTitle}>Equipment Details</h2>
-                {equipmentToRead && (
-                    <div className={styles.modalContent}>
-                        <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
-                        <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
-                        <p><span className={styles.label}>Serial Number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
-                        <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
-                        <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>)}</span></p>
-                    </div>
-                )}
-                <div className={styles.modalButtons}>
-                    <button onClick={closeReadModal}>Close</button>
-                </div>
-            </Modal>
-            <Modal
                 isOpen={assignModalIsOpen}
                 onRequestClose={closeAssignModal}
                 className={styles.modal}
@@ -303,6 +281,28 @@ const EquipmentPage = () => {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            <Modal
+                isOpen={readModalIsOpen}
+                onRequestClose={closeReadModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Read Equipment Modal"
+            >
+                <h2 className={styles.modalTitle}>Equipment Details</h2>
+                {equipmentToRead && (
+                    <div className={styles.modalContent}>
+                        <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
+                        <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
+                        <p><span className={styles.label}>Serial Number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
+                        <p><span className={styles.label}>Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>)}</span></p>
+                    </div>
+                )}
+                <div className={styles.modalButtons}>
+                    <button onClick={closeReadModal}>Close</button>
+                </div>
             </Modal>
         </div>
     )

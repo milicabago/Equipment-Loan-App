@@ -1,6 +1,6 @@
 "use client"
 import styles from './page.module.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
@@ -31,14 +31,13 @@ const Dashboard = () => {
         Modal.setAppElement('body');
     }, []);
 
-
     useEffect(() => {
         const newSocket = io('http://localhost:5001');
         setSocket(newSocket);
         return () => newSocket.close();
     }, [setSocket]);
 
-    const fetchAssignments = async () => {
+    const fetchAssignments = useCallback(async () => {
         const token = cookies.accessToken;
         const config = {
             headers: {
@@ -54,11 +53,11 @@ const Dashboard = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [cookies.accessToken]);
     
     useEffect(() => {
         fetchAssignments(); 
-    }, [cookies.accessToken]);
+    }, [fetchAssignments]);
 
     const returnRequests = async (e, requestId) => {
         e.preventDefault();
@@ -101,14 +100,6 @@ const Dashboard = () => {
         }
     };
 
-    const openReadModal = (request) => {
-        setRequestToRead(request);
-        setReadModalIsOpen(true);
-    };
-    const closeReadModal = () => {
-        setRequestToRead(null);
-        setReadModalIsOpen(false);
-    };
     const openReturnModal = (request) => {
         setRequestsToReturn(request);
         setReturnQuantity(1);
@@ -118,6 +109,15 @@ const Dashboard = () => {
     const closeReturnModal = () => {
         setRequestsToReturn(null);
         setReturnModalIsOpen(false);
+    };
+
+    const openReadModal = (request) => {
+        setRequestToRead(request);
+        setReadModalIsOpen(true);
+    };
+    const closeReadModal = () => {
+        setRequestToRead(null);
+        setReadModalIsOpen(false);
     };
 
     return (
@@ -167,7 +167,7 @@ const Dashboard = () => {
                                     : ''
                                 }>
                                     <td className={styles.user}>{request.user_info ? `${request.user_info.first_name} ${request.user_info.last_name}` : 'Unknown'}</td>
-                                    <td className={styles.nameColumn}>
+                                    <td className={styles.equipment}>
                                         <div className={styles.name}>{request.equipment_info.name}</div>
                                         <div className={styles.model}>{request.equipment_info.full_name}</div>
                                 </td>

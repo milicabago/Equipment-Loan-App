@@ -1,111 +1,98 @@
 .container{
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .start{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    gap: 15px;
-  }
-  
-  .title{
-    color: var(--text);
-    font-weight: bold;
-    font-size: 25px;
-    margin-top: 20px;
-  }
-  
-  .desc{
-    color: var(--text);
-    font-size: 15px;
-    text-align: center;
-  }
-  
-  .password,
-  .error {
-    align-self: flex-start;
-    width: 100%;
-    font-size: 15px;
-    margin-top: 10px;
-  }
-  
-  .form{
-    position: relative;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    padding: 50px;
-    border-radius: 15px;
-    width: 500px;
-    height: 550px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 30px;
-    align-items: center;
-    color: white;
-  }
-  
-  .form input{
-    padding: 20px;
-    width: 100%;
-    border: 1px solid #44516d;
-    border-radius: 10px;
-    background-color: transparent;
-    color: var(--text);
-    margin-top: 10px;
-    font-size: 16px;  
-  }
-  
-  .form button{
-    padding: 15px;
-    width: 100%;
-    background-color: var(--button);
-    color: var(--text);
-    border: none;
-    cursor: pointer;
-    border-radius: 25px;
-    margin-bottom: 50px;
-  }
-  
-  .background{
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .passwordInputContainer {
-    position: relative;
-  }
-  
-  .passwordToggle {
-    position: absolute;
-    top: 60%;
-    right: 10px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: var(--textSoft);
-  }
-  
-  .passwordToggle svg {
-    font-size: 18px;
-  }
-  .btn{
-    width: 100%;
-  }
-
- .form p{
-    color: #5f91f5;
-  }
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.background{
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.form{
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  padding: 50px;
+  border-radius: 15px;
+  width: 500px;
+  height: 550px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+  align-items: center;
+  color: white;
+}
+.form input{
+  padding: 20px;
+  width: 100%;
+  border: 1px solid #44516d;
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--text);
+  margin-top: 10px;
+  font-size: 16px;  
+}
+.form button{
+  padding: 15px;
+  width: 100%;
+  background-color: var(--button);
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  border-radius: 25px;
+  margin-bottom: 50px;
+}
+.form p{
+  color: #5f91f5;
+}
+.start{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  gap: 15px;
+}
+.title{
+  color: var(--text);
+  font-weight: bold;
+  font-size: 25px;
+  margin-top: 20px;
+}
+.description{
+  color: var(--text);
+  font-size: 15px;
+  text-align: center;
+}
+.password, .error {
+  align-self: flex-start;
+  width: 100%;
+  font-size: 15px;
+  margin-top: 10px;
+}
+.passwordInputContainer {
+  position: relative;
+}
+.passwordToggle {
+  position: absolute;
+  top: 60%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--textSoft);
+}
+.passwordToggle svg {
+  font-size: 18px;
+}
+.button{
+  width: 100%;
+}

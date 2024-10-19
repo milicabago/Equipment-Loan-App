@@ -6,8 +6,6 @@
   --btn: #blue;
   --button: #214895;
   --border: #4b5dac;
-
-  /*--font-family: Nunito;*/
 }
 
 *{
@@ -75,4 +73,3 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-

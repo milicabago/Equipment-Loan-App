@@ -1,6 +1,6 @@
 "use client"
 import styles from './page.module.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
@@ -33,7 +33,7 @@ const UsersPage = () => {
     return `${date.toLocaleDateString('hr-HR')} ${date.toLocaleTimeString('hr-HR')}`; 
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     const token = cookies.accessToken;
     let config = {
       headers: {
@@ -47,11 +47,11 @@ const UsersPage = () => {
     } catch (error) {
       console.error("Error:", error);
     }
-  };
+  }, [cookies.accessToken]);
 
   useEffect(() => {
     fetchUsers(); 
-  }, [cookies.accessToken]);
+  }, [cookies.accessToken, fetchUsers]);
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -66,6 +66,14 @@ const UsersPage = () => {
       if (socket) socket.close();
     };
   }, []);
+
+  useEffect(() => {
+    const filtered = users.filter(item =>
+      item.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [searchTerm, users]);
 
   const handleEdit = (field, value) => {
     setEditedUserData({ ...editedUserData, [field]: value });
@@ -90,7 +98,7 @@ const UsersPage = () => {
 
         if (response.status === 200) {
             toast.success("User updated successfully.", { duration: 3000 });
-  
+
             if (hasRoleChanged) {
                 setTimeout(() => {
                     toast('The user\'s role has been changed!', {
@@ -108,9 +116,7 @@ const UsersPage = () => {
         console.error("Error updating user:", error);
         toast.error(error.response.data.message, { duration: 3000 });
     }
-};
-
-  
+  };
 
   const deleteUser = async (userId) => {
     const token = cookies.accessToken;
@@ -131,7 +137,6 @@ const UsersPage = () => {
       setDeleteModalIsOpen(true);
     }
   };
-  
 
   const readUser = async (id) => {
     try {
@@ -148,6 +153,17 @@ const UsersPage = () => {
       console.error("Error:", error);
       toast.error('Error fetching user data!');
     }
+  };
+
+  const openEditModal = (user) => {
+    setUserToEdit(user);
+    setEditedUserData(user); 
+    setOriginalUserData(user);
+    setEditModalIsOpen(true);
+  };
+  const closeEditModal = () => {
+    setUserToEdit(null);
+    setEditModalIsOpen(false);
   };
 
   const openDeleteModal = async (id) => {
@@ -171,17 +187,6 @@ const UsersPage = () => {
     setUserToDelete(null);
   };
 
-  const openEditModal = (user) => {
-    setUserToEdit(user);
-    setEditedUserData(user); 
-    setOriginalUserData(user);
-    setEditModalIsOpen(true);
-  };
-  const closeEditModal = () => {
-    setUserToEdit(null);
-    setEditModalIsOpen(false);
-  };
-
   const openReadModal = (id) => {
     setUserToRead(id);
     readUser(id);
@@ -194,14 +199,6 @@ const UsersPage = () => {
     setReadModalIsOpen(false);
     setUserToRead(null);
   };
-
-  useEffect(() => {
-    const filtered = users.filter(item =>
-      item.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.last_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredUsers(filtered);
-  }, [searchTerm, users]);
 
   return (
     <div className={styles.container}>
@@ -278,53 +275,6 @@ const UsersPage = () => {
       </div>
 
       <Modal
-        isOpen={deleteModalIsOpen}
-        onRequestClose={closeDeleteModal}
-        className={styles.modal}
-        overlayClassName={styles.overlay}
-        contentLabel="Delete User Confirmation Modal"
-      >
-        <h2 className={styles.modalTitle}>Delete user</h2>
-        {userToDelete && (
-          <div className={styles.modalContent}>
-            <p className={styles.modalMessage}>
-              Are you sure you want to delete <strong>{userToDelete.first_name} {userToDelete.last_name}</strong>?
-            </p>
-          </div>
-        )}
-        <div className={styles.modalButtons}>
-          {userToDelete && (
-            <button onClick={() => deleteUser(userToDelete._id)}>Confirm</button>
-          )}
-          <button onClick={closeDeleteModal}>Dismiss</button>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={readModalIsOpen}
-        onRequestClose={closeReadModal}
-        className={styles.modal}
-        overlayClassName={styles.overlay}
-        contentLabel="Read User Modal" >
-        <h2 className={styles.modalTitle}>User details</h2>
-        {userToRead && (
-          <div className={styles.modalContent}>
-            <p><span className={styles.label}>Name: </span><span className={styles.value}>{userToRead.first_name} {userToRead.last_name}</span></p>
-            <p><span className={styles.label}>Email: </span><span className={styles.value}>{userToRead.email}</span></p>
-            <p><span className={styles.label}>Username: </span><span className={styles.value}>{userToRead.username}</span></p>
-            <p><span className={styles.label}>Position: </span><span className={styles.value}>{userToRead.position}</span></p>
-            <p><span className={styles.label}>Role: </span><span className={styles.value}>{userToRead.role}</span></p>
-            <p><span className={styles.label}>Contact: </span><span className={styles.value}>{userToRead.contact ? (userToRead.contact) : (<span className={styles.italic}>none</span>)}</span></p>
-            <p><span className={styles.label}>Created at: </span><span className={styles.value}>{formatDate(userToRead.createdAt)}</span></p>
-            <p><span className={styles.label}>Updated at: </span><span className={styles.value}>{formatDate(userToRead.updatedAt)}</span></p>
-          </div>
-        )}
-        <div className={styles.modalButtons}>
-          <button onClick={closeReadModal}>Close</button>
-        </div>
-      </Modal>
-
-      <Modal
         isOpen={editModalIsOpen}
         onRequestClose={closeEditModal}
         className={styles.modal}
@@ -388,6 +338,53 @@ const UsersPage = () => {
               Save
           </button>          
           <button onClick={closeEditModal}>Dismiss</button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={deleteModalIsOpen}
+        onRequestClose={closeDeleteModal}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+        contentLabel="Delete User Confirmation Modal"
+      >
+        <h2 className={styles.modalTitle}>Delete user</h2>
+        {userToDelete && (
+          <div className={styles.modalContent}>
+            <p className={styles.modalMessage}>
+              Are you sure you want to delete <strong>{userToDelete.first_name} {userToDelete.last_name}</strong>?
+            </p>
+          </div>
+        )}
+        <div className={styles.modalButtons}>
+          {userToDelete && (
+            <button onClick={() => deleteUser(userToDelete._id)}>Confirm</button>
+          )}
+          <button onClick={closeDeleteModal}>Dismiss</button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={readModalIsOpen}
+        onRequestClose={closeReadModal}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+        contentLabel="Read User Modal" >
+        <h2 className={styles.modalTitle}>User details</h2>
+        {userToRead && (
+          <div className={styles.modalContent}>
+            <p><span className={styles.label}>Name: </span><span className={styles.value}>{userToRead.first_name} {userToRead.last_name}</span></p>
+            <p><span className={styles.label}>Email: </span><span className={styles.value}>{userToRead.email}</span></p>
+            <p><span className={styles.label}>Username: </span><span className={styles.value}>{userToRead.username}</span></p>
+            <p><span className={styles.label}>Position: </span><span className={styles.value}>{userToRead.position}</span></p>
+            <p><span className={styles.label}>Role: </span><span className={styles.value}>{userToRead.role}</span></p>
+            <p><span className={styles.label}>Contact: </span><span className={styles.value}>{userToRead.contact ? (userToRead.contact) : (<span className={styles.italic}>none</span>)}</span></p>
+            <p><span className={styles.label}>Created at: </span><span className={styles.value}>{formatDate(userToRead.createdAt)}</span></p>
+            <p><span className={styles.label}>Updated at: </span><span className={styles.value}>{formatDate(userToRead.updatedAt)}</span></p>
+          </div>
+        )}
+        <div className={styles.modalButtons}>
+          <button onClick={closeReadModal}>Close</button>
         </div>
       </Modal>
     </div>

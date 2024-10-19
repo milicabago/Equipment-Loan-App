@@ -69,8 +69,7 @@
   color: var(--textSoft);
   font-size: 15px;
 }
-.email,
-.password {
+.email, .password {
   align-self: flex-start;
   width: 100%;
   font-size: 15px;
@@ -100,7 +99,6 @@
   margin-bottom: 20px;
   cursor: auto;
 }
-
 .forgot{
   align-items: center;
   font-size: 17px;

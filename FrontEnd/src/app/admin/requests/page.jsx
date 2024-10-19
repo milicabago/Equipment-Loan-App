@@ -1,6 +1,6 @@
 "use client"
 import styles from './page.module.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -38,7 +38,7 @@ const RequestPage = () => {
         };
     }, [setSocket]);
 
-    const fetchAssignRequests = async () => {
+    const fetchAssignRequests = useCallback(async () => {
         const token = cookies.accessToken;
         if (token) {
             const config = {
@@ -49,16 +49,16 @@ const RequestPage = () => {
             try {
                 const assignResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/assignPendingRequests`, config);
                 setAssignRequests(assignResponse.data);
-                console.log("Assign Requests:", assignResponse.data); // Ispisati odgovore
+                console.log("Assign Requests:", assignResponse.data); 
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching assign requests:", error);
                 setLoading(false);
             }
         }
-    };
+    }, [cookies.accessToken]);
     
-    const fetchUnassignRequests = async () => {
+    const fetchUnassignRequests = useCallback(async () => {
         const token = cookies.accessToken;
         if (token) {
             const config = {
@@ -69,20 +69,19 @@ const RequestPage = () => {
             try {
                 const unassignResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/requests/unassignPendingRequests`, config);
                 setUnassignRequests(unassignResponse.data);
-                console.log("Unassign Requests:", unassignResponse.data); // Ispisati odgovore
+                console.log("Unassign Requests:", unassignResponse.data);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching unassign requests:", error);
                 setLoading(false);
             }
         }
-    };
+    }, [cookies.accessToken]);
     
     useEffect(() => {
         fetchAssignRequests(); 
         fetchUnassignRequests(); 
-    }, [cookies.accessToken]);
-    
+    }, [fetchAssignRequests, fetchUnassignRequests]);    
 
     const acceptRequests = async (requestId, isAssign) => {
         try {
@@ -140,15 +139,6 @@ const RequestPage = () => {
         }
     };
 
-    const openReadModal = (request) => {
-        setRequestToRead(request);
-        setReadModalIsOpen(true);
-    };
-    const closeReadModal = () => {
-        setRequestToRead(null);
-        setReadModalIsOpen(false);
-    };
-
     const openAcceptModal = (request, isAssign) => {
         setRequestToAccept(request);
         setAcceptModalIsOpen(true);
@@ -164,12 +154,20 @@ const RequestPage = () => {
         setDenyModalIsOpen(true);
         setIsUnassign(isUnassign); 
     };
-
     const closeDenyModal = () => {
         setRequestToDeny(null);
         setDenyModalIsOpen(false);
     };
     
+    const openReadModal = (request) => {
+        setRequestToRead(request);
+        setReadModalIsOpen(true);
+    };
+    const closeReadModal = () => {
+        setRequestToRead(null);
+        setReadModalIsOpen(false);
+    };
+
     return (
         <div className={styles.container}>
         {loading ? (
@@ -284,8 +282,39 @@ const RequestPage = () => {
             </div>
             )}
 
-            
-<Modal
+            <Modal
+                isOpen={acceptModalIsOpen}
+                onRequestClose={closeAcceptModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Accept Request Modal" >
+                <h2 className={styles.modalTitle}>Accept request?</h2>
+                <div className={styles.modalContent}>
+                    <p>Are you sure you want to accept this request?</p>
+                    <div className={styles.modalButtons}>
+                        <button className={styles.accept} onClick={() => acceptRequests(requestToAccept._id, isAssign)}>Accept</button>
+                        <button className={styles.closeButton} onClick={closeAcceptModal}>Cancel</button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={denyModalIsOpen}
+                onRequestClose={closeDenyModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Deny Request Modal" >
+                <h2 className={styles.modalTitle}>Deny request?</h2>
+                <div className={styles.modalContent}>
+                    <p>Are you sure you want to deny this request?</p>
+                    <div className={styles.modalButtons}>
+                        <button className={styles.deny} onClick={() => denyRequests(requestToDeny._id, isUnassign)}>Deny</button> 
+                        <button className={styles.closeButton} onClick={closeDenyModal}>Cancel</button>
+                    </div>
+                </div>
+            </Modal>
+           
+            <Modal
                 isOpen={readModalIsOpen}
                 onRequestClose={closeReadModal}
                 className={styles.modal}
@@ -320,38 +349,6 @@ const RequestPage = () => {
                         </div>
                     </div>
                 )}
-            </Modal>
-
-            <Modal
-                isOpen={acceptModalIsOpen}
-                onRequestClose={closeAcceptModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Accept Request Modal" >
-                <h2 className={styles.modalTitle}>Accept request?</h2>
-                <div className={styles.modalContent}>
-                    <p>Are you sure you want to accept this request?</p>
-                    <div className={styles.modalButtons}>
-                        <button className={styles.accept} onClick={() => acceptRequests(requestToAccept._id, isAssign)}>Accept</button> {/* Use isAssign flag */}
-                        <button className={styles.closeButton} onClick={closeAcceptModal}>Cancel</button>
-                    </div>
-                </div>
-            </Modal>
-
-            <Modal
-                isOpen={denyModalIsOpen}
-                onRequestClose={closeDenyModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Deny Request Modal" >
-                <h2 className={styles.modalTitle}>Deny request?</h2>
-                <div className={styles.modalContent}>
-                    <p>Are you sure you want to deny this request?</p>
-                    <div className={styles.modalButtons}>
-                        <button className={styles.deny} onClick={() => denyRequests(requestToDeny._id, isUnassign)}>Deny</button> {/* Use isUnassign flag */}
-                        <button className={styles.closeButton} onClick={closeDenyModal}>Cancel</button>
-                    </div>
-                </div>
             </Modal>
         </div>
     );

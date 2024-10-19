@@ -5,23 +5,16 @@ import MenuLink from './menuLink/menuLink';
 import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { useRouter } from 'next/navigation';
 import toast from'react-hot-toast';
 import { useLogout } from '@/app/auth/logout/logout';
-
-
 import {
   MdDashboard,
-  MdSupervisedUserCircle,
   MdOutlineSettings,
   MdLogout,
   MdHistory,
   MdAssignmentReturn,
   MdStorage,
-  MdPlaylistAdd,
-  MdPersonAdd
 } from 'react-icons/md';
-
 
 const menuItems = [
     {
@@ -47,8 +40,6 @@ const menuItems = [
           path: "/user/history",
           icon: <MdHistory />,
         },
-        
-        
       ],
     },
     
@@ -63,17 +54,13 @@ const menuItems = [
        
       ],
     },
-
   ];
 
 const Sidebar = () => {
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
-    const [userData, setUserData] = useState();
     const [role, setRole] = useState(null);
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
-    const [id, setId] = useState('');
-    const router = useRouter();
     const { handleLogout } = useLogout(); 
 
 
@@ -81,7 +68,6 @@ const Sidebar = () => {
       const token = cookies.accessToken;
       if (token) {
           const decodedToken = jwtDecode(token);
-          const id = decodedToken.user._id;
           const userRole = decodedToken.user.role;
           const userFirstName = decodedToken.user.first_name;
           const userLastName = decodedToken.user.last_name;
@@ -95,7 +81,7 @@ const Sidebar = () => {
               setFirstName(userFirstName);
               setLastName(userLastName);
               if (userRole !== 'user') {
-                clearHistoryAndRedirect();
+                handleLogout();
                 toast.error('You are not authorized to access this page');
                 return;
               }
@@ -106,14 +92,7 @@ const Sidebar = () => {
           setLastName(null);
           setRole(null);
         }
-  }, [cookies.accessToken])
-
-
-
-const clearHistoryAndRedirect = () => {
-  router.replace('/auth/login');
-};
-
+  }, [cookies.accessToken, handleLogout])
 
 useEffect(() => {
   const token = cookies.accessToken;
@@ -125,10 +104,7 @@ useEffect(() => {
           handleLogout();
       }
   }
-}, [cookies.accessToken]);
-
-
-
+}, [cookies.accessToken, handleLogout]);
 
     return(
         <div className={styles.container}>
@@ -142,8 +118,6 @@ useEffect(() => {
               <span className={styles.userRole}>{role}</span>
             </div>
           </div>
-
-
             <ul className={styles.list}>
                 {menuItems.map(cat=>(
                     <li key={cat.title}>
@@ -157,9 +131,7 @@ useEffect(() => {
             <button className={styles.logout} onClick={handleLogout}>
               <MdLogout/>
               Logout</button>
-
         </div>
-         
     )
 }
 

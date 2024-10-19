@@ -39,7 +39,6 @@ const Dashboard = () => {
         }
     }, [cookies.accessToken]);
     
-    
     useEffect(() => {
         Modal.setAppElement('body'); 
         fetchRequests(); 
@@ -72,14 +71,6 @@ const Dashboard = () => {
         }
     };
 
-    const openReadModal = (request) => {
-        setRequestToRead(request);
-        setReadModalIsOpen(true);
-    };
-    const closeReadModal = () => {
-        setRequestToRead(null);
-        setReadModalIsOpen(false);
-    };
     const openReturnModal = (request) => {
         setRequestToReturn(request);
         setReturnQuantity(1);
@@ -91,6 +82,15 @@ const Dashboard = () => {
         setReturnModalIsOpen(false);
     };
 
+    const openReadModal = (request) => {
+        setRequestToRead(request);
+        setReadModalIsOpen(true);
+    };
+    const closeReadModal = () => {
+        setRequestToRead(null);
+        setReadModalIsOpen(false);
+    };
+   
     return (
         <div className={styles.container}>
              {loading ? (
@@ -151,29 +151,6 @@ const Dashboard = () => {
                     </table>
                 </div>
             )}
-            <Modal
-                isOpen={readModalIsOpen}
-                onRequestClose={closeReadModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Read Request Modal"
-            >
-                <h2 className={styles.modalTitle}>Request details</h2>
-                {console.log('requestToRead:', requestToRead)}
-                {requestToRead && (
-                    <div className={styles.modalContent}>
-                        <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Model:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.full_name : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
-                        <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
-                        <p><span className={styles.label}>Request Sent:</span> <span className={styles.value}>{formatDate(requestToRead.createdAt)}</span></p>
-                        <p><span className={styles.label}>Request Accepted:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
-                    </div>
-                )}
-                <div className={styles.modalButtons}>
-                    <button onClick={closeReadModal}>Close</button>
-                </div>
-            </Modal>
 
             <Modal
                 isOpen={returnModalIsOpen}
@@ -210,6 +187,30 @@ const Dashboard = () => {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            <Modal
+                isOpen={readModalIsOpen}
+                onRequestClose={closeReadModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Read Request Modal"
+            >
+                <h2 className={styles.modalTitle}>Request details</h2>
+                {console.log('requestToRead:', requestToRead)}
+                {requestToRead && (
+                    <div className={styles.modalContent}>
+                        <p><span className={styles.label}>Equipment:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.name : 'Unknown'}</span></p>
+                        <p><span className={styles.label}>Model:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.full_name : 'Unknown'}</span></p>
+                        <p><span className={styles.label}>Serial Number:</span> <span className={styles.value}>{requestToRead.equipment_info ? requestToRead.equipment_info.serial_number : 'Unknown'}</span></p>
+                        <p><span className={styles.label}>Quantity:</span> <span className={styles.value}>{requestToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Request Sent:</span> <span className={styles.value}>{formatDate(requestToRead.createdAt)}</span></p>
+                        <p><span className={styles.label}>Request Accepted:</span> <span className={styles.value}>{formatDate(requestToRead.assign_date)}</span></p>
+                    </div>
+                )}
+                <div className={styles.modalButtons}>
+                    <button onClick={closeReadModal}>Close</button>
+                </div>
             </Modal>
         </div>
     );

@@ -10,7 +10,6 @@ const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
     const router = useRouter();
 
-
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
     };
@@ -55,7 +54,8 @@ const ForgotPasswordPage = () => {
                                 placeholder="Enter your email" 
                                 value={email} 
                                 onChange={handleEmailChange} 
-                                autoComplete="off"                         />
+                                autoComplete="off"                         
+                            />
                         </label>
                         <div className={styles.button}>
                             <button type="submit">Submit</button>

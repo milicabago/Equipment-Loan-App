@@ -45,10 +45,6 @@ const EquipmentPage = () => {
         };
         fetchEquipment();
     }, [cookies.accessToken]);
-
-    const handleSliderChange = (value) => {
-        setFilterValues({ ...filterValues, quantity: value });
-    };
     
     useEffect(() => {
         const filteredByFilterValues = equipment.filter(item =>
@@ -77,6 +73,10 @@ const EquipmentPage = () => {
         }
     };
 
+    const handleSliderChange = (value) => {
+        setFilterValues({ ...filterValues, quantity: value });
+    };
+
     const resetFilters = () => {
         setFilterValues({ name: [], quantity: [1, 100] });
     };
@@ -88,25 +88,14 @@ const EquipmentPage = () => {
     const openFilterModal = () => setFilterModalIsOpen(true);
     const closeFilterModal = () => setFilterModalIsOpen(false);
 
-    const deleteEquipment = async (itemId) => {
-        const token = cookies.accessToken;
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
-        try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config);
-            const equipmentData = response.data;
-            await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config);
-            setEquipment(equipment.filter(item => item._id !== itemId));
-            setDeleteModalIsOpen(false);
-            toast.success("Equipment deleted successfully!");
-        } catch (error) {
-            toast.error(error.response.data.message, { duration: 3000 });
-        }
-    };
-    
+    useEffect(() => {
+        const filtered = equipment.filter(item =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredEquipment(filtered);
+    }, [searchTerm, equipment]);
+
     const handleEdit = (field, value) => {
         setEditedEquipmentData({ ...editedEquipmentData, [field]: value });
     };
@@ -143,6 +132,35 @@ const EquipmentPage = () => {
         }
     };
 
+    const deleteEquipment = async (itemId) => {
+        const token = cookies.accessToken;
+        const config = {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        };
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config);
+            const equipmentData = response.data;
+            await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/equipment/${itemId}`, config);
+            setEquipment(equipment.filter(item => item._id !== itemId));
+            setDeleteModalIsOpen(false);
+            toast.success("Equipment deleted successfully!");
+        } catch (error) {
+            toast.error(error.response.data.message, { duration: 3000 });
+        }
+    };
+
+    const openEditModal = (item) => {
+        setEquipmentToEdit(item);
+        setEditedEquipmentData(item);
+        setEditModalIsOpen(true);
+    };
+    const closeEditModal = () => {
+        setEquipmentToEdit(null);
+        setEditModalIsOpen(false);
+    };
+    
     const openDeleteModal = async (itemId) => {
         try {
             const token = cookies.accessToken;
@@ -163,16 +181,6 @@ const EquipmentPage = () => {
         setEquipmentToDelete(null);
     };
 
-    const openEditModal = (item) => {
-        setEquipmentToEdit(item);
-        setEditedEquipmentData(item);
-        setEditModalIsOpen(true);
-    };
-    const closeEditModal = () => {
-        setEquipmentToEdit(null);
-        setEditModalIsOpen(false);
-    };
-
     const openReadModal = (equipment) => {
         setEquipmentToRead(equipment);
         setReadModalIsOpen(true);
@@ -181,14 +189,6 @@ const EquipmentPage = () => {
         setEquipmentToRead(null);
         setReadModalIsOpen(false);
     };
-
-    useEffect(() => {
-        const filtered = equipment.filter(item =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.full_name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredEquipment(filtered);
-    }, [searchTerm, equipment]);
 
     return (
         <div className={styles.container}>
@@ -315,51 +315,6 @@ const EquipmentPage = () => {
             </Modal>
 
             <Modal
-                isOpen={deleteModalIsOpen}
-                onRequestClose={closeDeleteModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Delete Equipment Confirmation Modal"
-            >
-                <h2 className={styles.modalTitle}>Delete equipment</h2>
-                {equipmentToDelete && (
-                    <div className={styles.modalContent}>
-                        <p className={styles.modalMessage}>
-                            Are you sure you want to delete? <strong>{equipmentToDelete.first_name} {equipmentToDelete.last_name}</strong>
-                        </p>
-                    </div>
-                )}
-                <div className={styles.modalButtons}>
-                    {equipmentToDelete && (
-                        <button onClick={() => deleteEquipment(equipmentToDelete._id)}>Confirm</button>
-                    )}
-                    <button onClick={closeDeleteModal}>Dismiss</button>
-                </div>
-            </Modal>
-
-            <Modal
-                isOpen={readModalIsOpen}
-                onRequestClose={closeReadModal}
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-                contentLabel="Read Equipment Modal"
-            >
-                <h2 className={styles.modalTitle}>Equipment details</h2>
-                {equipmentToRead && (
-                    <div className={styles.modalContent}>
-                        <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
-                        <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
-                        <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
-                        <p><span className={styles.label}>Available Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
-                        <p><span className={styles.label}>Assigned quantity: </span><span className={styles.value}>{equipmentToRead.assigned_quantity}</span></p>
-                        <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>)}</span></p>
-                    </div>
-                )}
-                <div className={styles.modalButtons}>
-                    <button onClick={closeReadModal}>Close</button>
-                </div>
-            </Modal>
-            <Modal
                 isOpen={editModalIsOpen}
                 onRequestClose={closeEditModal}
                 className={styles.modal}
@@ -441,6 +396,52 @@ const EquipmentPage = () => {
                 <div className={styles.modalButtons}>
                     <button onClick={handleSave} disabled={JSON.stringify(editedEquipmentData) === JSON.stringify(equipmentToEdit)}>Save</button>
                     <button onClick={closeEditModal}>Dismiss</button>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={deleteModalIsOpen}
+                onRequestClose={closeDeleteModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Delete Equipment Confirmation Modal"
+            >
+                <h2 className={styles.modalTitle}>Delete equipment</h2>
+                {equipmentToDelete && (
+                    <div className={styles.modalContent}>
+                        <p className={styles.modalMessage}>
+                            Are you sure you want to delete? <strong>{equipmentToDelete.first_name} {equipmentToDelete.last_name}</strong>
+                        </p>
+                    </div>
+                )}
+                <div className={styles.modalButtons}>
+                    {equipmentToDelete && (
+                        <button onClick={() => deleteEquipment(equipmentToDelete._id)}>Confirm</button>
+                    )}
+                    <button onClick={closeDeleteModal}>Dismiss</button>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={readModalIsOpen}
+                onRequestClose={closeReadModal}
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+                contentLabel="Read Equipment Modal"
+            >
+                <h2 className={styles.modalTitle}>Equipment details</h2>
+                {equipmentToRead && (
+                    <div className={styles.modalContent}>
+                        <p><span className={styles.label}>Name: </span><span className={styles.value}>{equipmentToRead.name}</span></p>
+                        <p><span className={styles.label}>Model: </span><span className={styles.value}>{equipmentToRead.full_name}</span></p>
+                        <p><span className={styles.label}>Serial number: </span><span className={styles.value}>{equipmentToRead.serial_number}</span></p>
+                        <p><span className={styles.label}>Available Quantity: </span><span className={styles.value}>{equipmentToRead.quantity}</span></p>
+                        <p><span className={styles.label}>Assigned quantity: </span><span className={styles.value}>{equipmentToRead.assigned_quantity}</span></p>
+                        <p><span className={styles.label}>Description: </span><span className={styles.value}>{equipmentToRead.description ? (equipmentToRead.description) : (<span className={styles.italic}>none</span>)}</span></p>
+                    </div>
+                )}
+                <div className={styles.modalButtons}>
+                    <button onClick={closeReadModal}>Close</button>
                 </div>
             </Modal>
         </div>

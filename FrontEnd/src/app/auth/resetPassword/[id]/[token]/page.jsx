@@ -25,10 +25,10 @@ const ResetPasswordPage = () => {
 
     const schema = yup.object().shape({
         password: yup.string().min(8).required("Password is required"),
-    confirmPassword: yup.string()
-        .oneOf([yup.ref("password"), null], "Passwords must match") 
-        .required("Confirm password is required"),
-});
+        confirmPassword: yup.string()
+            .oneOf([yup.ref("password"), null], "Passwords must match") 
+            .required("Confirm password is required"),
+    });
     
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
@@ -66,7 +66,6 @@ const ResetPasswordPage = () => {
         }
     };
 
-
     return (
         <div className={styles.container}>
             <link rel="icon" href="/favicon.ico" /> 
@@ -75,11 +74,11 @@ const ResetPasswordPage = () => {
                 <form onSubmit={handleSubmit(onSubmit)} action="" className={styles.form}>
                     <div className={styles.start}>
                         <span className={styles.title}>Reset Password</span>
-                        <span className={styles.desc}>Now you can reset your password by entering your new password.</span> 
+                        <span className={styles.description}>Now you can reset your password by entering your new password.</span> 
                     </div>
+
                     <label className={styles.password}>Password:
                     <p>{errors.password?.message}</p>
-
                         <div className={styles.passwordInputContainer}>
                             <input 
                                 type={showPassword ? "text" : "password"} 
@@ -91,8 +90,8 @@ const ResetPasswordPage = () => {
                                 {showPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
-                        
                     </label>
+
                     <label className={styles.password}>Confirm Password:
                     <p>{errors.confirmPassword?.message}</p>
                         <div className={styles.passwordInputContainer}>
@@ -106,9 +105,9 @@ const ResetPasswordPage = () => {
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
-                        
                     </label>
-                    <div className={styles.btn}>
+
+                    <div className={styles.button}>
                         <button type="submit">Reset Password</button>
                     </div>
                 </form> 

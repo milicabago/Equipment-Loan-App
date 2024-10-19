@@ -1,6 +1,6 @@
 "use client"
 import styles from '@/app/components/settings/page.module.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
@@ -33,11 +33,8 @@ const SettingsPage = () => {
         const date = new Date(dateTimeString);
         return `${date.toLocaleDateString('hr-HR')} ${date.toLocaleTimeString('hr-HR')}`;
     };
-    useEffect(() => {
-        fetchUserData();
-    }, [cookies.accessToken]);
 
-    const fetchUserData = () => {
+    const fetchUserData = useCallback(() => {
         const token = cookies.accessToken;
         axios.get(process.env.NEXT_PUBLIC_BASE_URL + "user/settings", {
             headers: {
@@ -55,7 +52,11 @@ const SettingsPage = () => {
             console.error("Error:", error);
             setLoading(false);
         });
-    };
+    }, [cookies.accessToken]);
+
+    useEffect(() => {
+        fetchUserData();
+    }, [cookies.accessToken, fetchUserData]);
 
     const handleEdit = (field, value) => {
         if (field === 'contact' && !/^\+?\d*$/.test(value)) {
@@ -164,7 +165,6 @@ const SettingsPage = () => {
         }
     };
     
-   
     return (
         <div className={styles.container}>
             {loading ? (

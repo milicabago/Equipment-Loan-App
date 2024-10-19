@@ -45,18 +45,6 @@ const HistoryPage = () => {
             });
     }, [cookies.accessToken]);
 
-    const openDeleteModal = (id = null, deleteAll = false) => {
-        setHistoryToDelete(id);
-        setIsDeleteAll(deleteAll);
-        setDeleteModalIsOpen(true);
-    };
-
-    const closeDeleteModal = () => {
-        setDeleteModalIsOpen(false);
-        setHistoryToDelete(null);
-        setIsDeleteAll(false);
-    };
-
     const deleteHistoryItem = async () => {
         try {
             const token = cookies.accessToken;
@@ -65,7 +53,6 @@ const HistoryPage = () => {
                     'Authorization': 'Bearer ' + token
                 }
             };
-
             if (isDeleteAll) {
                 await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}admin/history/deleteAllHistory`, config);
                 setHistory([]);
@@ -75,12 +62,22 @@ const HistoryPage = () => {
                 setHistory(history.filter(item => item._id !== historyToDelete));
                 toast.success('Item from history\nsuccessfully deleted!', { duration: 3000 });
             }
-
             closeDeleteModal();
         } catch (error) {
             console.error('Error deleting equipment history:', error);
             toast.error('An error occurred while deleting history!', { duration: 3000 });
         }
+    };
+
+    const openDeleteModal = (id = null, deleteAll = false) => {
+        setHistoryToDelete(id);
+        setIsDeleteAll(deleteAll);
+        setDeleteModalIsOpen(true);
+    };
+    const closeDeleteModal = () => {
+        setDeleteModalIsOpen(false);
+        setHistoryToDelete(null);
+        setIsDeleteAll(false);
     };
 
     return (
@@ -104,7 +101,6 @@ const HistoryPage = () => {
                             className={styles.inputs}
                         />
                         <MdSearch className={styles.searchIcon} />
-
                     </div>
                     <table className={styles.table}>
                         <thead>
