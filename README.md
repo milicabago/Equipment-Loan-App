@@ -1,14 +1,16 @@
 # Equipment Loan Application
 
-The **_Equipment Loan Application_** is a web application that provides a solution for efficient equipment borrowing, returning, and tracking in various companies. Through the implementation of modern technologies, it ensures reliable and fast access to data, enabling effective management of users, equipment, and related requests. With its tailored user interface, it offers an intuitive experience for all users, while simultaneously ensuring maximum security and data protection.
+The **_Equipment Loan Application_** is a web-based solution designed for efficient equipment borrowing, returning, and tracking within companies. Developed using modern technologies, it ensures fast and reliable data access, enabling seamless management of users, equipment, and requests. Its intuitive user interface provides an excellent user experience, while robust security measures guarantee data protection.
+
+This application was developed during an internship at *[globalsoft](https://www.globalsoft.ba/)* and serves as the author's project for their master's thesis.
 
 ---
 <br>
 
 ## Project Team
 
-- **FrontEnd Developer:** *univ.bacc.ing.comp. [__Milica Bago__](https://github.com/milicabago)*
-- **BackEnd Developer:** *univ.bacc.ing.comp. [__Dario Klarić__](https://github.com/dklaric00)*
+- **FrontEnd Developer:** *[__Milica Bago__](https://github.com/milicabago)*
+- **BackEnd Developer:** *[__Dario Klarić__](https://github.com/dklaric00)*
 
 ---
 <br>
@@ -17,43 +19,17 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
 
 1. [Installation](#installation)
 
-   1.1. [Getting Started](#getting-started)
-
-   1.2. [FrontEnd](#frontend)
-
-   1.3. [BackEnd](#backend)
-
 2. [FrontEnd Technologies](#frontend-technologies)
-
-   2.1. [Next.js](#nextjs)
-
-   2.2. [Dependencies and DevDependencies (FrontEnd)](#dependencies-and-devdependencies-frontend)
    
 3. [BackEnd Technologies](#backend-technologies)
-
-   3.1. [Node.js](#nodejs)
-
-   3.2. [Express.js](#expressjs)
-
-   3.3. [MongoDB](#mongodb)
-
-   3.4. [Dependencies and DevDependencies (BackEnd)](#dependencies-and-devdependencies-backend)
    
-4. [Use Case Diagram](#use-case-diagram)
+4. [Features](#features)
 
-   4.1. [Administrator](#administrator)
+   4.1. [Administrators](#administrators)
 
    4.2. [Users](#users)
    
-5. [Conclusion](#conclusion)
-   
 6. [App Preview](#app-preview)
-
-   6.1. [Login, Register and Reset Password](#login-register-and-reset-password)
-
-   6.2. [As an Administrator](#as-an-administrator)
-   
-   6.3. [As a User](#as-a-user)
 
 ---
 <br>
@@ -68,32 +44,28 @@ The **_Equipment Loan Application_** is a web application that provides a soluti
    git clone https://github.com/dklaric00/Equipment-Loan-App.git
    ```
    
-- Run the code in one of the editors → *[VS Code](https://code.visualstudio.com/), [Sublime Text](https://www.sublimetext.com/), [Atom](https://atom-editor.cc/)* or any other editor of your choice.
+- Open the project folder in an editor such as *[VS Code](https://code.visualstudio.com/)* or any other editor of your choice.
   
 <br>
 
 > ### FrontEnd
 
 - Navigate to the FrontEnd directory: ```cd FrontEnd```
-- Install dependencies: ```npm install```
-- Start the application: ```npm run dev```
-
 > [!IMPORTANT]
-> Before starting the application, it is necessary to create a ```.env.local``` file with the following content:
+> Before starting the application, it is necessary to create an ```.env.local``` file with the following content in the current __FrontEnd__ directory:
 ```
 NEXT_PUBLIC_BASE_URL = http://localhost:5001/api/ # PORT from BackEnd
 ```
+- Install dependencies: ```npm install```
+- Start the application: ```npm run dev```
 
 <br>
 
  > ### BackEnd
 
 - Navigate to the BackEnd directory: ```cd BackEnd```
-- Install dependencies: ```npm install```
-- Start the application: ```npm run dev```
-
 > [!IMPORTANT]
-> Before starting the application, it is necessary to create a ```.env``` file with the following content:
+> Before starting the application, it is necessary to create a ```.env``` file with the following content in the current __BackEnd__ directory:
 ```
 PORT=5001 # PORT for server (BackEnd)
 # Add your database CONNECTION_STRING 
@@ -103,8 +75,8 @@ ACCESS_TOKEN_SECRET=YourSecretAccessToken
 EMAIL_ADDRESS=YourEmail@gmail.com
 EMAIL_PASSWORD=YourPassword
 ```
-> [!NOTE]
-> Database create on [__MongoDB__](https://account.mongodb.com/account/login)
+- Install dependencies: ```npm install```
+- Start the application: ```npm run dev```
 
 ---
 <br>
@@ -125,27 +97,7 @@ React framework, preferred for FrontEnd development, that simplifies building fu
 
 <br>
 
-> ### Dependencies and DevDependencies (FrontEnd)
-
-| Dependencies        | Description ↴                                                                    | DevDependencies            | Description ↴                                               |
-| :---                | :---                                                                             | :---                       | :---                                                        | 
-| @hookform/resolvers | Provides resolvers for form validation in React                                  | @babel/preset-react        | Babel preset for transforming JSX syntax                    |
-| @nextui-org/react   | Contains a set of UI components for React applications                           | @babel/preset-env          | Babel preset for transforming modern JavaScript syntax      |
-| react-hook-form     | Enables form management in React applications                                    | eslint-config-next         | ESLint configurations tailored for Next.js projects         |
-| react-hot-toast     | A library for displaying notifications (toasts) in React applications            | @babel/core                | Core module for Babel JavaScript compiler                   |
-| react-cookie        | Facilitates working with cookies in React applications                           | eslint                     | Tool for identifying and reporting JavaScript code patterns |
-| react-modal         | Enables modal window display in React applications                               |                            |                                                             |
-| react-icons         | Contains icons that can be used in React applications                            |                            |                                                             |
-| jwt-decode          | Used for decoding JSON Web Tokens (JWT) to extract user information              |                            |                                                             |
-| react-dom           | Used for manipulating the DOM in React applications                              |                            |                                                             |
-| react               | A library for building user interfaces in React applications                     |                            |                                                             |
-| axios               | An HTTP client for making HTTP request                                           |                            |                                                             |
-| yup                 | A library for schema-based data validation in JavaScript                         |                            |                                                             |
-
----
-<br>
-
-## Backend Technologies
+## BackEnd Technologies
 
 The entire BackEnd code is written in __JavaScript__ programming lenguage.
 
@@ -173,109 +125,89 @@ NoSQL database. It is popular for its scalability and ease of use, allowing data
 
 <br>
 
-> ### Dependencies and DevDependencies (BackEnd)
+> [!NOTE]
+> Database create on [__MongoDB__](https://account.mongodb.com/account/login)
 
-| Dependencies           | Description ↴                                                         | DevDependencies | Description ↴                                                                        |
-| :---                   | :---                                                                  | :---            | :---                                                                                  |
-| express-async-handler  | Middleware for handling asynchronous exceptions in Express.js         | nodemon         | Utility for monitoring changes in source code and automatically restarting the server |
-| cookie-parser          | Middleware for parsing cookies in requests                            |                 |                                                                                       |
-| jsonwebtoken           | JSON Web Token (JWT) authentication implementation                    |                 |                                                                                       |
-| nodemailer             | Library for sending email messages                                    |                 |                                                                                       |
-| mongoose               | MongoDB library for Node.js, offering schema-based data modeling      |                 |                                                                                       |
-| express                | Fast, minimalist web framework for Node.js                            |                 |                                                                                       |
-| dotenv                 | Library for loading environment variables from a ```.env``` file      |                 |                                                                                       |
-| bcrypt                 | Secure password hashing library                                       |                 |                                                                                       |
-| cors                   | Middleware for enabling Cross-Origin Resource Sharing (CORS) requests |                 |                                                                                       |
-| joi                    | Data validation and schema description library                        |                 |                                                                                       |
-
----
 <br>
 
-## Use Case Diagram
+## Features
 <br>
 <p align="center">
-  <img src="https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/32408dcf-3978-4b49-ad41-0a8d0cdc90af" width="55%" height="55%">
+  <img src="https://github.com/user-attachments/assets/5314cdc8-e6b4-4ef8-8455-20517f4db183" width="55%" height="55%">
 </p>
+
 <br>
 
-> ### Administrator
+> ### Administrators
 
-*__Administrator__* has the authority to manage all available resources, users, and requests. He is granted all CRUD operations for resources and users, including assigning roles, job positions, as well as managing resource allocation through requests, rejecting requests, and deleting resources and users. The administrator is allowed to change only certain user data, while, of course, he can change his own personal data.
+- **User Management** – The administrator has the ability to create new users through the *__Create User__* component, assign roles and job positions, and edit specific user details such as username, role, and job position. The administrator can only modify their own personal information, while for other users, they can manage only the specified data.
+  
+- **Resource Management** – The administrator can add new resources using the *__Add Equipment__* component, view and edit existing resources within the *__Equipment__* component, and manage borrowing and returning requests through the *__Requests__* component. Additionally, the administrator can delete resources and users from the system.
+  
+- **History Overview** – The administrator has access to the return history of all users within the *__History__* component, providing detailed insights into all activities related to equipment returns.
+  
+- **Settings and Logout** – The administrator can access and modify their personal information within the *__Settings__* component and log out of the system via the *__Logout__* component.
 
 <br>
 
 > ### Users
-*__User__* can manage only the resources he uses, borrow and return resources, and view the borrowing history. Each user can change their personal data.
 
----
+- **Request Submission** – Users can submit requests for borrowing or returning resources via the *__Requests__* component. These requests are exclusively related to the resources associated with their user account.
+
+- **History Overview** – Users can review the history of their returns within the *__History__* component, which provides insight into all previous actions related to the resources they have used.
+
+- **Settings and Logout** – Users can access and update their personal information within the *__Settings__* component and log out of the system via the *__Logout__* component.
+
 <br>
 
-## Conclusion
-
-The *__Equipment Loan Application__* represents a robust solution for efficient equipment management within various organizations. By leveraging modern technologies, such as Node.js, Express.js, React, and MongoDB, it offers a seamless experience for users in borrowing, returning, and tracking equipment. The application's intuitive user interface enhances usability, while its emphasis on security ensures data protection and integrity.
-
-the application has been meticulously crafted to meet the diverse needs of users, administrators, and stakeholders alike. As we continue to refine and enhance its functionality, we remain committed to delivering a reliable and user-centric platform that streamlines equipment management processes and fosters productivity across organizations.
-
-We express our sincere gratitude to *[globalsoft](https://www.globalsoft.ba/)* company for providing us with the opportunity to develop such an impactful application during our research internship as part of our graduate studies. Their support and collaboration have been instrumental in facilitating the acquisition of knowledge and programming skills essential for our professional growth. 
-
-We look forward to furthering the development of this application and embracing future challenges.
+For security reasons, users can only be registered by an administrator. A user can login to the system only after being registered by an admin.
 
 ---
 <br>
 
 ## App Preview
 
-> ### Login, Register and Reset Password
+> ### Login and Reset Password
 
-![Login](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/9677b43e-7a25-4dbb-a06e-40fdf6476e3d)
+![Login](https://github.com/user-attachments/assets/cd377139-28d2-4bdc-903b-9182655ce7f4)
 
+![Forgot_Password](https://github.com/user-attachments/assets/24f93c4b-045e-4038-96fc-0a273df41917)
 
-![Register](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e153fc00-9510-45a9-8692-19bf597da83d)
-
-
-![Forgot_Password](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/449fcec6-3991-49aa-bf33-a8e391312dae)
-
-
-![Reset_Password](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/f1d84019-12a0-4df9-adf7-d7f3d5402614)
+![Reset_Password](https://github.com/user-attachments/assets/143b1210-e5b4-431f-ae67-c7c28789c0ca)
 
 <br>
 
 > ### As an Administrator
 
-![Dashboard](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/1ee698b8-599d-40f0-a2cd-b872259f391d)
+![Dashboard](https://github.com/user-attachments/assets/06e4c383-26b7-4150-a1f0-c5e803d61386)
 
+![Requests](https://github.com/user-attachments/assets/76ac8d1f-458e-40ea-92bb-7b3d099d87ed)
 
-![Requests](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/5c10dac8-67cd-48d0-83e5-992e71c934fb)
+![Users](https://github.com/user-attachments/assets/ee231132-f65f-4a70-befe-969264704914)
 
+![Equipment](https://github.com/user-attachments/assets/87163cf6-78e0-4bdd-ae81-cc2580c46271)
 
-![Users](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e8d3ec19-9349-418b-ad25-ba352c106b2d)
+![Create_User](https://github.com/user-attachments/assets/53932da5-9a5a-4099-a7d2-1068fe95dcd0)
 
+![Add Equipment](https://github.com/user-attachments/assets/0eee2bff-d97e-4cea-bd51-67ae617df430)
 
-![Equipment](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/e6d6b9a3-ba9d-4b01-a204-a0b4b327536c)
+![History](https://github.com/user-attachments/assets/a5382b87-82c0-464f-ace4-518a94effaab)
 
-
-![Create_User](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/58d1b918-c983-4e58-8cbf-e29009377e94)
-
-
-![Add Equipment](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/39cde03b-ea29-4fc4-92a2-37a91ed3247d)
-
-
-![Settings](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/3d48d705-3b3c-4d9d-9b1e-9bac37409542)
+![Settings](https://github.com/user-attachments/assets/3b7432c3-6f2e-4728-bf96-436d719f3933)
 
 <br>
 
 > ### As a User
 
-![Dashboard](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/ba6d09d7-be85-45f9-84ef-828a1085e809)
+![Dashboard](https://github.com/user-attachments/assets/2d38d272-84d5-4266-97ef-2c029b9e5079)
 
+![Requests](https://github.com/user-attachments/assets/fdda5700-4b7a-4be9-ab79-f381e2c758f0)
 
-![Equipment](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/3b0589d3-9c49-487d-af7f-5d35d8a4743e)
+![Equipment](https://github.com/user-attachments/assets/3414e362-4dcd-45dd-9467-ef269746f2a1)
 
+![History](https://github.com/user-attachments/assets/aadaa378-1e47-430e-acfa-ed7fbfe6aeb3)
 
-![History](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/32f565af-969f-4822-add9-62e8679b3a44)
-
-
-![Settings](https://github.com/dklaric00/Equipment-Loan-App/assets/94640801/88a0224a-c188-4cf7-8c9d-cb2be4c66697)
+![Settings](https://github.com/user-attachments/assets/0b65939c-15de-4003-8ea2-df0fca997370)
 
 ---
 <br>
